@@ -12,6 +12,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.activity.OnBackPressedCallback
 import com.example.micerdito.data.preferencias.PreferenciasSesion
 import com.example.micerdito.ui.fragments.GastosCompartidosFragment
+import com.example.micerdito.ui.fragments.GastosFragment
 
 /**
  * @HomeActivity es la clase donde definimos el header y el footer del xml @activity_home para el usuario
@@ -60,7 +61,7 @@ class HomeActivity : AppCompatActivity() {
                 //R.id.nav_calendario
                 R.id.nav_anadir_gasto -> {
                     tvWelcome.visibility = android.view.View.GONE
-                    //cargarFragmento()
+                    cargarFragmento(GastosFragment())
                 }
                 R.id.nav_gastos_compartidos -> {
                     tvWelcome.visibility = android.view.View.GONE

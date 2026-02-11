@@ -3,11 +3,13 @@ package com.example.micerdito.data.conexion
 import com.example.micerdito.data.model.autenticacion.LoginResponse
 import com.example.micerdito.data.model.autenticacion.RegisterResponse
 import com.example.micerdito.data.model.home.AjustesResponse
+import com.example.micerdito.data.model.home.CategoriaResponse
 import com.example.micerdito.data.model.home.GastosResponse
 import com.example.micerdito.data.model.home.HomeResponse
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.POST
 
 /**
@@ -57,15 +59,7 @@ interface ApiService {
         @Field("nombre_usuario") username: String
     ): Response<AjustesResponse>
 
-    // Añade el gasto a la BBDD
-    @FormUrlEncoded
-    @POST("gastos/insertar_gastos.php")
-    suspend fun addGasto(
-        @Field("id_usuario") id: String,
-        @Field("id_categoria") idCat : String,
-        @Field("titulo") titulo: String,
-        @Field("importe") importe: Double,
-        @Field("fecha_gasto") fechaGasto: String,
-        @Field("descripcion") descripcion: String
-    ): Response<GastosResponse>
+    // Obtenemos las categorias guardadas en la BBDD
+    @GET("gastos/obtener_categorias.php")
+    suspend fun getCategorias(): Response<CategoriaResponse>
 }

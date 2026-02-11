@@ -29,6 +29,7 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         prefs = PreferenciasSesion(requireContext())
+        activity?.findViewById<View>(R.id.tvWelcome)?.visibility = View.GONE
 
         // INICIALIZAMOS LOS ELEMENTOS INTERACTIVOS
         val btnLogout = view.findViewById<TextView>(R.id.btnLogout)
