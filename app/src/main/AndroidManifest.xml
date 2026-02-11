@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Esto permite poder operar con la API permitiendo subir y enviar datos -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.MiCerdito"
+        android:usesCleartextTraffic="true">
+
+        <!-- LOGO -->
+
+        <activity
+            android:name=".ui.autenticacion.LogoActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.MiCerdito">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- WELCOME -->
+        <activity
+            android:name=".ui.autenticacion.WelcomeActivity"
+            android:exported="false" />
+
+        <!-- LOGIN -->
+        <activity
+            android:name=".ui.autenticacion.LoginActivity"
+            android:exported="false" />
+
+        <!-- REGISTER -->
+        <activity
+            android:name=".ui.autenticacion.RegisterActivity"
+            android:exported="false" />
+
+<!--        &lt;!&ndash; FORGOT PASSWORD &ndash;&gt;-->
+<!--        <activity-->
+<!--            android:name=".ui.autenticacion.ForgotPasswordActivity"-->
+<!--            android:exported="false" />-->
+
+        <!-- HOME -->
+        <activity
+            android:name=".ui.home.HomeActivity"
+            android:exported="false" />
+
+
+    </application>
+
+</manifest>

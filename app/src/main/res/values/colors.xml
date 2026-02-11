@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_light">#F5F5F7</color>
+    <color name="background_dark">#121212</color>
+    <color name="background_beige">#FFF5E6</color>
+    <color name="title_light">#1D1D1F</color>
+    <color name="title_dark">#E1E1E6</color>
+    <color name="input_background_light">#FFFFFF</color>
+    <color name="input_background_dark">#1E1E1E</color>
+    <color name="input_stroke_light">#D1D1D6</color>
+    <color name="input_stroke_dark">#38383A</color>
+    <color name="text_body_light">#48484A</color>
+    <color name="text_body_dark">#A1A1A6</color>
+    <color name="accent_blue">#007AFF</color>
+    <color name="error_red">#FF453A</color>
+    <color name="beige_claro">#F5F5DC</color>
+    <color name="rosa_cerdito">#FFC0CB</color>
+    <color name="verde_exito">#161D16</color>
+    <color name="texto_negro">#000000</color>
+    <color name="texto_blanco">#FFFFFF</color>
+
+    <color name="azul_accesible">#2196F3</color>
+    <color name="naranja_accesible">#FF9800</color>
+
+    <color name="gris_oscuro">#333333</color>
+    <color name="blanco">#FFFFFF</color>
+</resources>

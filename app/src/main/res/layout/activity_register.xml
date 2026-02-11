@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo_app"
+    android:fillViewport="true"
+    android:importantForAccessibility="yes">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="32dp">
+
+        <TextView
+            android:id="@+id/tvTitleRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="64dp"
+            android:accessibilityHeading="true"
+            android:contentDescription="Título de la pantalla: Registro de nuevo usuario"
+            android:text="REGISTRARSE"
+            android:textColor="@color/texto_negro"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toTopOf="@+id/mcvRegisterCard"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.497"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.256" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/mcvRegisterCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="70dp"
+            android:importantForAccessibility="noHideDescendants"
+            app:cardBackgroundColor="@color/background_dark"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="385dp"
+                android:background="@drawable/fondo_cardview"
+                android:gravity="center"
+                android:importantForAccessibility="yes"
+                android:orientation="vertical"
+                android:padding="24dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRegUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/background_beige"
+                    android:contentDescription="Escriba su nombre de usuario"
+                    android:gravity="left|center"
+                    android:hint="Usuario"
+                    android:paddingHorizontal="20dp"
+                    android:textColor="@color/texto_negro"
+                    android:textColorHint="@color/texto_negro" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRegEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/background_beige"
+                    android:contentDescription="Escriba su correo electrónico"
+                    android:gravity="left|center"
+                    android:hint="Correo"
+                    android:inputType="textEmailAddress"
+                    android:paddingHorizontal="20dp"
+                    android:textColor="@color/texto_negro"
+                    android:textColorHint="@color/texto_negro" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRegPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/background_beige"
+                    android:contentDescription="Escriba su nueva contraseña"
+                    android:gravity="left|center"
+                    android:hint="Contraseña"
+                    android:inputType="textPassword"
+                    android:paddingHorizontal="20dp"
+                    android:textColor="@color/texto_negro"
+                    android:textColorHint="@color/texto_negro" />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etRegRepeatPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_marginBottom="32dp"
+                    android:background="@color/background_beige"
+                    android:contentDescription="Repita la contraseña para confirmar"
+                    android:gravity="left|center"
+                    android:hint="Repetir contraseña"
+                    android:inputType="textPassword"
+                    android:paddingHorizontal="20dp"
+                    android:textColor="@color/texto_negro"
+                    android:textColorHint="@color/texto_negro" />
+
+                <Button
+                    android:id="@+id/btnRegistrarse"
+                    android:layout_width="200dp"
+                    android:layout_height="48dp"
+                    android:backgroundTint="@color/background_beige"
+                    android:contentDescription="Finalizar y crear cuenta nueva"
+                    android:text="REGISTRARSE"
+                    android:textColor="@color/texto_negro"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="24dp"
+                    app:strokeColor="#000000"
+                    app:strokeWidth="2dp" />
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:importantForAccessibility="yes">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Ingrese el nuevo nombre de usuario:"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:textColor="@color/texto_negro"
+        android:labelFor="@+id/etNuevoNombre" />
+
+    <EditText
+        android:id="@+id/etNuevoNombre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Escribe aquí..."
+        android:textColor="@color/texto_negro"
+        android:textColorHint="@color/texto_negro"
+        android:inputType="textPersonName"
+        android:layout_marginTop="10dp"
+        android:contentDescription="Campo para ingresar el nuevo nombre de usuario"
+        android:importantForAccessibility="yes" />
+</LinearLayout>

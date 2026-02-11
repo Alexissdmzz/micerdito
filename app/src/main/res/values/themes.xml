@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MiCerdito" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/rosa_cerdito</item>
+        <item name="android:windowBackground">@color/beige_claro</item>
+        <item name="colorSecondary">@color/verde_exito</item>
+    </style>
+
+    <style name="Theme.MiCerdito.Daltonico" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/azul_accesible</item>
+        <item name="android:windowBackground">@color/beige_claro</item>
+        <item name="colorSecondary">@color/naranja_accesible</item>
+    </style>
+
+    <style name="BottomNavText">
+        <item name="android:textSize">10sp</item>
+    </style>
+</resources>
