@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">MiCerdito</string>
+    <string-array name="preguntas_seguridad">
+        <item>-- Selecciona una pregunta de seguridad --</item>
+        <item>¿Cómo se llamaba tu primera mascota?</item>
+        <item>¿Cuál es el nombre de tu ciudad natal?</item>
+        <item>¿Cómo se apellidaba tu profesor favorito?</item>
+        <item>¿Cuál era la marca de tu primer coche?</item>
+        <item>¿En qué calle vivías a los 10 años?</item>
+    </string-array>
 </resources>

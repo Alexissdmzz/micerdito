@@ -20,38 +20,34 @@ import com.google.android.material.textfield.TextInputEditText
 
 class LoginActivity : AppCompatActivity() {
 
-    private val viewModel: AuthViewModel by viewModels() // Herramienta que nos deja conectar con la Lógica (ViewModel)
-    private lateinit var preferenciasSesion: PreferenciasSesion // Herramienta que guarda las credenciales del usuario
+    private val viewModel: AuthViewModel by viewModels()
+    private lateinit var preferenciasSesion: PreferenciasSesion
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         preferenciasSesion = PreferenciasSesion(this)
 
-        // COMPROBACIÓN DE SESIÓN
-        if (viewModel.verificarSesion(preferenciasSesion)) {
+        // COMPROBACIÓN DE SESIÓN (Ahora lo hace la Activity directamente)
+        if (preferenciasSesion.estaLogueado()) {
             irAHome(preferenciasSesion.getIdUsuario(), preferenciasSesion.getNombreUsuario())
             return
         }
 
-        // SI NO HAY SESIÓN ACTIVA MUESTRA LA PANTALLA PARA LAS CREDENCIALES
         setContentView(R.layout.activity_login)
 
-
-        // INICIALIZAMOS LOS ELEMENTOS INTERACTIVOS
         val etCorreo = findViewById<TextInputEditText>(R.id.etCorreo)
         val etPwd = findViewById<TextInputEditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
 
-        // CONFIGURAR OBSERVADORES
         setupObservers()
 
-        // EVENTO CLICK BOTÓN LOGIN
         btnLogin.setOnClickListener {
             val correo = etCorreo.text.toString().trim()
             val pwd = etPwd.text.toString().trim()
 
+            // Delegamos la validación al ViewModel o la hacemos aquí para feedback rápido
             if (correo.isEmpty() || pwd.isEmpty()) {
-                Toast.makeText(this, "Rellena todos los campos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
             } else {
                 viewModel.doLogin(correo, pwd)
             }
@@ -62,18 +58,14 @@ class LoginActivity : AppCompatActivity() {
         viewModel.loginResult.observe(this) { response ->
             if (response != null) {
                 if (response.success && response.user != null) {
-                    // GUARDAR SESIÓN
-                    viewModel.guardarUsuario(
-                        preferenciasSesion,
+
+                    // ACCIÓN DESDE LA VISTA: Guardamos los datos nosotros
+                    preferenciasSesion.guardarSesion(
                         response.user.id,
                         response.user.username
                     )
 
-                    Toast.makeText(
-                        this,
-                        "Bienvenido: ${response.user.username}",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    Toast.makeText(this, "Bienvenido: ${response.user.username}", Toast.LENGTH_SHORT).show()
                     irAHome(response.user.id, response.user.username)
                 } else {
                     Toast.makeText(this, response.message, Toast.LENGTH_SHORT).show()
@@ -82,11 +74,11 @@ class LoginActivity : AppCompatActivity() {
         }
 
         viewModel.errorMsg.observe(this) { error ->
-            Toast.makeText(this, "Error de conexión: $error", Toast.LENGTH_LONG).show()
+            // Si el error contiene "correo", podrías incluso marcar el EditText
+            Toast.makeText(this, error, Toast.LENGTH_LONG).show()
         }
     }
 
-    // SI NO HAY ERRORES, REDIRIGE A LA PANTALLA HOME
     private fun irAHome(id: String, nombre: String) {
         val intent = Intent(this, HomeActivity::class.java).apply {
             putExtra("id_usuario", id)

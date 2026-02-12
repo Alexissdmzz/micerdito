@@ -22,6 +22,7 @@
         android:layout_marginTop="4dp"
         android:text="Categoría"
         android:textColor="@color/texto_negro"
-        android:textSize="12sp" />
+        android:textAlignment="center"
+        android:textSize="9sp" />
 
 </LinearLayout>
