@@ -4,12 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.micerdito.R
 import com.example.micerdito.data.preferencias.PreferenciasSesion
 import com.example.micerdito.ui.home.HomeActivity
+import com.example.micerdito.view.auth.ForgotPasswordActivity
 import com.example.micerdito.viewmodel.auth.AuthViewModel
 import com.google.android.material.textfield.TextInputEditText
 
@@ -38,6 +40,7 @@ class LoginActivity : AppCompatActivity() {
         val etCorreo = findViewById<TextInputEditText>(R.id.etCorreo)
         val etPwd = findViewById<TextInputEditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
+        val tvForgotPwd = findViewById<TextView>(R.id.tvOlvido)
 
         setupObservers()
 
@@ -51,6 +54,10 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 viewModel.doLogin(correo, pwd)
             }
+        }
+
+        tvForgotPwd.setOnClickListener {
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
     }
 

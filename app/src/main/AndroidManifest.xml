@@ -43,16 +43,15 @@
             android:name=".ui.autenticacion.RegisterActivity"
             android:exported="false" />
 
-<!--        &lt;!&ndash; FORGOT PASSWORD &ndash;&gt;-->
-<!--        <activity-->
-<!--            android:name=".ui.autenticacion.ForgotPasswordActivity"-->
-<!--            android:exported="false" />-->
+        <!-- FORGOT PASSWORD -->
+        <activity
+            android:name=".view.auth.ForgotPasswordActivity"
+            android:exported="false" />
 
         <!-- HOME -->
         <activity
             android:name=".ui.home.HomeActivity"
             android:exported="false" />
-
 
     </application>
 

@@ -1,5 +1,6 @@
 package com.example.micerdito.data.conexion
 
+import com.example.micerdito.data.model.autenticacion.ForgotPasswordResponse
 import com.example.micerdito.data.model.autenticacion.LoginResponse
 import com.example.micerdito.data.model.autenticacion.RegisterResponse
 import com.example.micerdito.data.model.home.AjustesResponse
@@ -27,15 +28,33 @@ interface ApiService {
         @Field("pwd") password: String
     ): Response<LoginResponse>
 
-    //Registrar usuario
+    // Registrar usuario
     @FormUrlEncoded
     @POST("autenticacion/registro.php")
     suspend fun registerUser(
         @Field("nombre_usuario") username: String,
         @Field("correo") email: String,
         @Field("pwd") pwd: String,
-        @Field("repeat_pwd") repeatpwd: String
+        @Field("repeat_pwd") repeatpwd: String,
+        @Field("id_pregunta") id: Int,
+        @Field("respuesta_seguridad") res: String
     ): Response<RegisterResponse>
+
+    // Obtenemos la pregunta de seguridad del usuario
+    @FormUrlEncoded
+    @POST("autenticacion/obtener_pregunta.php")
+    suspend fun getPregunta(
+        @Field("correo") email: String
+    ): Response<ForgotPasswordResponse>
+
+    // Verificamos y cambiamos la pwd
+    @FormUrlEncoded
+    @POST("autenticacion/cambiar_pwd.php")
+    suspend fun cambiarPwd(
+        @Field("correo") email: String,
+        @Field("respuesta_seguridad") respuesta: String,
+        @Field("nueva_pwd") nuevaPwd: String
+    ): Response<ForgotPasswordResponse>
 
     // Obtiene los datos principales para la pantalla home
     @FormUrlEncoded

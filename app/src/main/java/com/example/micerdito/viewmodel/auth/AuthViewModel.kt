@@ -3,6 +3,7 @@ package com.example.micerdito.viewmodel.auth
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.micerdito.data.model.autenticacion.ForgotPasswordResponse
 import com.example.micerdito.data.model.autenticacion.LoginResponse
 import com.example.micerdito.data.model.autenticacion.RegisterResponse
 import com.example.micerdito.data.preferencias.PreferenciasSesion
@@ -18,6 +19,10 @@ class AuthViewModel : ViewModel() {
 
     val loginResult = MutableLiveData<LoginResponse?>()
     val registerResult = MutableLiveData<RegisterResponse?>()
+
+    val forgotPasswordResult = MutableLiveData<ForgotPasswordResponse?>()
+
+    val changePasswordResult = MutableLiveData<ForgotPasswordResponse?>()
     val errorMsg = MutableLiveData<String>()
     val isLoading = MutableLiveData<Boolean>()
 
@@ -46,7 +51,7 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun doRegister(username: String, email: String, pass: String, repeatPass: String) {
+    fun doRegister(username: String, email: String, pass: String, repeatPass: String, idPregunta: Int, respuesta: String) {
         if (!validarCorreo(email)) {
             errorMsg.value = "El correo no es válido"
             return
@@ -64,10 +69,52 @@ class AuthViewModel : ViewModel() {
 
         isLoading.value = true
         viewModelScope.launch {
-            val result = repository.register(username, email, pass, repeatPass)
+
+            val correoLimpio = email.lowercase().trim()
+
+            val result = repository.register(username, email, pass, repeatPass, idPregunta, respuesta)
+
             isLoading.value = false
             result.onSuccess { registerResult.value = it }
             result.onFailure { errorMsg.value = it.message }
+        }
+    }
+
+    fun fetchPregunta(email: String) {
+        if (!validarCorreo(email)) {
+            errorMsg.value = "El correo no es válido"
+            return
+        }
+
+        isLoading.value = true
+        viewModelScope.launch {
+            val result = repository.recuperarPregunta(email.lowercase().trim())
+            isLoading.value = false
+            result.onSuccess {
+                forgotPasswordResult.value = it
+            }
+            result.onFailure {
+                errorMsg.value = it.message
+            }
+        }
+    }
+
+    fun doChangePwd(email: String, respuesta: String, nuevaPwd: String) {
+        if (!validarContraseña(nuevaPwd)) {
+            errorMsg.value = "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial"
+            return
+        }
+
+        isLoading.value = true
+        viewModelScope.launch {
+            val result = repository.actualizarPwd(email.lowercase().trim(), respuesta, nuevaPwd)
+            isLoading.value = false
+            result.onSuccess {
+                changePasswordResult.value = it
+            }
+            result.onFailure {
+                errorMsg.value = it.message
+            }
         }
     }
 }
