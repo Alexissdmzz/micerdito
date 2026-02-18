@@ -24,11 +24,9 @@ import com.google.android.material.switchmaterial.SwitchMaterial
 class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
 
     private val viewModel: AjustesViewModel by viewModels() // Herramienta que nos deja conectar con la Lógica (ViewModel)
-    private lateinit var prefs: PreferenciasSesion // Herramienta que guarda las preferencias del usuario
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        prefs = PreferenciasSesion(requireContext())
         activity?.findViewById<View>(R.id.tvWelcome)?.visibility = View.GONE
 
         // INICIALIZAMOS LOS ELEMENTOS INTERACTIVOS
@@ -37,14 +35,12 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
         val btnBorrarCuenta = view.findViewById<TextView>(R.id.btnBorrarCuenta)
 
         setupObservers() // Observador
+        configurarModosVisuales(view)
 
         // EVENTOS CLICKS
         btnPerfil.setOnClickListener { mostrarConfirmacionEditarNombre() }
         btnBorrarCuenta.setOnClickListener { mostrarConfirmacionBorrado() }
         btnLogout.setOnClickListener { mostrarConfirmacionSalida() }
-
-        // EVENTO VISUAL
-        configurarModosVisuales(view)
     }
 
     private fun setupObservers() {
@@ -59,7 +55,6 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
                 when (viewModel.ultimaAccion) {
                     "EDITAR" -> {
                         val nuevoNombre = viewModel.nombreTemporal
-                        prefs.setNombreUsuario(nuevoNombre) // Guardamos en preferencias
                         (activity as? HomeActivity)?.actualizarNombreHeader(nuevoNombre)
                         Toast.makeText(requireContext(), "¡Nombre actualizado!", Toast.LENGTH_SHORT)
                             .show()
@@ -76,8 +71,8 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
                 }
             } else {
                 Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT).show()
-                viewModel.limpiarResultado()
             }
+            viewModel.limpiarResultado()
         }
     }
 
@@ -87,18 +82,18 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
         val switchDaltonismo = view.findViewById<SwitchMaterial>(R.id.switchDaltonismo)
 
         // Modo Oscuro
-        switchDarkMode.isChecked = prefs.esModoOscuro()
+        switchDarkMode.isChecked = viewModel.esModoOscuro()
         switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
-            prefs.setModoOscuro(isChecked)
+            viewModel.setModoOscuro(isChecked)
             val modo =
                 if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
             AppCompatDelegate.setDefaultNightMode(modo)
         }
 
         // Modo Daltonismo
-        switchDaltonismo.isChecked = prefs.esDaltonico()
+        switchDaltonismo.isChecked = viewModel.esDaltonico()
         switchDaltonismo.setOnCheckedChangeListener { _, isChecked ->
-            prefs.setModoDaltonico(isChecked)
+            viewModel.setDaltonico(isChecked)
             activity?.recreate() // Recargamos para aplicar el nuevo tema
         }
     }
@@ -113,7 +108,7 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
             .setView(dialogView)
             .setPositiveButton("Cambiar") { _, _ ->
                 val nombre = etNuevoNombre.text.toString().trim()
-                if (nombre.isNotEmpty()) viewModel.editarUsuario(prefs, nombre)
+                if (nombre.isNotEmpty()) viewModel.editarUsuario(nombre)
             }
             .setNegativeButton("Cancelar", null).show()
     }
@@ -123,7 +118,7 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
         AlertDialog.Builder(requireContext())
             .setTitle("¿Borrar cuenta?")
             .setMessage("Esta acción no se puede deshacer.")
-            .setPositiveButton("Borrar") { _, _ -> viewModel.borrarCuenta(prefs) }
+            .setPositiveButton("Borrar") { _, _ -> viewModel.borrarCuenta() }
             .setNegativeButton("Cancelar", null).show()
     }
 
@@ -137,7 +132,7 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
 
     // VOLVER AL WELCOME Y BORRADO DE PREFERENCIAS
     private fun irAlWelcome() {
-        prefs.limpiarSesion() // Borra todo: ID, Nombre, login...
+        viewModel.cerrarSesion() // Borra todo: ID, Nombre, login...
         val intent = Intent(requireContext(), WelcomeActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)

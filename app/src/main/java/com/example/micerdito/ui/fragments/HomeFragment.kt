@@ -32,9 +32,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         setupObservers(tvGasto, tvLimite, tvMes) // Observador
 
-        // CARGAMOS LOS DATOS DEL USUARIO GUARDADOS EN LAS PREFERENCIAS
-        val preferenciasSesion = PreferenciasSesion(requireContext())
-        viewModel.cargarDatosDeUsuario(preferenciasSesion)
+        viewModel.cargarDatosDeUsuario()
     }
 
     private fun setupObservers(tvGasto: TextView, tvLimite: TextView, tvMes: TextView) {

@@ -30,8 +30,8 @@ class LoginActivity : AppCompatActivity() {
         preferenciasSesion = PreferenciasSesion(this)
 
         // COMPROBACIÓN DE SESIÓN (Ahora lo hace la Activity directamente)
-        if (preferenciasSesion.estaLogueado()) {
-            irAHome(preferenciasSesion.getIdUsuario(), preferenciasSesion.getNombreUsuario())
+        if (viewModel.estaLogueado()) {
+            irAHome(viewModel.obtenerIdUsuario(), viewModel.obtenerNombreUsuario())
             return
         }
 
@@ -50,7 +50,8 @@ class LoginActivity : AppCompatActivity() {
 
             // Delegamos la validación al ViewModel o la hacemos aquí para feedback rápido
             if (correo.isEmpty() || pwd.isEmpty()) {
-                Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT)
+                    .show()
             } else {
                 viewModel.doLogin(correo, pwd)
             }
@@ -63,20 +64,14 @@ class LoginActivity : AppCompatActivity() {
 
     private fun setupObservers() {
         viewModel.loginResult.observe(this) { response ->
-            if (response != null) {
-                if (response.success && response.user != null) {
+            if (response?.success == true && response.user != null) {
 
-                    // ACCIÓN DESDE LA VISTA: Guardamos los datos nosotros
-                    preferenciasSesion.guardarSesion(
-                        response.user.id,
-                        response.user.username
-                    )
-
-                    Toast.makeText(this, "Bienvenido: ${response.user.username}", Toast.LENGTH_SHORT).show()
-                    irAHome(response.user.id, response.user.username)
-                } else {
-                    Toast.makeText(this, response.message, Toast.LENGTH_SHORT).show()
-                }
+                Toast.makeText(this, "Bienvenido: ${response.user.username}", Toast.LENGTH_SHORT)
+                    .show()
+                irAHome(response.user.id, response.user.username)
+            } else {
+                Toast.makeText(this, response?.message ?: "Error de login", Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 

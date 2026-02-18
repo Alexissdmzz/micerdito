@@ -10,24 +10,24 @@ import com.example.micerdito.ui.fragments.AjustesFragment
 import com.example.micerdito.ui.fragments.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import com.example.micerdito.data.preferencias.PreferenciasSesion
 import com.example.micerdito.ui.fragments.GastosCompartidosFragment
 import com.example.micerdito.ui.fragments.GastosFragment
+import com.example.micerdito.viewmodel.home.HomeViewModel
 
 /**
- * @HomeActivity es la clase donde definimos el header y el footer del xml @activity_home para el usuario
- * en la pantalla del Home.
+ * @HomeActivity gestiona el contenedor principal, la navegación inferior (Footer)
+ * y el estado global de la interfaz.
  */
 class HomeActivity : AppCompatActivity() {
 
-    private lateinit var preferenciasSesion: PreferenciasSesion // Declaramos las preferencias
+    private val viewModel: HomeViewModel by viewModels()
     private var Salir = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        preferenciasSesion = PreferenciasSesion(this) // Inicializamos las preferencias
-
         // SI ES DALTONICO CAMBIAMOS EL TEMA DE LA APP
-        if (preferenciasSesion.esDaltonico()) {
+        if (viewModel.esDaltonico()) {
             setTheme(R.style.Theme_MiCerdito_Daltonico)
         } else {
             setTheme(R.style.Theme_MiCerdito)
@@ -43,7 +43,7 @@ class HomeActivity : AppCompatActivity() {
 
         configurarBotonSalir()
 
-        tvWelcome.text = "Hola, ${preferenciasSesion.getNombreUsuario()}" // Mensaje del Header
+        tvWelcome.text = "Hola, ${viewModel.obtenerNombreUsuario()}" // Mensaje del Header
 
         // Cargar Home por defecto al abrir
         if (savedInstanceState == null) {
