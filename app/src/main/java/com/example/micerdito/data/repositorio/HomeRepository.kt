@@ -2,6 +2,8 @@ package com.example.micerdito.data.repositorio
 
 import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.home.HomeResponse
+import com.example.micerdito.data.model.home.LimiteResponse
+import com.example.micerdito.data.model.home.MovimientosResponse
 
 /**
  * @HomeRepository: actúa como mensajero de la sección de Home de la app. Pide y devuelve datos.
@@ -21,6 +23,33 @@ class HomeRepository {
                 Result.success(response.body()!!)
             } else {
                 Result.failure(Exception("Error en el servidor"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun obtenerMovimientosRecientes(idUsuario: String): Result<MovimientosResponse> {
+        return try {
+            val response = apiService.homeMoves(idUsuario)
+
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error en el servidor"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun guardarLimite(idUsuario: String, limite: Double): Result<LimiteResponse> {
+        return try {
+            val response = apiService.homeLimit(idUsuario, limite)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error al guardar el límite"))
             }
         } catch (e: Exception) {
             Result.failure(e)

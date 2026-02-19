@@ -4,9 +4,12 @@ import com.example.micerdito.data.model.autenticacion.ForgotPasswordResponse
 import com.example.micerdito.data.model.autenticacion.LoginResponse
 import com.example.micerdito.data.model.autenticacion.RegisterResponse
 import com.example.micerdito.data.model.home.AjustesResponse
+import com.example.micerdito.data.model.home.Categoria
 import com.example.micerdito.data.model.home.CategoriaResponse
 import com.example.micerdito.data.model.home.GastosResponse
 import com.example.micerdito.data.model.home.HomeResponse
+import com.example.micerdito.data.model.home.LimiteResponse
+import com.example.micerdito.data.model.home.MovimientosResponse
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
@@ -58,10 +61,23 @@ interface ApiService {
 
     // Obtiene los datos principales para la pantalla home
     @FormUrlEncoded
-    @POST("home/home.php")
+    @POST("home/obtener_datos.php")
     suspend fun homeUser(
         @Field("id_usuario") id: String
     ): Response<HomeResponse>
+
+    @FormUrlEncoded
+    @POST("home/obtener_movimientos.php")
+    suspend fun homeMoves(
+        @Field("id_usuario") id: String
+    ): Response<MovimientosResponse>
+
+    @FormUrlEncoded
+    @POST("home/guardar_limite.php")
+    suspend fun homeLimit(
+        @Field("id_usuario") id: String,
+        @Field("limite") limite: Double
+    ): Response<LimiteResponse>
 
     // Borra el usuario de la BBDD
     @FormUrlEncoded
@@ -81,4 +97,16 @@ interface ApiService {
     // Obtenemos las categorias guardadas en la BBDD
     @GET("gastos/obtener_categorias.php")
     suspend fun getCategorias(): Response<CategoriaResponse>
+
+    // Insertamos el gasto
+    @FormUrlEncoded
+    @POST("gastos/insertar_gastos.php")
+    suspend fun insertGasto(
+        @Field("id_usuario") idUsuario : String,
+        @Field("id_categoria") idCategoria : String,
+        @Field("titulo") titulo : String,
+        @Field("importe") importe : Double,
+        @Field("fecha_gasto") fechaGasto: String,
+        @Field("descripcion") descripcion: String?
+    ): Response<GastosResponse>
 }

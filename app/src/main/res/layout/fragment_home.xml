@@ -51,6 +51,17 @@
                     android:layout_height="wrap_content"
                     android:textColor="@color/texto_negro"
                     android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvEstablecerLimite"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:text="Establecer límite"
+                    android:layout_gravity="end"
+                    android:textColor="@color/link_azul"
+                    android:textSize="12sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 

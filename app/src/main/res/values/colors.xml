@@ -18,6 +18,7 @@
     <color name="verde_exito">#161D16</color>
     <color name="texto_negro">#000000</color>
     <color name="texto_blanco">#FFFFFF</color>
+    <color name="link_azul">#0000FF</color>
 
     <color name="azul_accesible">#2196F3</color>
     <color name="naranja_accesible">#FF9800</color>

@@ -66,6 +66,7 @@ class AjustesViewModel(application: Application) : AndroidViewModel(application)
 
             result.onSuccess {
                 ajustesResult.value = it
+                sesionRepository.actualizarNombre(nuevoNombre)
             }.onFailure {
                 errorMsg.value = it.message
             }
