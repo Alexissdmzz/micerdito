@@ -4,7 +4,7 @@ import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.home.AjustesResponse
 
 /**
- * REPOSITORY - AjustesRepository:
+ * REPOSITORIO - AjustesRepository:
  * Esta clase implementa el patrón de diseño Repository, actuando como una capa de abstracción
  * entre el ViewModel y el servicio de API (Retrofit). Su responsabilidad es gestionar las
  * peticiones de red relacionadas con la configuración del perfil del usuario.
@@ -29,7 +29,7 @@ class AjustesRepository {
                 // Encapsulamos la respuesta exitosa del servidor
                 Result.success(response.body()!!)
             } else {
-                // Encapsulamos la respuesta exitosa del servidor
+                // Manejo de errores de respuesta del servidor
                 Result.failure(Exception("Error en el servidor: ${response.code()}"))
             }
         } catch (e: Exception) {

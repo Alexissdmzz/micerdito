@@ -8,8 +8,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.micerdito.R
 
 /**
- * @WelcomeActivity es la clase donde definimos los elementos interactivos del xml @activity_welcome para el usuario
- * en la pantalla de elección de acción.
+ * ACTIVITY - WelcomeActivity:
+ * Esta clase sirve como el punto de decisión inicial para el usuario.
+ * Presenta una interfaz simplificada con las dos rutas principales de acceso
+ * al sistema: Autenticación (Login) o Creación de perfil (Registro).
  */
 
 class WelcomeActivity : AppCompatActivity() {
@@ -18,15 +20,26 @@ class WelcomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_welcome) // Mostramos la vista
 
-        // INICIALIZAMOS LOS ELEMENTOS INTERACTIVOS
+        /**
+         * INICIALIZACIÓN DE COMPONENTES:
+         * Se utilizan vistas genéricas (View) para capturar los eventos de clic
+         * de los botones personalizados en el XML.
+         */
         val btnLogin = findViewById<View>(R.id.btnLoginWelcome)
         val btnCreateAccount = findViewById<View>(R.id.btnRegisterWelcome)
 
-        // DEFINIMOS LAS ACCIONES AL CLICKAR EN LOS BOTONES
+        /**
+         * GESTIÓN DE NAVEGACIÓN - LOGIN:
+         * Redirige al usuario hacia la pantalla de inicio de sesión.
+         */
         btnLogin.setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
         }
 
+        /**
+         * GESTIÓN DE NAVEGACIÓN - REGISTRO:
+         * Redirige al usuario hacia el formulario de alta de nueva cuenta.
+         */
         btnCreateAccount.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }

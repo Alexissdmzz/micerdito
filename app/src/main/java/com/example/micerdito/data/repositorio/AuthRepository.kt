@@ -6,7 +6,7 @@ import com.example.micerdito.data.model.autenticacion.LoginResponse
 import com.example.micerdito.data.model.autenticacion.RegisterResponse
 
 /**
- * REPOSITORY - AuthRepository
+ * REPOSITORIO - AuthRepository
  * Clase centralizada para la gestión de autenticación. Implementa el patrón Repository para
  * separar la lógica de obtención de datos (Retrofit) de la lógica de presentación (ViewModels).
  */
@@ -31,7 +31,7 @@ class AuthRepository {
                 // Encapsulamos la respuesta exitosa del servidor
                 Result.success(response.body()!!)
             } else {
-                // Encapsulamos la respuesta exitosa del servidor
+                // Manejo de errores de respuesta del servidor
                 Result.failure(Exception("Error en el servidor: ${response.code()}"))
             }
         } catch (e: Exception) {
@@ -63,7 +63,7 @@ class AuthRepository {
                 // Encapsulamos la respuesta exitosa del servidor
                 Result.success(response.body()!!)
             } else {
-                // Encapsulamos la respuesta exitosa del servidor
+                // Manejo de errores de respuesta del servidor
                 Result.failure(Exception("Error en el servidor: ${response.code()}"))
             }
         } catch (e: Exception) {
@@ -86,7 +86,7 @@ class AuthRepository {
                 // Encapsulamos la respuesta exitosa del servidor
                 Result.success(response.body()!!)
             } else {
-                // Encapsulamos la respuesta exitosa del servidor
+                // Manejo de errores de respuesta del servidor
                 Result.failure(Exception("Error en el servidor: ${response.code()}"))
             }
         } catch (e: Exception) {
@@ -113,7 +113,7 @@ class AuthRepository {
                 // Encapsulamos la respuesta exitosa del servidor
                 Result.success(response.body()!!)
             } else {
-                // Encapsulamos la respuesta exitosa del servidor
+                // Manejo de errores de respuesta del servidor
                 Result.failure(Exception("Error en el servidor: ${response.code()}"))
             }
         } catch (e: Exception) {
