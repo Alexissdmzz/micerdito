@@ -1,7 +1,8 @@
 package com.example.micerdito.data.model.home
 
 /**
- * Data class que actua como un contenedor de datos, en esta clase recogemos la respuesta del servidor al interactuar con la interfaz de ajustes
+ * MODELO DE DATOS - AjustesResponse:
+ * Esta clase recoge los datos de la API para el fragmento de Ajustes.
  */
 data class AjustesResponse(
     val success: Boolean, //Indica si la operación fue exitosa (True) o no (False)

@@ -17,7 +17,8 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 
 /**
- * Interfaz que define las rutas de la API mediante Retrofit, es decir,
+ * INTERFAZ - ApiService:
+ * Define las rutas de la API mediante Retrofit, es decir,
  * gestiona la comunicación entre la APP y el servidor PHP
  */
 
@@ -66,12 +67,14 @@ interface ApiService {
         @Field("id_usuario") id: String
     ): Response<HomeResponse>
 
+    // Obtenemos los movimientos del usuario
     @FormUrlEncoded
     @POST("home/obtener_movimientos.php")
     suspend fun homeMoves(
         @Field("id_usuario") id: String
     ): Response<MovimientosResponse>
 
+    // Guardamos el límite de gasto mensual
     @FormUrlEncoded
     @POST("home/guardar_limite.php")
     suspend fun homeLimit(
@@ -102,10 +105,10 @@ interface ApiService {
     @FormUrlEncoded
     @POST("gastos/insertar_gastos.php")
     suspend fun insertGasto(
-        @Field("id_usuario") idUsuario : String,
-        @Field("id_categoria") idCategoria : String,
-        @Field("titulo") titulo : String,
-        @Field("importe") importe : Double,
+        @Field("id_usuario") idUsuario: String,
+        @Field("id_categoria") idCategoria: String,
+        @Field("titulo") titulo: String,
+        @Field("importe") importe: Double,
         @Field("fecha_gasto") fechaGasto: String,
         @Field("descripcion") descripcion: String?
     ): Response<GastosResponse>

@@ -7,7 +7,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 /**
- * Objeto Singleton que contiene la configuración de Retrofit.
+ * OBJETO SINGLENTON - RetrofitClient:
+ * Contiene la configuración de Retrofit.
  * Permite establecer la conexión con el servidor y convertir los datos
  */
 
