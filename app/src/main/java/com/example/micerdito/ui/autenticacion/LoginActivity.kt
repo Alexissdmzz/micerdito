@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -50,28 +51,8 @@ class LoginActivity : AppCompatActivity() {
         // Configuración de observadores para reaccionar a cambios en el ViewModel
         setupObservers()
 
-        /**
-         * Acción del botón de acceso.
-         * Realiza una validación previa en el cliente para ahorrar peticiones innecesarias al servidor.
-         */
-        btnLogin.setOnClickListener {
-            val correo = etCorreo.text.toString().trim()
-            val pwd = etPwd.text.toString().trim()
-
-            // Delegamos la validación al ViewModel o la hacemos aquí para feedback rápido
-            if (correo.isEmpty() || pwd.isEmpty()) {
-                Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT)
-                    .show()
-            } else {
-                // Inicia el proceso de autenticación asíncrona
-                viewModel.doLogin(correo, pwd)
-            }
-        }
-
-        // Navegación hacia el flujo de recuperación de contraseña
-        tvForgotPwd.setOnClickListener {
-            startActivity(Intent(this, ForgotPasswordActivity::class.java))
-        }
+        // Configuración de interraciones
+        setupListeners(btnLogin, etCorreo, etPwd, tvForgotPwd)
     }
 
     /**
@@ -97,6 +78,39 @@ class LoginActivity : AppCompatActivity() {
         viewModel.errorMsg.observe(this) { error ->
             // Si el error contiene "correo", podrías incluso marcar el EditText
             Toast.makeText(this, error, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    /**
+     * Configuración de interacciones del usuario.
+     */
+    private fun setupListeners(
+        btnLogin: Button,
+        etCorreo: EditText,
+        etPwd: EditText,
+        tvForgotPwd: TextView
+    ) {
+        /**
+         * Acción del botón de acceso.
+         * Realiza una validación previa en el cliente para ahorrar peticiones innecesarias al servidor.
+         */
+        btnLogin.setOnClickListener {
+            val correo = etCorreo.text.toString().trim()
+            val pwd = etPwd.text.toString().trim()
+
+            // Delegamos la validación al ViewModel o la hacemos aquí para feedback rápido
+            if (correo.isEmpty() || pwd.isEmpty()) {
+                Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT)
+                    .show()
+            } else {
+                // Inicia el proceso de autenticación asíncrona
+                viewModel.doLogin(correo, pwd)
+            }
+        }
+
+        // Navegación hacia el flujo de recuperación de contraseña
+        tvForgotPwd.setOnClickListener {
+            startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
     }
 

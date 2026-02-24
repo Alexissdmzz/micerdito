@@ -3,6 +3,7 @@ package com.example.micerdito.ui.autenticacion
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -51,39 +52,8 @@ class RegisterActivity : AppCompatActivity() {
         // Activación de observadores LiveData
         setupObservers()
 
-        /**
-         * Lógica de envío del formulario.
-         * Realiza validaciones críticas antes de invocar la API.
-         */
-        btnRegistrarse.setOnClickListener {
-            val username = etUsername.text.toString().trim()
-            val correo = etCorreo.text.toString().trim()
-            val pwd = etPwd.text.toString().trim()
-            val repeatPwd = etRepeatPwd.text.toString().trim()
-            val resp = etResp.text.toString().trim()
-            val idPregunta = spinner.selectedItemPosition
-
-            // 1. Verificación de campos vacíos
-            if (username.isEmpty() || correo.isEmpty() || pwd.isEmpty() || resp.isEmpty()) {
-                Toast.makeText(this, "Tienes que rellenar todos los campos", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // 2. Validación de coincidencia de contraseña
-            if (pwd != repeatPwd) {
-                Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // 3. Verificación de selección de pregunta
-            if (idPregunta == 0) {
-                Toast.makeText(this, "Selecciona una pregunta de seguridad", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Ejecución del registro a través del ViewModel
-            viewModel.doRegister(username, correo, pwd, repeatPwd, idPregunta, resp)
-        }
+        // Configuración de interraciones
+        setupListeners(btnRegistrarse, etUsername, etCorreo, etPwd, etResp, etRepeatPwd, spinner)
     }
 
     /**
@@ -114,6 +84,55 @@ class RegisterActivity : AppCompatActivity() {
          */
         viewModel.isLoading.observe(this) { loading ->
             findViewById<Button>(R.id.btnRegistrarse).isEnabled = !loading
+        }
+    }
+
+    /**
+     * Configuración de interacciones del usuario.
+     */
+    private fun setupListeners(
+        btnRegistrarse: Button,
+        etUsername: EditText,
+        etCorreo: EditText,
+        etPwd: EditText,
+        etResp: EditText,
+        etRepeatPwd: EditText,
+        spinner: Spinner
+    ) {
+        /**
+         * Lógica de envío del formulario.
+         * Realiza validaciones críticas antes de invocar la API.
+         */
+        btnRegistrarse.setOnClickListener {
+            val username = etUsername.text.toString().trim()
+            val correo = etCorreo.text.toString().trim()
+            val pwd = etPwd.text.toString().trim()
+            val repeatPwd = etRepeatPwd.text.toString().trim()
+            val resp = etResp.text.toString().trim()
+            val idPregunta = spinner.selectedItemPosition
+
+            // 1. Verificación de campos vacíos
+            if (username.isEmpty() || correo.isEmpty() || pwd.isEmpty() || resp.isEmpty()) {
+                Toast.makeText(this, "Tienes que rellenar todos los campos", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+
+            // 2. Validación de coincidencia de contraseña
+            if (pwd != repeatPwd) {
+                Toast.makeText(this, "Las contraseñas no coinciden", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // 3. Verificación de selección de pregunta
+            if (idPregunta == 0) {
+                Toast.makeText(this, "Selecciona una pregunta de seguridad", Toast.LENGTH_SHORT)
+                    .show()
+                return@setOnClickListener
+            }
+
+            // Ejecución del registro a través del ViewModel
+            viewModel.doRegister(username, correo, pwd, repeatPwd, idPregunta, resp)
         }
     }
 }

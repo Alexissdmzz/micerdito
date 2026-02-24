@@ -3,6 +3,7 @@ package com.example.micerdito.view.auth
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -41,39 +42,8 @@ class ForgotPasswordActivity : AppCompatActivity() {
         // Configuración de observadores para reaccionar a cambios en el ViewModel
         setupObservers(tvPregunta, layoutNuevaPass, btnVerificar)
 
-        /**
-         * Lógica del botón de acción principal.
-         * Su comportamiento varía dinámicamente según el estado de 'isStepTwo'.
-         */
-        btnVerificar.setOnClickListener {
-            val correo = etCorreo.text.toString().trim()
-
-            if (!isStepTwo) {
-                // FASE 1: Validación de identidad
-                if (correo.isEmpty()) {
-                    Toast.makeText(this, "Por favor, introduce tu correo", Toast.LENGTH_SHORT)
-                        .show()
-                } else {
-                    // Petición asíncrona para recuperar la pregunta de seguridad
-                    viewModel.fetchPregunta(correo)
-                }
-            } else {
-                // FASE 2: Verificación de respuesta y cambio de pwd
-                val respuesta = etRespuesta.text.toString().trim()
-                val nuevaClave = etNuevaPass.text.toString().trim()
-
-                if (respuesta.isEmpty() || nuevaClave.isEmpty()) {
-                    Toast.makeText(
-                        this,
-                        "Completa la respuesta y la nueva clave",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    // Petición asíncrona para actualizar la contraseña en BD
-                    viewModel.doChangePwd(correo, respuesta, nuevaClave)
-                }
-            }
-        }
+        // Configuración de interraciones
+        setupListeners(btnVerificar, etCorreo, etRespuesta, etNuevaPass)
     }
 
     /**
@@ -114,5 +84,50 @@ class ForgotPasswordActivity : AppCompatActivity() {
         viewModel.errorMsg.observe(this) { msg ->
             Toast.makeText(this, "Error de red: $msg", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    /**
+     * Configuración de interacciones del usuario.
+     */
+    private fun setupListeners(
+        btnVerificar: Button,
+        etCorreo: EditText,
+        etRespuesta: EditText,
+        etNuevaPass: EditText
+    ) {
+        /**
+         * Lógica del botón de acción principal.
+         * Su comportamiento varía dinámicamente según el estado de 'isStepTwo'.
+         */
+        btnVerificar.setOnClickListener {
+            val correo = etCorreo.text.toString().trim()
+
+            if (!isStepTwo) {
+                // FASE 1: Validación de identidad
+                if (correo.isEmpty()) {
+                    Toast.makeText(this, "Por favor, introduce tu correo", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    // Petición asíncrona para recuperar la pregunta de seguridad
+                    viewModel.fetchPregunta(correo)
+                }
+            } else {
+                // FASE 2: Verificación de respuesta y cambio de pwd
+                val respuesta = etRespuesta.text.toString().trim()
+                val nuevaClave = etNuevaPass.text.toString().trim()
+
+                if (respuesta.isEmpty() || nuevaClave.isEmpty()) {
+                    Toast.makeText(
+                        this,
+                        "Completa la respuesta y la nueva clave",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    // Petición asíncrona para actualizar la contraseña en BD
+                    viewModel.doChangePwd(correo, respuesta, nuevaClave)
+                }
+            }
+        }
+
     }
 }

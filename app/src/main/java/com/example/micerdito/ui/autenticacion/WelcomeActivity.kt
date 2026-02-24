@@ -4,6 +4,7 @@ package com.example.micerdito.ui.autenticacion
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.example.micerdito.R
 
@@ -28,6 +29,10 @@ class WelcomeActivity : AppCompatActivity() {
         val btnLogin = findViewById<View>(R.id.btnLoginWelcome)
         val btnCreateAccount = findViewById<View>(R.id.btnRegisterWelcome)
 
+        setupListeners(btnLogin, btnCreateAccount)
+    }
+
+    private fun setupListeners(btnLogin: View, btnCreateAccount: View) {
         /**
          * GESTIÓN DE NAVEGACIÓN - LOGIN:
          * Redirige al usuario hacia la pantalla de inicio de sesión.

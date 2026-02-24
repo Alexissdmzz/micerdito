@@ -40,13 +40,11 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
         // Configuración de observadores para reaccionar a cambios en el ViewModel
         setupObservers()
 
+        // Configuración de interraciones
+        setupListeners(btnLogout, btnPerfil, btnBorrarCuenta)
+
         // Carga de estados de interruptores (Switches)
         configurarModosVisuales(view)
-
-        // Asignación de eventos de clic con cuadros de diálogo de confirmación
-        btnPerfil.setOnClickListener { mostrarConfirmacionEditarNombre() }
-        btnBorrarCuenta.setOnClickListener { mostrarConfirmacionBorrado() }
-        btnLogout.setOnClickListener { mostrarConfirmacionSalida() }
     }
 
     /**
@@ -87,6 +85,16 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
             }
             viewModel.limpiarResultado()
         }
+    }
+
+    /**
+     * Configuración de interacciones del usuario.
+     */
+    private fun setupListeners(btnPerfil: TextView, btnBorrarCuenta: TextView, btnLogout: TextView) {
+        // Asignación de eventos de clic con cuadros de diálogo de confirmación
+        btnPerfil.setOnClickListener { mostrarConfirmacionEditarNombre() }
+        btnBorrarCuenta.setOnClickListener { mostrarConfirmacionBorrado() }
+        btnLogout.setOnClickListener { mostrarConfirmacionSalida() }
     }
 
     /**
