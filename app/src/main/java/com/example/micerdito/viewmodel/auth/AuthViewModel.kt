@@ -14,14 +14,18 @@ import com.example.micerdito.data.repositorio.SesionRepository
 import kotlinx.coroutines.launch
 
 /**
- * @AuthViewModel es la clase donde definimos toda la lógica de la pantalla de inicio de sesión o registro del usuario.
+ * VIEWMODEL - AuthViewModel:
+ * Centraliza la lógica de negocio para Login, Registro y Recuperación de cuenta.
+ * Actúa como intermediario entre la UI y los repositorios, gestionando hilos
+ * mediante Corrutinas para no bloquear la interfaz de usuario.
  */
-
 class AuthViewModel(application: Application) : AndroidViewModel(application) {
 
+    // Repositorios: Uno para red (Auth) y otro para persistencia local (Sesion)
     private val authRepository = AuthRepository()
     private val sesionRepository = SesionRepository(application)
 
+    // LiveData: Canales de comunicación reactiva con las Activities
     val loginResult = MutableLiveData<LoginResponse?>()
     val registerResult = MutableLiveData<RegisterResponse?>()
     val forgotPasswordResult = MutableLiveData<ForgotPasswordResponse?>()
@@ -29,19 +33,38 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
     val errorMsg = MutableLiveData<String>()
     val isLoading = MutableLiveData<Boolean>()
 
+    /**
+     * MÉTODOS DE CONSULTA DE SESIÓN:
+     * Permiten a las Activities conocer el estado del usuario sin acceder a las preferencias.
+     */
     fun estaLogueado(): Boolean = sesionRepository.estaLogueado()
     fun obtenerIdUsuario(): String = sesionRepository.getIdUsuario()
     fun obtenerNombreUsuario(): String = sesionRepository.getNombreUsuario()
 
+    /**
+     * VALIDACIÓN TÉCNICA (RegEx):
+     * Verifica que la contraseña sea segura: 8+ caracteres, Mayúscula, Minúscula,
+     * Número y Carácter Especial.
+     */
     private fun validarContraseña(pass: String): Boolean {
-        val patronContraseña = """^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!¿?])(?=\S+$).{8,}$"""
+        val patronContraseña =
+            """^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!¿?])(?=\S+$).{8,}$"""
         return pass.matches(patronContraseña.toRegex())
     }
 
+    /**
+     * VALIDACIÓN DE CORREO:
+     * Verifica que el correo sea seguro: @.
+     */
     private fun validarCorreo(email: String): Boolean {
         return email.isNotEmpty() && android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
+    /**
+     * OPERACIÓN: Inicio de Sesión
+     * Si el servidor confirma éxito, se persiste el ID y Nombre localmente
+     * antes de avisar a la interfaz.
+     */
     fun doLogin(correo: String, pwd: String) {
         if (!validarCorreo(correo)) {
             errorMsg.value = "Formato de correo inválido"
@@ -49,11 +72,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
 
         isLoading.value = true
+        // Lanzamiento de corrutina en el ámbito del ViewModel
         viewModelScope.launch {
             val result = authRepository.login(correo, pwd)
             isLoading.value = false
             result.onSuccess { response ->
                 if (response.success && response.user != null) {
+                    // PERSISTENCIA LOCAL AUTOMÁTICA
                     sesionRepository.guardarSesion(
                         response.user.id.toString(),
                         response.user.username
@@ -65,14 +90,26 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun doRegister(username: String, email: String, pwd: String, repeatPwd: String, idPregunta: Int, respuesta: String) {
+    /**
+     * OPERACIÓN: Registro de Usuario
+     * Incluye validación cruzada de contraseñas y limpieza de strings (trim/lowercase).
+     */
+    fun doRegister(
+        username: String,
+        email: String,
+        pwd: String,
+        repeatPwd: String,
+        idPregunta: Int,
+        respuesta: String
+    ) {
         if (!validarCorreo(email)) {
             errorMsg.value = "El correo no es válido"
             return
         }
 
         if (!validarContraseña(pwd)) {
-            errorMsg.value = "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial"
+            errorMsg.value =
+                "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial"
             return
         }
 
@@ -84,9 +121,8 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         isLoading.value = true
         viewModelScope.launch {
 
-            val correoLimpio = email.lowercase().trim()
-
-            val result = authRepository.register(username, email, pwd, repeatPwd, idPregunta, respuesta)
+            val result =
+                authRepository.register(username, email, pwd, repeatPwd, idPregunta, respuesta)
 
             isLoading.value = false
             result.onSuccess { registerResult.value = it }
@@ -94,6 +130,9 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * FLUJO DE RECUPERACIÓN: Fase 1 (Obtener pregunta)
+     */
     fun fetchPregunta(email: String) {
         if (!validarCorreo(email)) {
             errorMsg.value = "El correo no es válido"
@@ -113,9 +152,13 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * FLUJO DE RECUPERACIÓN: Fase 2 (Cambiar contraseña)
+     */
     fun doChangePwd(email: String, respuesta: String, nuevaPwd: String) {
         if (!validarContraseña(nuevaPwd)) {
-            errorMsg.value = "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial"
+            errorMsg.value =
+                "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial"
             return
         }
 

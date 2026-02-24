@@ -11,61 +11,74 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.micerdito.R
-import com.example.micerdito.data.preferencias.PreferenciasSesion
 import com.example.micerdito.ui.autenticacion.WelcomeActivity
 import com.example.micerdito.ui.home.HomeActivity
 import com.example.micerdito.viewmodel.home.AjustesViewModel
 import com.google.android.material.switchmaterial.SwitchMaterial
 
 /**
- * @AjustesFragment es la clase donde definimos los elementos interactivos del xml @fragment_ajustes para el usuario
- *  * en la pantalla de ajustes.
+ * FRAGMENTO - AjustesFragment:
+ * Gestiona la configuración del perfil del usuario, preferencias visuales de accesibilidad
+ * y la finalización de la sesión.
  */
 class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
 
-    private val viewModel: AjustesViewModel by viewModels() // Herramienta que nos deja conectar con la Lógica (ViewModel)
+    // Inicialización del ViewModel
+    private val viewModel: AjustesViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Ocultamos elementos de la Activity principal que no pertenecen a este contexto
         activity?.findViewById<View>(R.id.tvWelcome)?.visibility = View.GONE
 
-        // INICIALIZAMOS LOS ELEMENTOS INTERACTIVOS
+        // Inicialización de componentes de la vista
         val btnLogout = view.findViewById<TextView>(R.id.btnLogout)
         val btnPerfil = view.findViewById<TextView>(R.id.btnPerfil)
         val btnBorrarCuenta = view.findViewById<TextView>(R.id.btnBorrarCuenta)
 
-        setupObservers() // Observador
+        // Configuración de observadores para reaccionar a cambios en el ViewModel
+        setupObservers()
+
+        // Carga de estados de interruptores (Switches)
         configurarModosVisuales(view)
 
-        // EVENTOS CLICKS
+        // Asignación de eventos de clic con cuadros de diálogo de confirmación
         btnPerfil.setOnClickListener { mostrarConfirmacionEditarNombre() }
         btnBorrarCuenta.setOnClickListener { mostrarConfirmacionBorrado() }
         btnLogout.setOnClickListener { mostrarConfirmacionSalida() }
     }
 
+    /**
+     * CONFIGURACIÓN DE OBSERVADORES:
+     * Reacciona a los resultados de las peticiones de red (Editar/Borrar).
+     */
     private fun setupObservers() {
         viewModel.ajustesResult.observe(viewLifecycleOwner) { response ->
-
             if (response == null) {
                 return@observe
             }
 
-            //  DEPENDIENDO DE LA ULTIMA ACCIÓN DEL VIEWMODEL REALIZAMOS UNA ACCIÓN U OTRA
+            // El ViewModel guarda 'ultimaAccion' para saber qué proceso terminó
             if (response.success) {
                 when (viewModel.ultimaAccion) {
                     "EDITAR" -> {
                         val nuevoNombre = viewModel.nombreTemporal
+                        // Comunicación entre fragmentos: Actualizamos el nombre en el Navigation Drawer
                         (activity as? HomeActivity)?.actualizarNombreHeader(nuevoNombre)
                         Toast.makeText(requireContext(), "¡Nombre actualizado!", Toast.LENGTH_SHORT)
                             .show()
 
+                        // Limpiamos el resultado para evitar que el observador se dispare al volver al fragmento
                         viewModel.limpiarResultado()
                     }
 
                     "BORRAR" -> {
                         Toast.makeText(requireContext(), "Cuenta eliminada", Toast.LENGTH_SHORT)
                             .show()
-                        irAlWelcome()
+                        irAlWelcome() // Dirigimo al usuario a la Activity Welcome por defecto
+
+                        // Limpiamos el resultado para evitar que el observador se dispare al volver al fragmento
                         viewModel.limpiarResultado()
                     }
                 }
@@ -76,12 +89,15 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
         }
     }
 
-    // EVENTOS VISUALES (NOCHE Y DALTONISMO)
+    /**
+     * ACCESIBILIDAD Y PERSONALIZACIÓN:
+     * Gestiona el cambio dinámico de temas (Modo Oscuro) y modos de color (Daltonismo).
+     */
     private fun configurarModosVisuales(view: View) {
         val switchDarkMode = view.findViewById<SwitchMaterial>(R.id.switchDarkMode)
         val switchDaltonismo = view.findViewById<SwitchMaterial>(R.id.switchDaltonismo)
 
-        // Modo Oscuro
+        // Sincronización del estado con SharedPreferences a través del ViewModel
         switchDarkMode.isChecked = viewModel.esModoOscuro()
         switchDarkMode.setOnCheckedChangeListener { _, isChecked ->
             viewModel.setModoOscuro(isChecked)
@@ -94,11 +110,16 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
         switchDaltonismo.isChecked = viewModel.esDaltonico()
         switchDaltonismo.setOnCheckedChangeListener { _, isChecked ->
             viewModel.setDaltonico(isChecked)
-            activity?.recreate() // Recargamos para aplicar el nuevo tema
+
+            // Recreamos la Activity para forzar la aplicación de los nuevos recursos de color
+            activity?.recreate()
         }
     }
 
-    // CONFIRMACIÓN AL DARLE AL BOTÓN DE CAMBIAR EL NOMBRE DE USUARIO
+    /**
+     * DIÁLOGOS DE CONFIRMACIÓN:
+     * Implementación de AlertDialog para prevenir acciones accidentales críticas.
+     */
     private fun mostrarConfirmacionEditarNombre() {
         val dialogView = layoutInflater.inflate(R.layout.cambiar_nombre_usuario, null)
         val etNuevoNombre = dialogView.findViewById<EditText>(R.id.etNuevoNombre)
@@ -113,7 +134,6 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
             .setNegativeButton("Cancelar", null).show()
     }
 
-    // CONFIRMACIÓN AL DARLE AL BOTÓN DE ELIMINAR CUENTA
     private fun mostrarConfirmacionBorrado() {
         AlertDialog.Builder(requireContext())
             .setTitle("¿Borrar cuenta?")
@@ -122,7 +142,6 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
             .setNegativeButton("Cancelar", null).show()
     }
 
-    // CONFIRMACIÓN AL DARLE AL BOTÓN DE CERRRAR SESIÓN
     private fun mostrarConfirmacionSalida() {
         AlertDialog.Builder(requireContext())
             .setTitle("Cerrar Sesión")
@@ -130,10 +149,15 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
             .setNegativeButton("Cancelar", null).show()
     }
 
-    // VOLVER AL WELCOME Y BORRADO DE PREFERENCIAS
+    /**
+     * NAVEGACIÓN DE SALIDA:
+     * Limpia los datos de sesión y reinicia el stack de actividades hacia WelcomeActivity.
+     */
     private fun irAlWelcome() {
-        viewModel.cerrarSesion() // Borra todo: ID, Nombre, login...
+        viewModel.cerrarSesion()
         val intent = Intent(requireContext(), WelcomeActivity::class.java)
+
+        // Limpiamos el historial para que no pueda volver atrás con el botón físico
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
     }

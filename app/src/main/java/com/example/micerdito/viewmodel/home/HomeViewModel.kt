@@ -10,20 +10,38 @@ import com.example.micerdito.data.repositorio.HomeRepository
 import com.example.micerdito.data.repositorio.SesionRepository
 import kotlinx.coroutines.launch
 
+/**
+ * VIEWMODEL - HomeViewModel:
+ * Motor lógico del Dashboard principal. Gestiona la recuperación de métricas financieras,
+ * el historial de movimientos y la administración de preferencias de usuario como
+ * el límite de gasto y el tema visual.
+ */
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
+
+    // Repositorios para acceso a datos remotos (MySQL/PHP) y persistencia local (Prefs)
     private val repository = HomeRepository()
     private val sesionRepository = SesionRepository(application)
 
+    // LiveData para la actualización reactiva de la interfaz de usuario
     val homeResult = MutableLiveData<HomeResponse>()
-    // NUEVO: LiveData específico para la lista de movimientos
-    val movimientosResult = MutableLiveData<List<Gasto>>()
-
+    val movimientosResult = MutableLiveData<List<Gasto>>() // Lista de transacciones recientes
     val errorMsg = MutableLiveData<String>()
+
+    /**
+     * Lógica de Negocio: LiveData booleano que determina si el usuario ha excedido
+     * su presupuesto mensual, permitiendo cambios de color dinámicos en la View.
+     */
     val islimiteSuperado = MutableLiveData<Boolean>()
 
+    // Consultas rápidas a la sesión local
     fun obtenerNombreUsuario(): String = sesionRepository.getNombreUsuario()
     fun esDaltonico(): Boolean = sesionRepository.esDaltonico()
 
+    /**
+     * CARGA INTEGRAL DE DATOS:
+     * Ejecuta dos peticiones de red simultáneas mediante corrutinas para poblar
+     * el Dashboard de forma eficiente sin bloquear el hilo principal.
+     */
     fun cargarDatosDeUsuario() {
         val idUsuario = sesionRepository.getIdUsuario()
 
@@ -32,20 +50,21 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
+        // Lanzamiento de corrutina en el ámbito del ViewModel
         viewModelScope.launch {
-            // PETICIÓN 1: Totales, Mes y Límite
+            // PETICIÓN 1: Datos globales (Totales, Mes y Límite)
             val resultHome = repository.obtenerDatosHome(idUsuario)
             resultHome.onSuccess { data ->
                 homeResult.value = data
+                // Lógica de validación: Comparamos gasto real vs presupuesto establecido
                 islimiteSuperado.value = data.total_dinerogastado > data.limite_mes
             }.onFailure {
                 errorMsg.value = "Error totales: ${it.message}"
             }
 
-            // PETICIÓN 2: Últimos movimientos (Llamada al nuevo PHP/SP)
+            // PETICIÓN 2: Historial de movimientos
             val resultMovs = repository.obtenerMovimientosRecientes(idUsuario)
             resultMovs.onSuccess { response ->
-                // Suponiendo que tu MovimientosResponse tiene la lista en 'gastos_recientes'
                 movimientosResult.value = response.gastosRecientes
             }.onFailure {
                 errorMsg.value = "Error movimientos: ${it.message}"
@@ -53,13 +72,17 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    /**
+     * ACTUALIZACIÓN DE PRESUPUESTO:
+     * Persiste el nuevo límite en el servidor y fuerza una recarga de datos
+     * para asegurar que el Dashboard refleje el cambio inmediatamente.
+     */
     fun actualizarLimiteMensual(nuevoLimite: Double) {
         val id = sesionRepository.getIdUsuario()
         viewModelScope.launch {
             val result = repository.guardarLimite(id, nuevoLimite)
             result.onSuccess {
-                // Una vez guardado con éxito, refrescamos los datos para que el
-                // gráfico y los textos se actualicen con el nuevo límite
+                // Sincronización: Refrescamos la UI tras el éxito en el servidor
                 cargarDatosDeUsuario()
             }
             result.onFailure {

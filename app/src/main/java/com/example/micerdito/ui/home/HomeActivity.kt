@@ -17,16 +17,25 @@ import com.example.micerdito.ui.fragments.GastosFragment
 import com.example.micerdito.viewmodel.home.HomeViewModel
 
 /**
- * @HomeActivity gestiona el contenedor principal, la navegación inferior (Footer)
- * y el estado global de la interfaz.
+ * ACTIVITY - HomeActivity:
+ * Actúa como el host principal de la aplicación tras el login. Gestiona el contenedor
+ * de fragmentos, el menú de navegación inferior (Bottom Navigation) y la lógica
+ * de accesibilidad global (Temas).
  */
 class HomeActivity : AppCompatActivity() {
 
+    // Inicialización del ViewModel
     private val viewModel: HomeViewModel by viewModels()
+
+    // Control de estado para la lógica de doble pulsación al salir
     private var Salir = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // SI ES DALTONICO CAMBIAMOS EL TEMA DE LA APP
+        /**
+         * APLICACIÓN DE TEMAS DINÁMICOS:
+         * Se debe realizar ANTES de super.onCreate para que los recursos
+         * de color se carguen correctamente en toda la jerarquía de vistas.
+         */
         if (viewModel.esDaltonico()) {
             setTheme(R.style.Theme_MiCerdito_Daltonico)
         } else {
@@ -37,21 +46,28 @@ class HomeActivity : AppCompatActivity() {
         setContentView(R.layout.activity_home) // Mostramos la vista
 
 
-        // INICIALIZAMOS LOS ELEMENTOS INTERACTIVOS
+        // Inicialización de componentes de la vista
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
 
         configurarBotonSalir()
 
-        tvWelcome.text = "Hola, ${viewModel.obtenerNombreUsuario()}" // Mensaje del Header
+        // Inicialización del Header con el nombre persistido en SharedPreferences
+        tvWelcome.text = "Hola, ${viewModel.obtenerNombreUsuario()}"
 
-        // Cargar Home por defecto al abrir
+        /**
+         * CARGA INICIAL:
+         * Si no hay un estado guardado (primer arranque), cargamos el HomeFragment.
+         */
         if (savedInstanceState == null) {
             cargarFragmento(HomeFragment())
             bottomNav.selectedItemId = R.id.nav_home
         }
 
-        // Navegación por clics en el Footer
+        /**
+         * NAVEGACIÓN INFERIOR (Footer):
+         * Gestiona el intercambio de fragmentos y la visibilidad del Header global.
+         */
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> {
@@ -63,10 +79,12 @@ class HomeActivity : AppCompatActivity() {
                     tvWelcome.visibility = android.view.View.GONE
                     cargarFragmento(GastosFragment())
                 }
+
                 R.id.nav_gastos_compartidos -> {
                     tvWelcome.visibility = android.view.View.GONE
                     cargarFragmento(GastosCompartidosFragment())
                 }
+
                 R.id.nav_configuracion -> {
                     tvWelcome.visibility = android.view.View.GONE
                     cargarFragmento(AjustesFragment())
@@ -76,12 +94,16 @@ class HomeActivity : AppCompatActivity() {
         }
     }
 
-    //CONFIGURACIÓN DE ACCIÓN AL PULSAR 2 VECES EL BOTÓN DE SALIR PARA QUE NO VAYA A LOGIN DE NUEVO
+    /**
+     * GESTIÓN DEL BOTÓN ATRÁS:
+     * Implementa un callback para evitar cierres accidentales.
+     * Requiere que el usuario pulse dos veces en un intervalo de 2 segundos.
+     */
     private fun configurarBotonSalir() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (Salir) {
-                    finishAffinity() // Cierra la actividad y la app
+                    finishAffinity() // Cierra todas las actividades y sale de la App
                     return
                 }
 
@@ -98,18 +120,23 @@ class HomeActivity : AppCompatActivity() {
         })
     }
 
-    // CARGAMOS EL FRAGMENTO QUE CONTIENE TODAS LAS FUNCIONES INTERACTIVAS
+    /**
+     * TRANSACCIÓN DE FRAGMENTOS:
+     * Sustituye el contenido del FrameLayout 'fragment_container' por el nuevo Fragmento.
+     */
     private fun cargarFragmento(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragment_container, fragment)
             .commit()
     }
 
-    // SE EL USUARIO ACTUALIZA SU NOMBRE LO HAREMOS TAMBIÉN EN EL HEADER GLOBAL
+    /**
+     * MÉTODO PÚBLICO DE COMUNICACIÓN:
+     * Permite que fragmentos hijos (como AjustesFragment) actualicen el texto
+     * del Header de la actividad principal tras un cambio de perfil.
+     */
     fun actualizarNombreHeader(nuevoNombre: String) {
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         tvWelcome.text = "Hola, $nuevoNombre" // O el formato que uses
     }
-
-
 }
