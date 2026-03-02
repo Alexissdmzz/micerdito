@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-02-2026 a las 09:54:55
+-- Tiempo de generación: 02-03-2026 a las 11:15:30
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -162,6 +162,20 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_datos` (IN `p_id_usuario
 
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_gastos_grafico` (IN `p_id_usuario` VARCHAR(36))   BEGIN
+    SELECT 
+        c.nombre_categoria AS nombre,
+        SUM(g.importe) AS totalGasto,
+        c.color_categoria AS color
+    FROM gastos g
+    INNER JOIN categoria c ON g.id_categoria = c.id_categoria
+    WHERE g.id_usuario = p_id_usuario 
+      -- Filtramos por el mes y año actual
+      AND MONTH(g.fecha_gasto) = MONTH(CURRENT_DATE())
+      AND YEAR(g.fecha_gasto) = YEAR(CURRENT_DATE())
+    GROUP BY c.id_categoria, c.nombre_categoria, c.color_categoria;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_movimientos` (IN `p_id_usuario` VARCHAR(36))   BEGIN
     SELECT 
         g.id_gasto, 
@@ -269,6 +283,20 @@ CREATE TABLE `gastos` (
   `fecha_registro_gasto` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `gastos`
+--
+
+INSERT INTO `gastos` (`id_gasto`, `id_usuario`, `id_categoria`, `titulo`, `importe`, `fecha_gasto`, `descripcion`, `fecha_registro_gasto`) VALUES
+('121b0f87-161a-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd04ab2-0d77-11f1-aabd-88aedd238f3e', 'Alquiler pasado', 12.00, '2026-03-02 09:27:16', '', '2026-03-02 09:27:45'),
+('4b7715a7-1618-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd04ab2-0d77-11f1-aabd-88aedd238f3e', 'Alquiler', 700.00, '2026-03-02 09:14:33', '', '2026-03-02 09:15:02'),
+('5c61e471-10b3-11f1-8e4f-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05c55-0d77-11f1-aabd-88aedd238f3e', 'Corte de pelo', 15.00, '2026-02-23 12:29:48', 'Muy fachero', '2026-02-23 12:29:56'),
+('6601abdc-1619-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05ccd-0d77-11f1-aabd-88aedd238f3e', 'Casino', 10.00, '2026-03-02 09:22:27', '', '2026-03-02 09:22:56'),
+('828f75b6-1620-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05d50-0d77-11f1-aabd-88aedd238f3e', 'Chuche', 1.00, '2026-03-02 10:13:22', '', '2026-03-02 10:13:51'),
+('91c90675-1619-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05c55-0d77-11f1-aabd-88aedd238f3e', 'Pelo', 10.00, '2026-03-02 09:23:41', '', '2026-03-02 09:24:10'),
+('9dcc475e-1619-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05ce7-0d77-11f1-aabd-88aedd238f3e', 'Peaje', 23.00, '2026-03-02 09:24:01', '', '2026-03-02 09:24:30'),
+('d0a1f3cb-161f-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05ccd-0d77-11f1-aabd-88aedd238f3e', 'Tragaperras', 1.00, '2026-03-02 10:08:23', '', '2026-03-02 10:08:52');
+
 -- --------------------------------------------------------
 
 --
@@ -306,6 +334,14 @@ CREATE TABLE `presupuesto_mensual` (
   `fecha_creacion` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `presupuesto_mensual`
+--
+
+INSERT INTO `presupuesto_mensual` (`id_presupuesto`, `id_usuario`, `limite`, `mes`, `anio`, `fecha_creacion`) VALUES
+('42cf20d3-1618-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', 1200.00, 3, 2026, '2026-03-02 09:14:48'),
+('612852a7-10b3-11f1-8e4f-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', 1000.00, 2, 2026, '2026-02-23 12:30:04');
+
 -- --------------------------------------------------------
 
 --
@@ -323,6 +359,13 @@ CREATE TABLE `usuarios` (
   `intentos_fallidos` int(11) DEFAULT 0,
   `fecha_bloqueo` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`id_usuario`, `nombre_usuario`, `correo`, `pwd`, `id_pregunta_seguridad`, `respuesta_seguridad`, `fecha_registro_usuario`, `intentos_fallidos`, `fecha_bloqueo`) VALUES
+('3d53259e-10b3-11f1-8e4f-88aedd238f3e', 'Alexis', 'alexis@gmail.com', '$2y$10$mZdz6lcs3l4Q0S0.G2Od4O5Ab2sEuvi/.tLSnX.PZZpR0lUfzDqyC', 3, '$2y$10$Z/8Vb3IrvdmoohKCVFhu9uyFwVjO4xFA.HTfBTvcOK0cdIcdmqkH2', '2026-02-23 12:29:03', 0, NULL);
 
 --
 -- Índices para tablas volcadas
