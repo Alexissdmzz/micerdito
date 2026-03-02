@@ -10,11 +10,15 @@ import com.example.micerdito.data.model.home.GraficoResponse
 import com.example.micerdito.data.model.home.HomeResponse
 import com.example.micerdito.data.model.home.LimiteResponse
 import com.example.micerdito.data.model.home.MovimientosResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
+import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.Part
 import retrofit2.http.Query
 
 /**
@@ -109,14 +113,15 @@ interface ApiService {
     suspend fun getCategorias(): Response<CategoriaResponse>
 
     // POST - Insertamos el gasto
-    @FormUrlEncoded
+    @Multipart
     @POST("gastos/insertar_gastos.php")
     suspend fun insertGasto(
-        @Field("id_usuario") idUsuario: String,
-        @Field("id_categoria") idCategoria: String,
-        @Field("titulo") titulo: String,
-        @Field("importe") importe: Double,
-        @Field("fecha_gasto") fechaGasto: String,
-        @Field("descripcion") descripcion: String?
+        @Part("id_usuario") idUsuario: RequestBody,
+        @Part("id_categoria") idCategoria: RequestBody,
+        @Part("titulo") titulo: RequestBody,
+        @Part("importe") importe: RequestBody,
+        @Part("fecha_gasto") fechaGasto: RequestBody,
+        @Part("descripcion") descripcion: RequestBody?,
+        @Part foto : MultipartBody.Part?
     ): Response<GastoResponse>
 }

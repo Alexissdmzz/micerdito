@@ -3,6 +3,11 @@ package com.example.micerdito.data.repositorio
 import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.home.Categoria
 import com.example.micerdito.data.model.home.GastoResponse
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.io.File
 
 /**
  * REPOSITORIO - GastosRepository:
@@ -45,6 +50,7 @@ class GastosRepository {
      * @param importe Valor numérico del gasto.
      * @param fechaGasto Fecha de la transacción en formato yyyy-MM-dd.
      * @param descripcion Detalles adicionales opcionales.
+     * @param fotoRuta Foto del ticket del gasto.
      * @return Result<GastosResponse>: Objeto que confirma si la inserción fue exitosa en la BD.
      */
     suspend fun insertarGasto(
@@ -53,17 +59,37 @@ class GastosRepository {
         titulo: String,
         importe: Double,
         fechaGasto: String,
-        descripcion: String
+        descripcion: String,
+        fotoRuta: String?
     ): Result<GastoResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
+            // Convertimos los datos de texto a RequestBody para Multipart
+            val idUserBody = idUsuario.toRequestBody("text/plain".toMediaTypeOrNull())
+            val idCatBody = idCategoria.toRequestBody("text/plain".toMediaTypeOrNull())
+            val tituloBody = titulo.toRequestBody("text/plain".toMediaTypeOrNull())
+            val importeBody = importe.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+            val fechaBody = fechaGasto.toRequestBody("text/plain".toMediaTypeOrNull())
+            val descBody = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
+
+            // Preparamos el archivo de la foto si existe la ruta
+            var fotoPart: MultipartBody.Part? = null
+            fotoRuta?.let { path ->
+                val file = File(path)
+                if (file.exists()) {
+                    val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+                    fotoPart = MultipartBody.Part.createFormData("foto", file.name, requestFile)
+                }
+            }
+
+            // Ejecución de la llamada
             val response = apiService.insertGasto(
-                idUsuario,
-                idCategoria,
-                titulo,
-                importe,
-                fechaGasto,
-                descripcion
+                idUserBody,
+                idCatBody,
+                tituloBody,
+                importeBody,
+                fechaBody,
+                descBody,
+                fotoPart
             )
 
             val body = response.body()

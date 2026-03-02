@@ -114,6 +114,17 @@
                         android:text="📷 Foto de Factura"
                         android:textColor="@color/texto_negro" />
 
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/ivFotoTicket"
+                        android:layout_width="match_parent"
+                        android:layout_height="180dp"
+                        android:layout_marginTop="8dp"
+                        android:background="@color/background_beige"
+                        android:scaleType="centerCrop"
+                        android:visibility="gone"
+                        app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
+                        tools:visibility="visible" />
+
                     <Button
                         android:id="@+id/btnGuardarGasto"
                         android:layout_width="match_parent"

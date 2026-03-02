@@ -66,7 +66,7 @@ class GastosViewModel(application: Application) : AndroidViewModel(application) 
      * * Coordina los datos de sesión (ID Usuario), los datos de selección (ID Categoría)
      * y los datos de entrada del formulario para realizar la petición POST.
      */
-    fun registrarGasto(titulo: String, importe: Double, fecha: String, descripcion: String?) {
+    fun registrarGasto(titulo: String, importe: Double, fecha: String, descripcion: String?, fotoRuta: String?) {
         // Obtenemos el ID del usuario de la persistencia local (SharedPreferences)
         val idUser = sesionRepository.getIdUsuario()
         // Recuperamos el ID de la categoría seleccionada previamente en la UI
@@ -87,7 +87,8 @@ class GastosViewModel(application: Application) : AndroidViewModel(application) 
                 titulo = titulo,
                 importe = importe,
                 fechaGasto = fecha,
-                descripcion = descripcion ?: ""
+                descripcion = descripcion ?: "",
+                fotoRuta = fotoRuta
             )
 
             result.onSuccess { response ->

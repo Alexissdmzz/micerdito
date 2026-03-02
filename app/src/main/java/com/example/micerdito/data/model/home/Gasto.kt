@@ -12,5 +12,6 @@ data class Gasto(
     @SerializedName("importe") val importe: Double, // Recoge el importe del gasto añadido
     @SerializedName("fecha_gasto") val fecha: String, // Recoge la fecha de gasto del gasto añadido
     @SerializedName("icono_categoria") val icono: String, // Recoge el icono de la categoria de la categoria seleccionada
-    @SerializedName("color_categoria") val color: String // Recoge el color de la categoria de la categoria seleccionada
+    @SerializedName("color_categoria") val color: String, // Recoge el color de la categoria de la categoria seleccionada
+    @SerializedName("foto_ticket") val fotoTicket: String? // Recoge la foto del gasto añadido
 )
