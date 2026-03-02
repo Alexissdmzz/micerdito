@@ -2,7 +2,7 @@ package com.example.micerdito.data.repositorio
 
 import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.home.Categoria
-import com.example.micerdito.data.model.home.GastosResponse
+import com.example.micerdito.data.model.home.GastoResponse
 
 /**
  * REPOSITORIO - GastosRepository:
@@ -54,7 +54,7 @@ class GastosRepository {
         importe: Double,
         fechaGasto: String,
         descripcion: String
-    ): Result<GastosResponse> {
+    ): Result<GastoResponse> {
         return try {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.insertGasto(

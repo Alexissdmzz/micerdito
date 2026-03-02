@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.micerdito.data.model.home.Categoria
-import com.example.micerdito.data.model.home.GastosResponse
 import com.example.micerdito.data.repositorio.GastosRepository
 import com.example.micerdito.data.repositorio.SesionRepository
 import kotlinx.coroutines.launch

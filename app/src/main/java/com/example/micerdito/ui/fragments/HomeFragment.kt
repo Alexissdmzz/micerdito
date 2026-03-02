@@ -9,9 +9,18 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.example.micerdito.R
+import com.example.micerdito.data.model.home.GastoPorCategoria
 import com.example.micerdito.ui.adapters.MovimientosAdapter
 import com.example.micerdito.viewmodel.home.HomeViewModel
+import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 
 /**
  * FRAGMENTO - HomeFragment:
@@ -37,7 +46,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val rvGastos = view.findViewById<RecyclerView>(R.id.rvGastos)
 
         // Configuración de observadores para reaccionar a cambios en el ViewModel
-        setupObservers(tvGasto, tvLimite, tvMes, rvGastos)
+        setupObservers(tvGasto, tvLimite, tvMes, rvGastos, graficoCircular)
 
         // Configuración de interraciones
         setupListeners(tvEstablecerLimite)
@@ -46,7 +55,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     /**
      * Observadores de estado: Reaccionan a los cambios en el flujo de datos.
      */
-    private fun setupObservers(tvGasto: TextView, tvLimite: TextView, tvMes: TextView, rvGastos: RecyclerView) {
+    private fun setupObservers(
+        tvGasto: TextView,
+        tvLimite: TextView,
+        tvMes: TextView,
+        rvGastos: RecyclerView,
+        graficoCircular: PieChart
+    ) {
 
         // OBSERVADOR 1: Datos globales del mes (Total gastado y Límite)
         viewModel.homeResult.observe(viewLifecycleOwner) { data ->
@@ -55,7 +70,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             tvMes.text = data.mes_actual
         }
 
-        // OBSERVADOR 2: Lista de movimientos recientes
+        // OBSERVADOR 2: Datos del Gráfico Circular
+        viewModel.graficoResult.observe(viewLifecycleOwner) { lista ->
+            if (!lista.isNullOrEmpty()) {
+                actualizarGrafico(lista)
+            } else {
+                // Si no hay datos, podemos mostrar un mensaje en el centro del gráfico
+                graficoCircular.centerText = "Sin gastos este mes"
+                graficoCircular.data = null
+                graficoCircular.invalidate()
+            }
+        }
+
+        // OBSERVADOR 3: Lista de movimientos recientes
         viewModel.movimientosResult.observe(viewLifecycleOwner) { lista ->
             android.util.Log.d("DEBUG_MOV", "Han llegado ${lista.size} gastos")
             if (!lista.isNullOrEmpty()) {
@@ -84,7 +111,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
          */
         tvEstablecerLimite.setOnClickListener {
             val input = EditText(requireContext())
-            input.inputType = android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
+            input.inputType =
+                android.text.InputType.TYPE_CLASS_NUMBER or android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL
 
             android.app.AlertDialog.Builder(requireContext())
                 .setTitle("Límite Mensual")
@@ -101,6 +129,77 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 .show()
         }
 
+    }
+
+    /**
+     * Lógica de representación visual del gráfico de tarta.
+     * Transforma la lista de gastos por categoría en entradas para la librería MPAndroidChart.
+     */
+    private fun actualizarGrafico(lista: List<GastoPorCategoria>) {
+        val graficoCircular = view?.findViewById<PieChart>(R.id.graficoCircular) ?: return
+
+        val entradas = mutableListOf<PieEntry>()
+        val colores = mutableListOf<Int>()
+
+        lista.forEach { item ->
+            // Creamos la porción
+            entradas.add(PieEntry(item.totalGasto.toFloat(), item.nombreCategoria))
+
+            try {
+                colores.add(Color.parseColor(item.color))
+            } catch (e: Exception) {
+                colores.add(Color.LTGRAY) // Color por defecto si el hex falla
+            }
+        }
+
+        // Configuración del set de datos
+        val dataSet = PieDataSet(entradas, "")
+        dataSet.colors = colores
+        dataSet.valueTextSize = 13f
+        dataSet.valueTextColor = Color.WHITE
+        dataSet.sliceSpace = 2f // Espacio entre porciones
+
+        val data = PieData(dataSet)
+
+        // Configuración estética del componente PieChart
+        graficoCircular.apply {
+            this.data = data
+            description.isEnabled = false
+
+            setDrawEntryLabels(false)
+            data.setDrawValues(false)
+
+            // Configuración de la Leyenda
+            legend.isEnabled = true
+            legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+            legend.orientation = Legend.LegendOrientation.HORIZONTAL
+            legend.isWordWrapEnabled = true
+            legend.form = Legend.LegendForm.CIRCLE
+
+            // Configuración del Centro Dinámico
+            isDrawHoleEnabled = true
+            setHoleColor(Color.TRANSPARENT)
+            centerText = "Gastos"
+            setCenterTextSize(16f)
+
+            // Interacción: Mostrar info al tocar
+            setTouchEnabled(true)
+            setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+                override fun onValueSelected(e: Entry?, h: Highlight?) {
+                    val pieEntry = e as PieEntry
+                    centerText = "${pieEntry.label}\n${pieEntry.value} €"
+                }
+
+                override fun onNothingSelected() {
+                    centerText = "Gastos"
+                }
+            })
+
+            // Animación de entrada cada vez que se cargan datos
+            animateY(1200, Easing.EaseInOutQuad)
+            invalidate()
+        }
     }
 
     /**

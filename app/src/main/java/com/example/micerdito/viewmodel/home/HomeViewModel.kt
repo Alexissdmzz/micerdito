@@ -5,6 +5,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.micerdito.data.model.home.Gasto
+import com.example.micerdito.data.model.home.GastoPorCategoria
 import com.example.micerdito.data.model.home.HomeResponse
 import com.example.micerdito.data.repositorio.HomeRepository
 import com.example.micerdito.data.repositorio.SesionRepository
@@ -24,6 +25,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     // LiveData para la actualización reactiva de la interfaz de usuario
     val homeResult = MutableLiveData<HomeResponse>()
+    val graficoResult = MutableLiveData<List<GastoPorCategoria>>()
     val movimientosResult = MutableLiveData<List<Gasto>>() // Lista de transacciones recientes
     val errorMsg = MutableLiveData<String>()
 
@@ -62,7 +64,16 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 errorMsg.value = "Error totales: ${it.message}"
             }
 
-            // PETICIÓN 2: Historial de movimientos
+            // PETICIÓN 3: Datos para el gráfico circular
+            val resultGrafico = repository.obtenerGastosPorCategoria(idUsuario)
+            resultGrafico.onSuccess { lista ->
+                // Enviamos la lista de categorías y totales al LiveData
+                graficoResult.value = lista
+            }.onFailure {
+                errorMsg.value = "Error gráfico: ${it.message}"
+            }
+
+            // PETICIÓN 3: Historial de movimientos
             val resultMovs = repository.obtenerMovimientosRecientes(idUsuario)
             resultMovs.onSuccess { response ->
                 movimientosResult.value = response.gastosRecientes

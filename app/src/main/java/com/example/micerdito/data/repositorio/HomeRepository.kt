@@ -1,6 +1,7 @@
 package com.example.micerdito.data.repositorio
 
 import com.example.micerdito.data.conexion.RetrofitClient
+import com.example.micerdito.data.model.home.GastoPorCategoria
 import com.example.micerdito.data.model.home.HomeResponse
 import com.example.micerdito.data.model.home.LimiteResponse
 import com.example.micerdito.data.model.home.MovimientosResponse
@@ -30,6 +31,37 @@ class HomeRepository {
             if (response.isSuccessful && response.body() != null) {
                 // Encapsulamos la respuesta exitosa del servidor
                 Result.success(response.body()!!)
+            } else {
+                // Manejo de errores de respuesta del servidor
+                Result.failure(Exception("Error en el servidor: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            // Manejo de errores de red
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Recupera el desglose de gastos por categoría del mes actual para representar en el gráfico.
+     * @param idUsuario ID del usuario autenticado.
+     * @return Result<List<GastoPorCategoria>>: Una lista de objetos que contienen el nombre de
+     * la categoría, el sumatorio de sus gastos y su color representativo.
+     */
+    suspend fun obtenerGastosPorCategoria(idUsuario: String): Result<List<GastoPorCategoria>> {
+        return try {
+            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
+            val response = apiService.obtenerGastosGrafico(idUsuario)
+
+            if (response.isSuccessful && response.body() != null) {
+                val graficoResponse = response.body()!!
+
+                // Verificamos si la lógica del servidor (PHP) fue exitosa
+                if (graficoResponse.success) {
+                    // Devolvemos solo la lista
+                    Result.success(graficoResponse.listaGrafico)
+                } else {
+                    Result.failure(Exception("Error lógico: Mensaje del servidor"))
+                }
             } else {
                 // Manejo de errores de respuesta del servidor
                 Result.failure(Exception("Error en el servidor: ${response.code()}"))

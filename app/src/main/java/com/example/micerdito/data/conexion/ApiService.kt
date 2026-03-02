@@ -4,9 +4,9 @@ import com.example.micerdito.data.model.autenticacion.ForgotPasswordResponse
 import com.example.micerdito.data.model.autenticacion.LoginResponse
 import com.example.micerdito.data.model.autenticacion.RegisterResponse
 import com.example.micerdito.data.model.home.AjustesResponse
-import com.example.micerdito.data.model.home.Categoria
 import com.example.micerdito.data.model.home.CategoriaResponse
-import com.example.micerdito.data.model.home.GastosResponse
+import com.example.micerdito.data.model.home.GastoResponse
+import com.example.micerdito.data.model.home.GraficoResponse
 import com.example.micerdito.data.model.home.HomeResponse
 import com.example.micerdito.data.model.home.LimiteResponse
 import com.example.micerdito.data.model.home.MovimientosResponse
@@ -15,6 +15,7 @@ import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 /**
  * INTERFAZ - ApiService:
@@ -24,7 +25,7 @@ import retrofit2.http.POST
 
 interface ApiService {
 
-    // Inicio de sesión del usuario
+    // POST - Inicio de sesión del usuario
     @FormUrlEncoded
     @POST("autenticacion/login.php")
     suspend fun loginUser(
@@ -32,7 +33,7 @@ interface ApiService {
         @Field("pwd") password: String
     ): Response<LoginResponse>
 
-    // Registrar usuario
+    // POST - Registrar usuario
     @FormUrlEncoded
     @POST("autenticacion/registro.php")
     suspend fun registerUser(
@@ -44,14 +45,14 @@ interface ApiService {
         @Field("respuesta_seguridad") res: String
     ): Response<RegisterResponse>
 
-    // Obtenemos la pregunta de seguridad del usuario
+    // POST - Obtenemos la pregunta de seguridad del usuario
     @FormUrlEncoded
     @POST("autenticacion/obtener_pregunta.php")
     suspend fun getPregunta(
         @Field("correo") email: String
     ): Response<ForgotPasswordResponse>
 
-    // Verificamos y cambiamos la pwd
+    // POST - Verificamos y cambiamos la pwd
     @FormUrlEncoded
     @POST("autenticacion/cambiar_pwd.php")
     suspend fun cambiarPwd(
@@ -60,21 +61,27 @@ interface ApiService {
         @Field("nueva_pwd") nuevaPwd: String
     ): Response<ForgotPasswordResponse>
 
-    // Obtiene los datos principales para la pantalla home
+    // POST - Obtiene los datos principales para la pantalla home
     @FormUrlEncoded
     @POST("home/obtener_datos.php")
     suspend fun homeUser(
         @Field("id_usuario") id: String
     ): Response<HomeResponse>
 
-    // Obtenemos los movimientos del usuario
+    // GET - Obtener los gastos totales de cada categoría
+    @GET("home/grafico_gastos.php")
+    suspend fun obtenerGastosGrafico(
+        @Query("id_usuario") id: String
+    ): Response<GraficoResponse>
+
+    // POST - Obtenemos los movimientos del usuario
     @FormUrlEncoded
     @POST("home/obtener_movimientos.php")
     suspend fun homeMoves(
         @Field("id_usuario") id: String
     ): Response<MovimientosResponse>
 
-    // Guardamos el límite de gasto mensual
+    // POST - Guardamos el límite de gasto mensual
     @FormUrlEncoded
     @POST("home/guardar_limite.php")
     suspend fun homeLimit(
@@ -82,14 +89,14 @@ interface ApiService {
         @Field("limite") limite: Double
     ): Response<LimiteResponse>
 
-    // Borra el usuario de la BBDD
+    // POST - Borra el usuario de la BBDD
     @FormUrlEncoded
     @POST("ajustes/borrar_usuario.php")
     suspend fun deleteUser(
         @Field("id_usuario") id: String
     ): Response<AjustesResponse>
 
-    // Cambia el nombre de usuario de la BBDD
+    // POST - Cambia el nombre de usuario de la BBDD
     @FormUrlEncoded
     @POST("ajustes/editar_nombre_usuario.php")
     suspend fun editUser(
@@ -97,11 +104,11 @@ interface ApiService {
         @Field("nombre_usuario") username: String
     ): Response<AjustesResponse>
 
-    // Obtenemos las categorias guardadas en la BBDD
+    // GET - Obtenemos las categorias guardadas en la BBDD
     @GET("gastos/obtener_categorias.php")
     suspend fun getCategorias(): Response<CategoriaResponse>
 
-    // Insertamos el gasto
+    // POST - Insertamos el gasto
     @FormUrlEncoded
     @POST("gastos/insertar_gastos.php")
     suspend fun insertGasto(
@@ -111,5 +118,5 @@ interface ApiService {
         @Field("importe") importe: Double,
         @Field("fecha_gasto") fechaGasto: String,
         @Field("descripcion") descripcion: String?
-    ): Response<GastosResponse>
+    ): Response<GastoResponse>
 }
