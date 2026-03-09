@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 02-03-2026 a las 14:47:00
+-- Tiempo de generación: 09-03-2026 a las 10:05:22
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -162,6 +162,29 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_datos` (IN `p_id_usuario
     FROM usuarios u
     WHERE u.id_usuario = p_id_usuario;
 
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_datos_calendario` (IN `p_id_usuario` VARCHAR(36), IN `p_mes` INT, IN `p_anio` INT)   BEGIN
+    -- CONSULTA 1: Fecha de registro del usuario
+    SELECT fecha_registro_usuario 
+    FROM usuarios 
+    WHERE id_usuario = p_id_usuario;
+
+    -- CONSULTA 2: Días que tienen gastos en ese mes
+    SELECT DISTINCT DAY(fecha_gasto) AS dia
+    FROM gastos
+    WHERE id_usuario = p_id_usuario 
+      AND MONTH(fecha_gasto) = p_mes 
+      AND YEAR(fecha_gasto) = p_anio;
+
+    -- CONSULTA 3: Resumen por categorías
+    SELECT c.nombre_categoria, c.color_categoria, SUM(g.importe) AS total
+    FROM gastos g
+    JOIN categoria c ON g.id_categoria = c.id_categoria
+    WHERE g.id_usuario = p_id_usuario 
+      AND MONTH(g.fecha_gasto) = p_mes 
+      AND YEAR(g.fecha_gasto) = p_anio
+    GROUP BY g.id_categoria;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_gastos_grafico` (IN `p_id_usuario` VARCHAR(36))   BEGIN
@@ -386,8 +409,8 @@ ALTER TABLE `categoria`
 --
 ALTER TABLE `gastos`
   ADD PRIMARY KEY (`id_gasto`),
-  ADD KEY `FK_GASTO_USUARIO` (`id_usuario`),
-  ADD KEY `FK_GASTO_CATEGORIA` (`id_categoria`);
+  ADD KEY `idx_usuario_fecha` (`id_usuario`,`fecha_gasto`),
+  ADD KEY `idx_categoria` (`id_categoria`);
 
 --
 -- Indices de la tabla `preguntas_seguridad`
@@ -407,7 +430,8 @@ ALTER TABLE `presupuesto_mensual`
 --
 ALTER TABLE `usuarios`
   ADD PRIMARY KEY (`id_usuario`),
-  ADD UNIQUE KEY `correo` (`correo`);
+  ADD UNIQUE KEY `correo` (`correo`),
+  ADD KEY `idx_registro_usuario` (`fecha_registro_usuario`);
 
 --
 -- Restricciones para tablas volcadas
