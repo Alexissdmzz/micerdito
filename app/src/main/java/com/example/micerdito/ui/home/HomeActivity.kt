@@ -12,6 +12,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import com.example.micerdito.data.preferencias.PreferenciasSesion
+import com.example.micerdito.ui.fragments.CalendarioFragment
 import com.example.micerdito.ui.fragments.GastosCompartidosFragment
 import com.example.micerdito.ui.fragments.GastosFragment
 import com.example.micerdito.viewmodel.home.HomeViewModel
@@ -74,7 +75,10 @@ class HomeActivity : AppCompatActivity() {
                     tvWelcome.visibility = android.view.View.VISIBLE
                     cargarFragmento(HomeFragment())
                 }
-                //R.id.nav_calendario
+                R.id.nav_calendario -> {
+                    tvWelcome.visibility = android.view.View.GONE
+                    cargarFragmento(CalendarioFragment())
+                }
                 R.id.nav_anadir_gasto -> {
                     tvWelcome.visibility = android.view.View.GONE
                     cargarFragmento(GastosFragment())

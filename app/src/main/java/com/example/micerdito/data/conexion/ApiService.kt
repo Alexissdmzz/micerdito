@@ -4,6 +4,7 @@ import com.example.micerdito.data.model.autenticacion.ForgotPasswordResponse
 import com.example.micerdito.data.model.autenticacion.LoginResponse
 import com.example.micerdito.data.model.autenticacion.RegisterResponse
 import com.example.micerdito.data.model.home.AjustesResponse
+import com.example.micerdito.data.model.home.CalendarioResponse
 import com.example.micerdito.data.model.home.CategoriaResponse
 import com.example.micerdito.data.model.home.GastoResponse
 import com.example.micerdito.data.model.home.GraficoResponse
@@ -116,12 +117,29 @@ interface ApiService {
     @Multipart
     @POST("gastos/insertar_gastos.php")
     suspend fun insertGasto(
-        @Part("id_usuario") idUsuario: RequestBody,
+        @Part("id_usuario") id: RequestBody,
         @Part("id_categoria") idCategoria: RequestBody,
         @Part("titulo") titulo: RequestBody,
         @Part("importe") importe: RequestBody,
         @Part("fecha_gasto") fechaGasto: RequestBody,
         @Part("descripcion") descripcion: RequestBody?,
         @Part foto : MultipartBody.Part?
+    ): Response<GastoResponse>
+
+    // GET - Obtenemos los datos guardados en la BBDD en referencia a la pantalla Calendario
+    @GET("calendario/obtener_datos_calendario.php")
+    suspend fun getDataCalendario(
+        @Query("id_usuario") id: String,
+        @Query("mes") mes: Int,
+        @Query("anio") anio: Int
+    ): Response<CalendarioResponse>
+
+    // GET - Obtenemos los gastos por día guardados en la BBDD
+    @GET("calendario/obtener_gastos_dia.php")
+    suspend fun getGastosDia(
+        @Query("id_usuario") id: String,
+        @Query("anio") anio: Int,
+        @Query("mes") mes: Int,
+        @Query("dia") dia: Int
     ): Response<GastoResponse>
 }

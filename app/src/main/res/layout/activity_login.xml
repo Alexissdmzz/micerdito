@@ -73,15 +73,6 @@
                     android:textColor="@color/texto_negro"
                     android:textColorHint="@color/texto_negro" />
 
-                <CheckBox
-                    android:id="@+id/cbRecordarme"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:contentDescription="Opción Recordarme sesión en este dispositivo"
-                    android:text="Recordarme"
-                    android:textColor="@color/title_dark" />
-
                 <Button
                     android:id="@+id/btnLogin"
                     android:layout_width="180dp"
