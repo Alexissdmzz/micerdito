@@ -67,7 +67,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         viewModel.homeResult.observe(viewLifecycleOwner) { data ->
             tvGasto.text = "${data.total_dinerogastado} €"
             tvLimite.text = "Límite: ${data.limite_mes} €"
-            tvMes.text = data.mes_actual
+            tvMes.text = data.mes_actual.uppercase()
         }
 
         // OBSERVADOR 2: Datos del Gráfico Circular
@@ -84,7 +84,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         // OBSERVADOR 3: Lista de movimientos recientes
         viewModel.movimientosResult.observe(viewLifecycleOwner) { lista ->
-            android.util.Log.d("DEBUG_MOV", "Han llegado ${lista.size} gastos")
             if (!lista.isNullOrEmpty()) {
                 // Se asigna el adaptador con la lista de gastos procesada
                 rvGastos.adapter = MovimientosAdapter(lista)

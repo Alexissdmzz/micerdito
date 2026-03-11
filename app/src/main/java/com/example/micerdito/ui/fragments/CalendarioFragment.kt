@@ -26,6 +26,8 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView
+import com.prolificinteractive.materialcalendarview.format.ArrayWeekDayFormatter
+import com.prolificinteractive.materialcalendarview.format.MonthArrayTitleFormatter
 import java.util.Calendar
 
 /**
@@ -62,6 +64,8 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         }
 
         calendarView.selectedDate = CalendarDay.today()
+        calendarView.setTitleFormatter(MonthArrayTitleFormatter(resources.getTextArray(R.array.meses_espanyol)))
+        calendarView.setWeekDayFormatter(ArrayWeekDayFormatter(resources.getTextArray(R.array.dias_semana_espanyol)))
 
         setupObservers(calendarView, pieChartMensual, rvGastosDia, tvSinDatos)
         setupListeners(calendarView, pieChartMensual, rvGastosDia, tvSinDatos)
@@ -113,13 +117,13 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                 }
                 calendarView.addDecorators(decoradores)
 
-                // Actualizar gráfico si no es el mes actual
+                // --- 2. GRÁFICO (Siempre que haya datos del mes) ---
                 if (data.resumen_grafico.isNotEmpty()) {
-                    if (calendarView.currentDate.month != mesActual || calendarView.currentDate.year != anioActual) {
-                        tvSinDatos.visibility = View.GONE
-                        pieChartMensual.visibility = View.VISIBLE
-                        actualizarGrafico(pieChartMensual, data.resumen_grafico)
-                    }
+                    pieChartMensual.visibility = View.VISIBLE
+                    // Ya no ocultamos el gráfico aunque sea el mes actual
+                    actualizarGrafico(pieChartMensual, data.resumen_grafico)
+                } else {
+                    pieChartMensual.visibility = View.GONE
                 }
             }
         }
@@ -131,8 +135,10 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
             if (lista.isEmpty()) {
                 rvGastosDia.visibility = View.GONE
-                tvSinDatos.visibility = View.VISIBLE
-                tvSinDatos.text = "No hay gastos este día 🐷"
+                if (pieChartMensual.visibility == View.GONE) {
+                    tvSinDatos.visibility = View.VISIBLE
+                    tvSinDatos.text = "No hay registros este mes 🐷"
+                }
             } else {
                 tvSinDatos.visibility = View.GONE
                 rvGastosDia.visibility = View.VISIBLE

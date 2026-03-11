@@ -41,7 +41,7 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
         setupObservers()
 
         // Configuración de interraciones
-        setupListeners(btnLogout, btnPerfil, btnBorrarCuenta)
+        setupListeners(btnPerfil, btnBorrarCuenta, btnLogout)
 
         // Carga de estados de interruptores (Switches)
         configurarModosVisuales(view)
