@@ -11,6 +11,9 @@ header('Content-Type: application/json; charset=utf-8');
 // Clase de conexión a la Base de Datos.
 require_once '../conexion/conexion.php';
 
+// Devuelve meses y años en Español.
+$conexion->query("SET lc_time_names = 'es_ES'");
+
 // Recogida de datos enviados desde la App.
 $id_usuario = $_POST['id_usuario'] ?? '';
 $mes = date('n');
