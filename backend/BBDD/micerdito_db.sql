@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 10-03-2026 a las 11:25:26
+-- Tiempo de generación: 12-03-2026 a las 13:25:16
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -32,11 +32,36 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_cambiar_pwd` (IN `p_correo` VARC
     WHERE correo = p_correo;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_editar_gasto` (IN `p_id_gasto` VARCHAR(36), IN `p_titulo` VARCHAR(100), IN `p_importe` DECIMAL(10,2), IN `p_descripcion` TEXT, IN `p_foto_ticket` VARCHAR(255))   BEGIN
+    UPDATE gastos 
+    SET titulo = p_titulo, 
+        importe = p_importe, 
+        descripcion = p_descripcion,
+        foto_ticket = p_foto_ticket
+    WHERE id_gasto = p_id_gasto;
+
+    IF ROW_COUNT() > 0 THEN
+        SELECT 1 AS success, 'Gasto actualizado correctamente' AS message;
+    ELSE
+        SELECT 0 AS success, 'No se encontró el gasto o no hubo cambios' AS message;
+    END IF;
+END$$
+
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_editar_nom_usu` (IN `p_id_usuario` VARCHAR(36), IN `p_nuevo_nombre` VARCHAR(100))   BEGIN
     -- Actualizamos el nombre de usuario basándonos en su UUID
     UPDATE usuarios 
     SET nombre_usuario = p_nuevo_nombre 
     WHERE id_usuario = p_id_usuario;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eliminar_gasto` (IN `p_id_gasto` VARCHAR(36))   BEGIN
+    DELETE FROM gastos WHERE id_gasto = p_id_gasto;
+
+    IF ROW_COUNT() > 0 THEN
+        SELECT 1 AS success, 'Gasto eliminado correctamente' AS message;
+    ELSE
+        SELECT 0 AS success, 'Error: El ID de gasto no existe' AS message;
+    END IF;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_eliminar_usuario` (IN `p_id_usuario` VARCHAR(36))   BEGIN
@@ -192,6 +217,7 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_obtener_gastos_dia` (IN `p_id_us
         g.id_gasto,
         g.titulo,
         g.importe,
+        g.descripcion,
         g.fecha_gasto,              
         c.icono_categoria,          
         c.color_categoria,         
@@ -333,9 +359,9 @@ CREATE TABLE `gastos` (
 
 INSERT INTO `gastos` (`id_gasto`, `id_usuario`, `id_categoria`, `titulo`, `importe`, `fecha_gasto`, `descripcion`, `foto_ticket`, `fecha_registro_gasto`) VALUES
 ('121b0f87-161a-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd04ab2-0d77-11f1-aabd-88aedd238f3e', 'Alquiler pasado', 12.00, '2026-03-02 09:27:16', '', NULL, '2026-03-02 09:27:45'),
-('4b7715a7-1618-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd04ab2-0d77-11f1-aabd-88aedd238f3e', 'Alquiler', 700.00, '2026-03-02 09:14:33', '', NULL, '2026-03-02 09:15:02'),
+('4b7715a7-1618-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd04ab2-0d77-11f1-aabd-88aedd238f3e', 'Alquiler', 700.00, '2026-02-25 09:14:33', '', NULL, '2026-03-02 09:15:02'),
 ('6601abdc-1619-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05ccd-0d77-11f1-aabd-88aedd238f3e', 'Casino', 10.00, '2026-03-02 09:22:27', '', NULL, '2026-03-02 09:22:56'),
-('828f75b6-1620-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05d50-0d77-11f1-aabd-88aedd238f3e', 'Chuche', 1.00, '2026-03-02 10:13:22', '', NULL, '2026-03-02 10:13:51'),
+('828f75b6-1620-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05d50-0d77-11f1-aabd-88aedd238f3e', 'Chuche', 5.00, '2026-03-02 10:13:22', 'Muy duras', '', '2026-03-02 10:13:51'),
 ('91c90675-1619-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05c55-0d77-11f1-aabd-88aedd238f3e', 'Pelo', 10.00, '2026-03-02 09:23:41', '', NULL, '2026-03-02 09:24:10'),
 ('9dcc475e-1619-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05ce7-0d77-11f1-aabd-88aedd238f3e', 'Peaje', 23.00, '2026-03-02 09:24:01', '', NULL, '2026-03-02 09:24:30'),
 ('d0a1f3cb-161f-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05ccd-0d77-11f1-aabd-88aedd238f3e', 'Tragaperras', 1.00, '2026-03-02 10:08:23', '', NULL, '2026-03-02 10:08:52');
