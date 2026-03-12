@@ -63,6 +63,7 @@ if ($stmt = $conexion->prepare($sql)) {
                 "id_gasto"        => $fila['id_gasto'],
                 "titulo"          => $fila['titulo'],
                 "importe"         => (float)$fila['importe'],
+                "descripcion"     => $fila['descripcion'],
                 "fecha_gasto"     => $fila['fecha_gasto'], // Mapea a 'fecha' en Kotlin
                 "icono_categoria" => $fila['icono_categoria'], // Mapea a 'icono'
                 "color_categoria" => $fila['color_categoria'], // Mapea a 'color'
