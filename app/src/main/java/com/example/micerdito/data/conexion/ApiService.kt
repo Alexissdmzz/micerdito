@@ -142,4 +142,22 @@ interface ApiService {
         @Query("mes") mes: Int,
         @Query("dia") dia: Int
     ): Response<GastoResponse>
+
+    // POST - Editamos el gasto
+    @Multipart
+    @POST("calendario/editar_gasto.php")
+    suspend fun editGasto(
+        @Part("id_gasto") idGasto: RequestBody,
+        @Part("titulo") titulo: RequestBody,
+        @Part("importe") importe: RequestBody,
+        @Part("descripcion") descripcion: RequestBody,
+        @Part foto: MultipartBody.Part?
+    ): Response<GastoResponse>
+
+    // POST - Eliminamos el gasto
+    @FormUrlEncoded
+    @POST("calendario/eliminar_gasto.php")
+    suspend fun deleteGasto(
+        @Field("id_gasto") idGasto: String
+    ): Response<GastoResponse>
 }

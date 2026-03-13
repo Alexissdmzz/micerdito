@@ -10,6 +10,9 @@ import com.example.micerdito.data.model.home.GastoResponse
 import com.example.micerdito.data.repositorio.CalendarioRepository
 import com.example.micerdito.data.repositorio.SesionRepository
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * VIEWMODEL - CalendarioViewModel:
@@ -30,6 +33,10 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     // Usamos GastoResponse porque es lo que devuelve obtenerGastosPorDia
     private val _gastosDelDia = MutableLiveData<GastoResponse?>()
     val gastosDelDia: LiveData<GastoResponse?> get() = _gastosDelDia
+
+    // Resultado de operaciones de escritura (Editar/Borrar un gasto)
+    private val _accionGastoResult = MutableLiveData<GastoResponse?>()
+    val accionGastoResult: LiveData<GastoResponse?> get() = _accionGastoResult
 
     // Estado de error para mostrar Toasts o mensajes en la UI
     private val _error = MutableLiveData<String>()
@@ -99,7 +106,75 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 _cargando.value = false
             }.onFailure { e ->
                 // Manejo de errores de red o servidor
-                _error.value = "Error al cargar el calendario: ${e.message}"
+                _error.value = "Error al cargar los gastos del día: ${e.message}"
+                _cargando.value = false
+            }
+        }
+    }
+
+    /**
+     * Envía la solicitud al repositorio para actualizar los detalles de un gasto existente.
+     * Realiza la conversión de datos a formato Multipart para permitir el envío de archivos.
+     * * @param idGasto Identificador único (UUID) del gasto a editar.
+     * @param titulo Nuevo nombre o concepto del gasto.
+     * @param importe Valor numérico actualizado del gasto.
+     * @param descripcion Nota detallada o aclaración adicional.
+     * @param fotoPart Parte del formulario que contiene el archivo físico de la imagen (opcional).
+     */
+    fun editarGasto(
+        idGasto: String,
+        titulo: String,
+        importe: Double,
+        descripcion: String,
+        fotoPart: MultipartBody.Part?
+    ) {
+        _cargando.value = true
+
+        // Conversión de tipos primitivos a RequestBody para el envío Multipart
+        val idBody = idGasto.toRequestBody("text/plain".toMediaTypeOrNull())
+        val tituloBody = titulo.toRequestBody("text/plain".toMediaTypeOrNull())
+        val importeBody = importe.toString().toRequestBody("text/plain".toMediaTypeOrNull())
+        val descBody = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        viewModelScope.launch {
+            // Ejecución de la llamada al repositorio con los datos convertidos
+            val result = repository.editarGastos(
+                idBody,
+                tituloBody,
+                importeBody,
+                descBody,
+                fotoPart
+            )
+
+            result.onSuccess { data ->
+                _accionGastoResult.value = data
+                _cargando.value = false
+            }.onFailure { e ->
+                _error.value = "Error al editar el gasto: ${e.message}"
+                _cargando.value = false
+            }
+        }
+    }
+
+    /**
+     * Solicita al repositorio la eliminación permanente de un gasto mediante su identificador.
+     * Emite el resultado en accionGastoResult para que la vista pueda confirmar el borrado.
+     * @param idGasto Identificador único (UUID) del gasto a borrar.
+     */
+    fun eliminarGasto(idGasto: String) {
+        _cargando.value = true
+
+        viewModelScope.launch {
+            // Ejecución de la llamada al repositorio dentro de la corrutina
+            val result = repository.deleteGastos(idGasto)
+
+            result.onSuccess { data ->
+                // Encapsulamos la respuesta exitosa del servidor
+                _accionGastoResult.value = data
+                _cargando.value = false
+            }.onFailure { e ->
+                // Manejo de errores de red o servidor
+                _error.value = "Error al eliminar el gasto: ${e.message}"
                 _cargando.value = false
             }
         }
@@ -110,5 +185,13 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
      */
     fun resetError() {
         _error.value = ""
+    }
+
+    /**
+     * Limpia el resultado de la última acción (editar/borrar) para evitar
+     * que los observadores se disparen repetidamente (ej. al rotar la pantalla).
+     */
+    fun resetAccionGastoResult() {
+        _accionGastoResult.value = null
     }
 }

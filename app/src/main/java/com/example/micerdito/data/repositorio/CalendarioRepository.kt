@@ -3,6 +3,8 @@ package com.example.micerdito.data.repositorio
 import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.home.CalendarioResponse
 import com.example.micerdito.data.model.home.GastoResponse
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 
 /**
  * REPOSITORIO - CalendarioRepository:
@@ -12,7 +14,8 @@ import com.example.micerdito.data.model.home.GastoResponse
  */
 class CalendarioRepository {
 
-    private val apiService = RetrofitClient.apiService // Herramienta que nos permite conectar con el servidor
+    private val apiService =
+        RetrofitClient.apiService // Herramienta que nos permite conectar con el servidor
 
     /**
      * Obtiene los datos de actividad, fecha de registro y resumen para el gráfico mensual.
@@ -23,7 +26,11 @@ class CalendarioRepository {
      * Implementa 'suspend' para ejecutarse dentro de una corrutina, asegurando que
      * la petición de red no bloquee el hilo principal.
      */
-    suspend fun obtenerDatosCalendario(idUsuario: String, mes: Int, anio: Int): Result<CalendarioResponse> {
+    suspend fun obtenerDatosCalendario(
+        idUsuario: String,
+        mes: Int,
+        anio: Int
+    ): Result<CalendarioResponse> {
         return try {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.getDataCalendario(idUsuario, mes, anio)
@@ -51,10 +58,68 @@ class CalendarioRepository {
      * Implementa 'suspend' para asegurar que la consulta de los detalles del día
      * se realice de forma asíncrona sin afectar la fluidez de la interfaz.
      */
-    suspend fun obtenerGastosPorDia(idUsuario: String, anio: Int, mes: Int, dia: Int): Result<GastoResponse> {
+    suspend fun obtenerGastosPorDia(
+        idUsuario: String,
+        anio: Int,
+        mes: Int,
+        dia: Int
+    ): Result<GastoResponse> {
         return try {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.getGastosDia(idUsuario, anio, mes, dia)
+
+            if (response.isSuccessful && response.body() != null) {
+                // Encapsulamos la respuesta exitosa del servidor
+                Result.success(response.body()!!)
+            } else {
+                // Manejo de errores de respuesta del servidor
+                Result.failure(Exception("Error en el servidor: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            // Manejo de errores de red
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Modifica los datos de un gasto existente, incluyendo la posibilidad de actualizar el ticket.
+     * @param idGasto Identificador único (UUID) del gasto a editar.
+     * @param titulo Nuevo concepto del gasto.
+     * @param importe Valor numérico actualizado.
+     * @param descripcion Nota aclaratoria del movimiento.
+     * @param fotoTicket Archivo físico de la imagen preparado para subida multipart (opcional).
+     * @return Result con GastoResponse confirmando el resultado de la operación.
+     */
+    suspend fun editarGastos(
+        idGasto: RequestBody,
+        titulo: RequestBody,
+        importe: RequestBody,
+        descripcion: RequestBody,
+        fotoTicket: MultipartBody.Part?
+    ): Result<GastoResponse> {
+        return try {
+            val response = apiService.editGasto(idGasto, titulo, importe, descripcion, fotoTicket)
+            if (response.isSuccessful && response.body() != null) {
+                Result.success(response.body()!!)
+            } else {
+                Result.failure(Exception("Error en el servidor: ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    /**
+     * Solicita al servidor la eliminación permanente de un registro de gasto.
+     * @param idGasto Identificador único (UUID) del gasto que se desea borrar.
+     * @return Result con GastoResponse que contiene el mensaje de confirmación del borrado.
+     * La función es 'suspend' para garantizar que la operación de eliminación no
+     * interfiera con el rendimiento de la interfaz de usuario.
+     */
+    suspend fun deleteGastos(idGasto: String): Result<GastoResponse> {
+        return try {
+            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
+            val response = apiService.deleteGasto(idGasto)
 
             if (response.isSuccessful && response.body() != null) {
                 // Encapsulamos la respuesta exitosa del servidor
