@@ -87,6 +87,7 @@ class CalendarioRepository {
      * @param titulo Nuevo concepto del gasto.
      * @param importe Valor numérico actualizado.
      * @param descripcion Nota aclaratoria del movimiento.
+     * @param fotoActual Referencia al nombre del archivo de imagen actual para evitar su borrado en BBDD.
      * @param fotoTicket Archivo físico de la imagen preparado para subida multipart (opcional).
      * @return Result con GastoResponse confirmando el resultado de la operación.
      */
@@ -95,10 +96,12 @@ class CalendarioRepository {
         titulo: RequestBody,
         importe: RequestBody,
         descripcion: RequestBody,
+        fotoActual: RequestBody,
         fotoTicket: MultipartBody.Part?
     ): Result<GastoResponse> {
         return try {
-            val response = apiService.editGasto(idGasto, titulo, importe, descripcion, fotoTicket)
+            // Se incluye el parámetro fotoActual en la llamada a Retrofit
+            val response = apiService.editGasto(idGasto, titulo, importe, descripcion, fotoActual, fotoTicket)
             if (response.isSuccessful && response.body() != null) {
                 Result.success(response.body()!!)
             } else {

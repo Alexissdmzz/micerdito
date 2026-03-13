@@ -115,10 +115,11 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     /**
      * Envía la solicitud al repositorio para actualizar los detalles de un gasto existente.
      * Realiza la conversión de datos a formato Multipart para permitir el envío de archivos.
-     * * @param idGasto Identificador único (UUID) del gasto a editar.
+     * @param idGasto Identificador único (UUID) del gasto a editar.
      * @param titulo Nuevo nombre o concepto del gasto.
      * @param importe Valor numérico actualizado del gasto.
      * @param descripcion Nota detallada o aclaración adicional.
+     * @param fotoActual Nombre del archivo de imagen que ya existe en la BBDD (respaldo).
      * @param fotoPart Parte del formulario que contiene el archivo físico de la imagen (opcional).
      */
     fun editarGasto(
@@ -126,6 +127,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         titulo: String,
         importe: Double,
         descripcion: String,
+        fotoActual: String,
         fotoPart: MultipartBody.Part?
     ) {
         _cargando.value = true
@@ -136,13 +138,17 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val importeBody = importe.toString().toRequestBody("text/plain".toMediaTypeOrNull())
         val descBody = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
 
+        // Conversión del respaldo de la foto actual para evitar que se borre si no se sube una nueva
+        val fotoActualBody = fotoActual.toRequestBody("text/plain".toMediaTypeOrNull())
+
         viewModelScope.launch {
-            // Ejecución de la llamada al repositorio con los datos convertidos
+            // Ejecución de la llamada al repositorio con los datos convertidos, incluyendo la foto actual
             val result = repository.editarGastos(
                 idBody,
                 tituloBody,
                 importeBody,
                 descBody,
+                fotoActualBody,
                 fotoPart
             )
 

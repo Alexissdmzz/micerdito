@@ -45,6 +45,11 @@ import java.io.File
 import java.io.FileOutputStream
 import java.util.Calendar
 
+/**
+ * FRAGMENTO - CalendarioFragment:
+ * Gestiona la visualización de actividad financiera mensual y diaria.
+ * Permite la consulta, edición y eliminación de registros de gastos.
+ */
 class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
     private val viewModel: CalendarioViewModel by viewModels()
@@ -96,6 +101,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         rv: RecyclerView,
         tv: TextView
     ) {
+        // Observamos los datos generales del calendario (puntos rojos y gráfica)
         viewModel.calendarioData.observe(viewLifecycleOwner) { data ->
             if (data != null && data.success) {
                 cv.removeDecorators()
@@ -136,6 +142,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             }
         }
 
+        // Lista de gastos para el día seleccionado
         viewModel.gastosDelDia.observe(viewLifecycleOwner) { response ->
             val lista = response?.data ?: emptyList()
             if (lista.isEmpty()) {
@@ -148,15 +155,12 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             }
         }
 
+        // Resultado de acciones de edición o borrado
         viewModel.accionGastoResult.observe(viewLifecycleOwner) { response ->
             if (response != null && response.success) {
                 Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT).show()
                 calendarView.selectedDate?.let {
-                    viewModel.obtenerGastosDia(
-                        it.year,
-                        it.month,
-                        it.day
-                    )
+                    viewModel.obtenerGastosDia(it.year, it.month, it.day)
                 }
                 viewModel.obtenerDataCalendario(
                     calendarView.currentDate.month,
@@ -188,6 +192,9 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         gastoAdapter.onItemClick = { mostrarBottomSheetDetalle(it) }
     }
 
+    /**
+     * Muestra el detalle del gasto en un BottomSheet y permite su edición.
+     */
     private fun mostrarBottomSheetDetalle(gasto: Gasto) {
         uriImagenSeleccionada = null
         val dialog = BottomSheetDialog(requireContext())
@@ -206,15 +213,20 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         etImporte.setText(gasto.importe.toString())
         etDescripcion.setText(gasto.descripcion ?: "")
 
-        // Carga la foto actual y configura el clic para verla en grande
         if (!gasto.foto_ticket.isNullOrEmpty()) {
             val urlCompleta = URL_BASE_IMAGENES + gasto.foto_ticket
-            Glide.with(requireContext()).load(urlCompleta).into(ivTicket)
+            Glide.with(requireContext())
+                .load(urlCompleta)
+                .error(R.drawable.ic_sin_foto)
+                .into(ivTicket)
 
             ivTicket.setOnClickListener { mostrarFotoGrande(urlCompleta) }
+        } else {
+            // Si no hay nombre de foto en la base de datos, ponemos el icono directamente
+            ivTicket.setImageResource(R.drawable.ic_sin_foto)
         }
 
-        // El botón específico solo gestiona la nueva selección
+        // El botón específico solo gestiona la nueva selección de imagen
         btnCambiarFoto.setOnClickListener { pickImageLauncher.launch("image/*") }
 
         btnEliminar.setOnClickListener {
@@ -241,26 +253,40 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                         fotoPart = MultipartBody.Part.createFormData("foto", file.name, rb)
                     }
                 }
-                viewModel.editarGasto(gasto.id_gasto, nTitulo, nImporte, nDesc, fotoPart)
+
+                // IMPORTANTE: Pasamos gasto.foto_ticket como respaldo para que el PHP no lo borre si no hay foto nueva
+                viewModel.editarGasto(
+                    gasto.id_gasto,
+                    nTitulo,
+                    nImporte,
+                    nDesc,
+                    gasto.foto_ticket ?: "",
+                    fotoPart
+                )
                 dialog.dismiss()
             } else {
-                Toast.makeText(requireContext(), "El título es obligatorio", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(requireContext(), "El título es obligatorio", Toast.LENGTH_SHORT).show()
             }
         }
         dialog.setContentView(view)
         dialog.show()
     }
 
+    /**
+     * Muestra la imagen del ticket en un diálogo a pantalla completa.
+     */
     private fun mostrarFotoGrande(url: String) {
         val viewer = ImageView(requireContext())
         Glide.with(requireContext()).load(url).into(viewer)
         AlertDialog.Builder(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
             .setView(viewer)
+            .setPositiveButton("Cerrar", null)
             .show()
-            .window?.decorView?.setOnClickListener { /* cerrar al tocar */ }
     }
 
+    /**
+     * Crea un archivo temporal a partir de una URI para el envío al servidor.
+     */
     private fun obtenerFileDesdeUri(context: Context, uri: Uri): File? {
         return try {
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
@@ -275,6 +301,9 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         }
     }
 
+    /**
+     * Configura y actualiza el gráfico de tarta con el resumen mensual.
+     */
     private fun actualizarGrafico(pc: PieChart, lista: List<ResumenCategoria>) {
         val entradas = lista.map { PieEntry(it.total.toFloat(), it.nombre) }
         val colores = lista.map {
@@ -312,6 +341,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
     override fun onResume() {
         super.onResume()
+        // Refrescamos datos al volver al fragmento
         viewModel.obtenerDataCalendario(
             calendarView.currentDate.month,
             calendarView.currentDate.year
