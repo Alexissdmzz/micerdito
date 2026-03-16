@@ -10,18 +10,18 @@ import com.example.micerdito.data.model.home.Gasto
 
 /**
  * ADAPTADOR - GastoAdapter:
- * Gestiona la visualización en formato lista de los gastos diarios dentro del calendario.
- * Vincula los datos del modelo Gasto con la vista item_gasto_calendario.xml.
+ * Controlador encargado de la representación visual de los gastos registrados en la vista
+ * de calendario. Gestiona la transformación de datos del modelo [Gasto] a componentes de la UI.
  */
 class GastoAdapter(private var listaGastos: List<Gasto> = emptyList()) :
     RecyclerView.Adapter<GastoAdapter.GastoViewHolder>() {
 
-    // Función de orden superior para delegar el evento de clic al componente padre (Fragment/Activity)
+    // Listener para la comunicación de eventos de selección hacia la vista superior
     var onItemClick: ((Gasto) -> Unit)? = null
 
     /**
-     * VIEWHOLDER - GastoViewHolder:
-     * Mantiene las referencias a los elementos de la interfaz de usuario para cada ítem de la lista.
+     * VIEW HOLDER:
+     * Cache de referencias visuales para optimizar el scroll y evitar inflados innecesarios.
      */
     class GastoViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvIcono: TextView = view.findViewById(R.id.tvIconoCat)
@@ -41,14 +41,18 @@ class GastoAdapter(private var listaGastos: List<Gasto> = emptyList()) :
         )
     }
 
+    /**
+     * VINCULACIÓN Y FORMATEO:
+     * Transfiere la información del objeto Gasto a los widgets correspondientes,
+     * realizando transformaciones de cadena para la hora y el símbolo monetario.
+     */
     override fun onBindViewHolder(holder: GastoViewHolder, position: Int) {
         val gasto = listaGastos[position]
 
-        // Asignación de datos a los componentes visuales
         holder.tvIcono.text = gasto.icono
         holder.tvTitulo.text = gasto.titulo
 
-        // Extracción y formateo de la hora a partir de la fecha de registro (Formato esperado: "YYYY-MM-DD HH:MM:SS")
+        // Lógica de extracción de segmento horario (Format: "HH:mm")
         val horaSolo = try {
             gasto.fecha.split(" ")[1].substring(0, 5)
         } catch (e: Exception) {
@@ -56,10 +60,10 @@ class GastoAdapter(private var listaGastos: List<Gasto> = emptyList()) :
         }
         holder.tvHora.text = horaSolo
 
-        // Formateo del importe monetario
+        // Inyección de máscara monetaria
         holder.tvImporte.text = "-${gasto.importe} €"
 
-        // Configuración del evento de selección del ítem completo
+        // Disparo de evento de clic a través de la función de orden superior
         holder.itemView.setOnClickListener {
             onItemClick?.invoke(gasto)
         }
@@ -68,8 +72,9 @@ class GastoAdapter(private var listaGastos: List<Gasto> = emptyList()) :
     override fun getItemCount(): Int = listaGastos.size
 
     /**
-     * Actualiza el conjunto de datos del adaptador y refresca la interfaz de usuario.
-     * @param nuevaLista Colección actualizada de objetos Gasto a mostrar.
+     * REFRESCO DINÁMICO:
+     * Actualiza la referencia de la lista en memoria y notifica al observador
+     * para redibujar los elementos en pantalla.
      */
     fun actualizarLista(nuevaLista: List<Gasto>) {
         this.listaGastos = nuevaLista

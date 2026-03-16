@@ -9,12 +9,12 @@ import com.example.micerdito.R
 import com.example.micerdito.data.model.home.Categoria
 
 /**
- * ADAPTER - CategoriaAdapter:
- * Esta clase es la encargada de gestionar la visualización de las categorías en un RecyclerView.
- * Utiliza el patrón ViewHolder para optimizar el rendimiento al reciclar las vistas de la lista.
+ * ADAPTADOR - CategoriaAdapter:
+ * Actúa como puente entre la fuente de datos de categorías y el componente RecyclerView.
+ * Implementa el patrón ViewHolder para la reutilización eficiente de vistas.
  *
- * @param lista Colección de objetos [Categoria] obtenidos desde el repositorio.
- * @param onClick Función de callback (lambda) que se ejecuta al seleccionar una categoría.
+ * @param lista Colección de objetos [Categoria] a renderizar.
+ * @param onClick Interfaz funcional (lambda) para gestionar la selección de una categoría.
  */
 class CategoriaAdapter(
     private val lista: List<Categoria>,
@@ -22,8 +22,9 @@ class CategoriaAdapter(
 ) : RecyclerView.Adapter<CategoriaAdapter.ViewHolder>() {
 
     /**
-     * ViewHolder: Contenedor de las vistas de cada elemento de la lista.
-     * Mantiene las referencias a los componentes XML para evitar llamadas repetitivas a findViewById.
+     * PATRÓN VIEW HOLDER:
+     * Almacena las referencias de los componentes visuales de un ítem para evitar
+     * el costo computacional de búsquedas repetitivas (findViewById).
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvIcono: TextView = view.findViewById(R.id.tvIconoCategoria)
@@ -31,7 +32,8 @@ class CategoriaAdapter(
     }
 
     /**
-     * Infla el diseño XML (item_categoria) para cada fila de la lista.
+     * INFLADO DE VISTA:
+     * Crea y devuelve una instancia de ViewHolder vinculada al layout XML individual.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -40,22 +42,24 @@ class CategoriaAdapter(
     }
 
     /**
-     * Vincula los datos de un objeto Categoria específico con los componentes de la vista.
-     * Se encarga de asignar el icono (emoji/texto) y el nombre de la categoría.
+     * VINCULACIÓN DE DATOS (BINDING):
+     * Mapea las propiedades del objeto [Categoria] a los elementos visuales del ViewHolder.
+     * Configura el listener de interacción para la navegación o selección.
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val cat = lista[position]
 
-        // Asignación de datos al componente visual
+        // Asignación de contenido multimedia (Emoji/Icono) y texto
         holder.tvIcono.text = cat.icono
         holder.tvNombre.text = cat.nombre
 
-        // Configuración del evento de clic mediante la lambda recibida en el constructor
+        // Propagación del evento de clic hacia el controlador superior
         holder.itemView.setOnClickListener { onClick(cat) }
     }
 
     /**
-     * Retorna el número total de elementos a mostrar.
+     * CONTROL DE VOLUMEN:
+     * Retorna la cardinalidad de la lista de categorías.
      */
     override fun getItemCount() = lista.size
 }

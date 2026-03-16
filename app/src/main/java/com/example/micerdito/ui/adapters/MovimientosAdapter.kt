@@ -10,16 +10,18 @@ import com.example.micerdito.R
 import com.example.micerdito.data.model.home.Gasto
 
 /**
- * ADAPTER - MovimientosAdapter
- * Responsable de la representación visual de la lista de gastos (movimientos) en el Dashboard.
- * Transforma los objetos de datos [Gasto] en elementos de lista legibles, aplicando
- * formatos de moneda y estilos visuales de alerta.
+ * ADAPTADOR - MovimientosAdapter:
+ * Gestiona la representación de la lista de gastos recientes en el Dashboard principal.
+ * Se encarga de transformar los objetos [Gasto] en componentes visuales dinámicos,
+ * aplicando reglas de estilo y formato monetario.
  */
 class MovimientosAdapter(private val lista: List<Gasto>) :
     RecyclerView.Adapter<MovimientosAdapter.ViewHolder>() {
 
     /**
-     * ViewHolder: Enlaza los componentes del layout XML 'item_gastos' con el código Kotlin.
+     * VIEW HOLDER:
+     * Almacena las referencias a los elementos del layout 'item_gastos' para optimizar
+     * el rendimiento del scroll mediante la reutilización de memoria.
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvIcono: TextView = view.findViewById(R.id.tvIconoCategoria)
@@ -28,9 +30,6 @@ class MovimientosAdapter(private val lista: List<Gasto>) :
         val tvMonto: TextView = view.findViewById(R.id.tvMontoGasto)
     }
 
-    /**
-     * Infla la vista de cada fila de gasto.
-     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_gastos, parent, false)
@@ -38,24 +37,26 @@ class MovimientosAdapter(private val lista: List<Gasto>) :
     }
 
     /**
-     * Procesa y muestra los datos de cada gasto individual.
-     * Incluye lógica de formateo para mejorar la experiencia de usuario (UX).
+     * LÓGICA DE REPRESENTACIÓN:
+     * Inyecta los datos del modelo en la UI y aplica reglas de negocio visuales,
+     * como el formateo de decimales y la asignación de colores por tipo de movimiento.
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val gasto = lista[position]
 
-        // Mostramos el icono visual de la categoría (Emoji/Icono) y textos descriptivos
+        // Enlace de datos descriptivos
         holder.tvIcono.text = gasto.icono
         holder.tvDescripcion.text = gasto.titulo
         holder.tvFecha.text = gasto.fecha
 
-        // Formateamos el importe
+        // Formateo de precisión monetaria a dos decimales y adición de símbolo local
         val montoTexto = "-${String.format("%.2f", gasto.importe)}€"
         holder.tvMonto.text = montoTexto
 
         /**
-         * ESTILO VISUAL:
-         * Se aplica un color semántico (rojo) para identificar rápidamente los gastos.
+         * FEEDBACK VISUAL SEMÁNTICO:
+         * Aplicación de un color identificativo para enfatizar que el registro
+         * corresponde a una salida de capital (Gasto).
          */
         holder.tvMonto.setTextColor(
             ContextCompat.getColor(
@@ -66,7 +67,8 @@ class MovimientosAdapter(private val lista: List<Gasto>) :
     }
 
     /**
-     * Indica el tamaño de la lista de movimientos recientes.
+     * CARDINALIDAD:
+     * Define el volumen de registros a renderizar en el flujo del Dashboard.
      */
     override fun getItemCount(): Int = lista.size
 }

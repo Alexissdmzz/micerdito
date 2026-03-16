@@ -15,12 +15,12 @@
 
         <ImageView
             android:id="@+id/ivLogoLogin"
-            android:layout_width="150dp"
-            android:layout_height="150dp"
+            android:layout_width="183dp"
+            android:layout_height="183dp"
             android:layout_marginTop="76dp"
-            android:contentDescription="Logotipo del usuario"
+            android:contentDescription="Logotipo de la aplicación"
             android:focusable="false"
-            android:src="@drawable/icono_anonimo"
+            android:src="@drawable/logo_micerdito"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.497"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,8 +37,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.499">
+            app:layout_constraintTop_toBottomOf="@+id/ivLogoLogin"
+            app:layout_constraintVertical_bias="0.185">
 
             <Button
                 android:id="@+id/btnLoginWelcome"
@@ -47,7 +47,7 @@
                 android:layout_marginBottom="12dp"
                 android:backgroundTint="@color/background_beige"
                 android:contentDescription="Ir a la pantalla de inicio de sesión"
-                android:text="LOGIN"
+                android:text="INICIAR SESIÓN"
                 android:textColor="@color/texto_negro"
                 app:cornerRadius="24dp" />
 
@@ -57,7 +57,7 @@
                 android:layout_height="48dp"
                 android:backgroundTint="@color/background_beige"
                 android:contentDescription="Ir a la pantalla de registro de usuario"
-                android:text="REGISTER"
+                android:text="REGISTRARSE"
                 android:textColor="@color/texto_negro"
                 app:cornerRadius="24dp" />
 
