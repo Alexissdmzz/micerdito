@@ -11,7 +11,7 @@ import com.example.micerdito.ui.fragments.HomeFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
-import com.example.micerdito.data.preferencias.PreferenciasSesion
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.micerdito.ui.fragments.CalendarioFragment
 import com.example.micerdito.ui.fragments.GastosCompartidosFragment
 import com.example.micerdito.ui.fragments.GastosFragment
@@ -21,7 +21,7 @@ import com.example.micerdito.viewmodel.home.HomeViewModel
  * ACTIVITY - HomeActivity:
  * Actúa como el host principal de la aplicación tras el login. Gestiona el contenedor
  * de fragmentos, el menú de navegación inferior (Bottom Navigation) y la lógica
- * de accesibilidad global (Temas).
+ * de accesibilidad global (Temas y Modo Oscuro).
  */
 class HomeActivity : AppCompatActivity() {
 
@@ -33,19 +33,14 @@ class HomeActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         /**
-         * APLICACIÓN DE TEMAS DINÁMICOS:
-         * Se debe realizar ANTES de super.onCreate para que los recursos
-         * de color se carguen correctamente en toda la jerarquía de vistas.
+         * CONFIGURACIÓN VISUAL GLOBAL:
+         * Leemos las preferencias del usuario antes de crear la vista para evitar
+         * parpadeos o saltos de color.
          */
-        if (viewModel.esDaltonico()) {
-            setTheme(R.style.Theme_MiCerdito_Daltonico)
-        } else {
-            setTheme(R.style.Theme_MiCerdito)
-        }
+        aplicarConfiguracionVisual()
 
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_home) // Mostramos la vista
-
+        setContentView(R.layout.activity_home)
 
         // Inicialización de componentes de la vista
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
@@ -53,12 +48,12 @@ class HomeActivity : AppCompatActivity() {
 
         configurarBotonSalir()
 
-        // Inicialización del Header con el nombre persistido en SharedPreferences
+        // Inicialización del Header con el nombre persistido
         tvWelcome.text = "Hola, ${viewModel.obtenerNombreUsuario()}"
 
         /**
          * CARGA INICIAL:
-         * Si no hay un estado guardado (primer arranque), cargamos el HomeFragment.
+         * Si es el primer arranque, cargamos el HomeFragment por defecto.
          */
         if (savedInstanceState == null) {
             cargarFragmento(HomeFragment())
@@ -67,7 +62,7 @@ class HomeActivity : AppCompatActivity() {
 
         /**
          * NAVEGACIÓN INFERIOR (Footer):
-         * Gestiona el intercambio de fragmentos y la visibilidad del Header global.
+         * Intercambio de fragmentos y gestión de la visibilidad del Header.
          */
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
@@ -83,12 +78,10 @@ class HomeActivity : AppCompatActivity() {
                     tvWelcome.visibility = android.view.View.GONE
                     cargarFragmento(GastosFragment())
                 }
-
                 R.id.nav_gastos_compartidos -> {
                     tvWelcome.visibility = android.view.View.GONE
                     cargarFragmento(GastosCompartidosFragment())
                 }
-
                 R.id.nav_configuracion -> {
                     tvWelcome.visibility = android.view.View.GONE
                     cargarFragmento(AjustesFragment())
@@ -99,15 +92,35 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
+     * GESTIÓN DE TEMAS Y ACCESIBILIDAD:
+     * Aplica el modo daltónico y el modo oscuro recuperando los valores del ViewModel.
+     */
+    private fun aplicarConfiguracionVisual() {
+        // 1. Aplicamos el Tema (Daltonismo vs Normal)
+        if (viewModel.esDaltonico()) {
+            setTheme(R.style.Theme_MiCerdito_Daltonico)
+        } else {
+            setTheme(R.style.Theme_MiCerdito)
+        }
+
+        // 2. Aplicamos el Modo Oscuro (Noche vs Día)
+        val modoNoche = if (viewModel.esModoOscuro()) {
+            AppCompatDelegate.MODE_NIGHT_YES
+        } else {
+            AppCompatDelegate.MODE_NIGHT_NO
+        }
+        AppCompatDelegate.setDefaultNightMode(modoNoche)
+    }
+
+    /**
      * GESTIÓN DEL BOTÓN ATRÁS:
-     * Implementa un callback para evitar cierres accidentales.
-     * Requiere que el usuario pulse dos veces en un intervalo de 2 segundos.
+     * Evita cierres accidentales mediante doble pulsación.
      */
     private fun configurarBotonSalir() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 if (Salir) {
-                    finishAffinity() // Cierra todas las actividades y sale de la App
+                    finishAffinity()
                     return
                 }
 
@@ -118,7 +131,6 @@ class HomeActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
 
-                // Si no pulsa en 2 segundos, reseteamos
                 window.decorView.postDelayed({ Salir = false }, 2000)
             }
         })
@@ -126,7 +138,7 @@ class HomeActivity : AppCompatActivity() {
 
     /**
      * TRANSACCIÓN DE FRAGMENTOS:
-     * Sustituye el contenido del FrameLayout 'fragment_container' por el nuevo Fragmento.
+     * Reemplaza el contenedor principal por el fragmento seleccionado.
      */
     private fun cargarFragmento(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
@@ -135,12 +147,11 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
-     * MÉTODO PÚBLICO DE COMUNICACIÓN:
-     * Permite que fragmentos hijos (como AjustesFragment) actualicen el texto
-     * del Header de la actividad principal tras un cambio de perfil.
+     * ACTUALIZACIÓN DE INTERFAZ:
+     * Sincroniza el nombre del usuario en el Header tras cambios en el perfil.
      */
     fun actualizarNombreHeader(nuevoNombre: String) {
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
-        tvWelcome.text = "Hola, $nuevoNombre" // O el formato que uses
+        tvWelcome.text = "Hola, $nuevoNombre"
     }
 }

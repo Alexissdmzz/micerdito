@@ -2,9 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Esto permite poder realizar operaciones con la cámara del móvil -->
-    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="28" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="28" />
     <!-- Esto permite poder operar con la API permitiendo subir y enviar datos -->
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -24,9 +29,9 @@
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
-        <meta-data
-            android:name="android.support.FILE_PROVIDER_PATHS"
-            android:resource="@xml/file_paths" />
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
         </provider>
 
         <!-- LOGO -->
@@ -59,13 +64,14 @@
 
         <!-- FORGOT PASSWORD -->
         <activity
-            android:name=".view.auth.ForgotPasswordActivity"
+            android:name=".ui.autenticacion.ForgotPasswordActivity"
             android:exported="false" />
 
         <!-- HOME -->
         <activity
             android:name=".ui.home.HomeActivity"
-            android:exported="false" />
+            android:exported="true"
+            android:windowSoftInputMode="adjustPan" />
 
     </application>
 

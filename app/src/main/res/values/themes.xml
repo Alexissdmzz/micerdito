@@ -2,14 +2,23 @@
 <resources>
     <style name="Theme.MiCerdito" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/rosa_cerdito</item>
-        <item name="android:windowBackground">@color/beige_claro</item>
         <item name="colorSecondary">@color/verde_exito</item>
+
+        <item name="android:windowBackground">@color/beige_claro</item>
+        <item name="colorSurface">@color/background_beige</item>
+
+        <item name="android:textColorPrimary">@color/texto_negro</item>
+        <item name="colorOnSurface">@color/texto_negro</item>
     </style>
 
     <style name="Theme.MiCerdito.Daltonico" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/azul_accesible</item>
-        <item name="android:windowBackground">@color/beige_claro</item>
         <item name="colorSecondary">@color/naranja_accesible</item>
+
+        <item name="android:windowBackground">@color/beige_claro</item>
+        <item name="colorSurface">@color/background_beige</item>
+
+        <item name="android:textColorPrimary">@color/texto_negro</item>
     </style>
 
     <style name="BottomNavText">

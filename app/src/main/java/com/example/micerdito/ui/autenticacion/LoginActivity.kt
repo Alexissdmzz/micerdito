@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.micerdito.R
 import com.example.micerdito.data.preferencias.PreferenciasSesion
 import com.example.micerdito.ui.home.HomeActivity
-import com.example.micerdito.view.auth.ForgotPasswordActivity
+import com.example.micerdito.ui.autenticacion.ForgotPasswordActivity
 import com.example.micerdito.viewmodel.auth.AuthViewModel
 import com.google.android.material.textfield.TextInputEditText
 

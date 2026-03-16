@@ -42,15 +42,30 @@
                 android:src="@drawable/ic_sin_foto" />
         </com.google.android.material.card.MaterialCardView>
 
-        <Button
-            android:id="@+id/btnCambiarFoto"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
-            android:text="Cambiar Foto"
-            android:textColor="@color/design_default_color_primary" />
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnEliminarFoto"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Eliminar Foto"
+                android:textColor="#FF0000" />
+
+            <Button
+                android:id="@+id/btnCambiarFoto"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cambiar Foto"
+                android:textColor="@color/design_default_color_primary" />
+
+        </LinearLayout>
 
         <EditText
             android:id="@+id/etTituloDetalle"

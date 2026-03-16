@@ -39,6 +39,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     fun obtenerNombreUsuario(): String = sesionRepository.getNombreUsuario()
     fun esDaltonico(): Boolean = sesionRepository.esDaltonico()
 
+    fun esModoOscuro(): Boolean = sesionRepository.esModoOscuro()
+
     /**
      * CARGA INTEGRAL DE DATOS:
      * Ejecuta dos peticiones de red simultáneas mediante corrutinas para poblar
