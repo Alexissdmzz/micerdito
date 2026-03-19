@@ -17,6 +17,7 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.micerdito.BuildConfig
 import com.example.micerdito.R
 import com.example.micerdito.data.model.home.Gasto
 import com.example.micerdito.data.model.home.ResumenCategoria
@@ -43,7 +44,6 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
-import java.util.Calendar
 
 /**
  * FRAGMENTO - CalendarioFragment:
@@ -61,7 +61,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
     private var ultimoAnioPedido = -1
     private var limiteSeteado: CalendarDay? = null
 
-    private val URL_BASE_IMAGENES = "http://10.202.20.159/micerdito_api/uploads/tickets/"
+    private val URL_BASE_IMAGENES = BuildConfig.BASE_URL + "uploads/tickets/"
     private var uriImagenSeleccionada: Uri? = null
 
     // Gestiona la selección de imagen en galería y actualiza la vista previa en el diálogo

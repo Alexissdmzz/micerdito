@@ -1,5 +1,6 @@
 package com.example.micerdito.data.conexion
 
+import com.example.micerdito.BuildConfig
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
 
     // URL base del servidor local (Usamos 10.0.2.2 que es el "localhost" de Android)
-    private const val BASE_URL = "http://10.0.2.2/micerdito_api/"
+    private val BASE_URL = BuildConfig.BASE_URL
 
     // Configuración de GSON, @setLenient permite procesar JSON aunque no sean perfectos o tengan errores
     private val gson = GsonBuilder()
