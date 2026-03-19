@@ -19,7 +19,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField("String", "BASE_URL", "\"\"")
+        buildConfigField("String", "BASE_URL", "\"https://unmerited-republishable-myra.ngrok-free.dev\"")
     }
 
     buildTypes {

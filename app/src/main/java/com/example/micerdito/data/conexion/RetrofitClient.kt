@@ -16,7 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitClient {
 
     // URL base del servidor local (Usamos 10.0.2.2 que es el "localhost" de Android)
-    private val BASE_URL = BuildConfig.BASE_URL
+    private val BASE_URL = BuildConfig.BASE_URL + "/micerdito_api/"
 
     // Configuración de GSON, @setLenient permite procesar JSON aunque no sean perfectos o tengan errores
     private val gson = GsonBuilder()

@@ -4,32 +4,26 @@
 
     <item
         android:id="@+id/nav_home"
+        android:contentDescription="Ir a la pantalla de inicio"
         android:icon="@drawable/icono_home"
-        android:title="Inicio"
-        android:contentDescription="Ir a la pantalla de inicio" />
+        android:title="Inicio" />
 
     <item
         android:id="@+id/nav_calendario"
+        android:contentDescription="Ver gastos en el calendario"
         android:icon="@drawable/icono_calendario"
-        android:title="Calendario"
-        android:contentDescription="Ver gastos en el calendario" />
+        android:title="Calendario" />
 
     <item
         android:id="@+id/nav_anadir_gasto"
+        android:contentDescription="Registrar un nuevo gasto"
         android:icon="@drawable/icono_anadir_gasto"
-        android:title="Añadir"
-        android:contentDescription="Registrar un nuevo gasto" />
-
-    <item
-        android:id="@+id/nav_gastos_compartidos"
-        android:icon="@drawable/icono_gastoscompartidos"
-        android:title="Compartir"
-        android:contentDescription="Gestionar gastos compartidos con otros" />
+        android:title="Añadir" />
 
     <item
         android:id="@+id/nav_configuracion"
+        android:contentDescription="Abrir configuración de la aplicación"
         android:icon="@drawable/icono_configuracion"
-        android:title="Ajustes"
-        android:contentDescription="Abrir configuración de la aplicación" />
+        android:title="Ajustes" />
 
 </menu>

@@ -17,12 +17,14 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.signature.ObjectKey
 import com.example.micerdito.BuildConfig
 import com.example.micerdito.R
 import com.example.micerdito.data.model.home.Gasto
 import com.example.micerdito.data.model.home.ResumenCategoria
 import com.example.micerdito.ui.adapters.GastoAdapter
 import com.example.micerdito.ui.decorators.EventDecorator
+import com.example.micerdito.ui.handlers.CameraHandler
 import com.example.micerdito.viewmodel.home.CalendarioViewModel
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
@@ -52,44 +54,69 @@ import java.io.FileOutputStream
  */
 class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
-    // Inicialización del ViewModel y Adaptador
     private val viewModel: CalendarioViewModel by viewModels()
     private lateinit var gastoAdapter: GastoAdapter
     private lateinit var calendarView: MaterialCalendarView
+    private lateinit var cameraHandler: CameraHandler
 
     private var ultimoMesPedido = -1
     private var ultimoAnioPedido = -1
     private var limiteSeteado: CalendarDay? = null
 
-    private val URL_BASE_IMAGENES = BuildConfig.BASE_URL + "uploads/tickets/"
+    private val URL_BASE_IMAGENES = BuildConfig.BASE_URL + "/micerdito_api/uploads/tickets/"
     private var uriImagenSeleccionada: Uri? = null
+    private var ivTicketEdicion: ImageView? = null
+    private var borrarFotoPendiente = false
 
-    // Gestiona la selección de imagen en galería y actualiza la vista previa en el diálogo
-    private val pickImageLauncher =
-        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let {
-                uriImagenSeleccionada = it
-                view?.findViewWithTag<ImageView>("ivTicketActivo")?.setImageURI(it)
+    /**
+     * Gestiona la captura de fotografía mediante la cámara y actualiza la vista previa.
+     */
+    private val cameraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
+            if (success) {
+                cameraHandler.rutaFotoActual?.let { ruta ->
+                    val uri = Uri.fromFile(File(ruta))
+                    actualizarImagenEnDialogo(uri)
+                }
             }
         }
+
+    /**
+     * Gestiona la selección de imagen en galería y actualiza la vista previa en el diálogo.
+     */
+    private val pickImageLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let { actualizarImagenEnDialogo(it) }
+        }
+
+    /**
+     * Actualiza el ImageView del diálogo y configura el clic para ver la imagen a pantalla completa.
+     */
+    private fun actualizarImagenEnDialogo(uri: Uri) {
+        uriImagenSeleccionada = uri
+        borrarFotoPendiente = false
+        ivTicketEdicion?.setImageURI(uri)
+        ivTicketEdicion?.setOnClickListener { mostrarFotoGrande(uri) }
+
+        ivTicketEdicion?.rootView?.findViewById<Button>(R.id.btnEliminarFoto)?.visibility =
+            View.VISIBLE
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicialización de componentes de la vista
+        cameraHandler = CameraHandler(requireContext())
         calendarView = view.findViewById(R.id.calendarView)
         val pieChartMensual = view.findViewById<PieChart>(R.id.pieChartMensual)
         val rvGastosDia = view.findViewById<RecyclerView>(R.id.rvGastosDia)
         val tvSinDatos = view.findViewById<TextView>(R.id.tvSinDatos)
 
-        // Configuración del RecyclerView
         gastoAdapter = GastoAdapter()
         rvGastosDia.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = gastoAdapter
         }
 
-        // Configuración inicial del Calendario
         calendarView.selectedDate = CalendarDay.today()
         calendarView.setTitleFormatter(MonthArrayTitleFormatter(resources.getTextArray(R.array.meses_espanyol)))
         calendarView.setWeekDayFormatter(ArrayWeekDayFormatter(resources.getTextArray(R.array.dias_semana_espanyol)))
@@ -164,7 +191,6 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             if (response != null && response.success) {
                 Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT).show()
 
-                // Refresco automático de los datos del día seleccionado o del día actual por defecto
                 val diaRefresco = calendarView.selectedDate ?: CalendarDay.today()
                 viewModel.obtenerGastosDia(diaRefresco.year, diaRefresco.month, diaRefresco.day)
 
@@ -208,6 +234,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
      */
     private fun mostrarBottomSheetDetalle(gasto: Gasto) {
         uriImagenSeleccionada = null
+        borrarFotoPendiente = false
         val dialog = BottomSheetDialog(requireContext())
         val view = layoutInflater.inflate(R.layout.item_gasto_detallado_calendario, null)
 
@@ -220,16 +247,16 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         val btnEliminar = view.findViewById<Button>(R.id.btnEliminarGasto)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardarCambios)
 
-        ivTicket.tag = "ivTicketActivo"
+        ivTicketEdicion = ivTicket
         etTitulo.setText(gasto.titulo)
         etImporte.setText(gasto.importe.toString())
         etDescripcion.setText(gasto.descripcion ?: "")
 
-        // Carga de la imagen actual y ajuste de visibilidad de los botones de imagen
         if (!gasto.foto_ticket.isNullOrEmpty()) {
             val urlCompleta = URL_BASE_IMAGENES + gasto.foto_ticket
             Glide.with(requireContext())
                 .load(urlCompleta)
+                .signature(ObjectKey(System.currentTimeMillis()))
                 .error(R.drawable.ic_sin_foto)
                 .into(ivTicket)
 
@@ -240,21 +267,24 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             btnEliminarFoto.visibility = View.GONE
         }
 
-        btnCambiarFoto.setOnClickListener { pickImageLauncher.launch("image/*") }
+        btnCambiarFoto.setOnClickListener {
+            val opciones = arrayOf("Cámara", "Galería")
+            AlertDialog.Builder(requireContext())
+                .setTitle("Seleccionar origen")
+                .setItems(opciones) { _, which ->
+                    when (which) {
+                        0 -> cameraHandler.generarUriParaCamara()?.let { cameraLauncher.launch(it) }
+                        1 -> pickImageLauncher.launch("image/*")
+                    }
+                }.show()
+        }
 
         btnEliminarFoto.setOnClickListener {
-            val nTitulo = etTitulo.text.toString().trim()
-            val nImporte = etImporte.text.toString().toDoubleOrNull() ?: 0.0
-            val nDesc = etDescripcion.text.toString().trim()
-
-            if (nTitulo.isNotEmpty()) {
-                // Se envía cadena vacía en fotoActual para eliminar el registro de la imagen en BBDD
-                viewModel.editarGasto(gasto.id_gasto, nTitulo, nImporte, nDesc, "", null)
-                dialog.dismiss()
-            } else {
-                Toast.makeText(requireContext(), "El título es obligatorio", Toast.LENGTH_SHORT)
-                    .show()
-            }
+            borrarFotoPendiente = true
+            uriImagenSeleccionada = null
+            ivTicket.setImageResource(R.drawable.ic_sin_foto)
+            btnEliminarFoto.visibility = View.GONE
+            ivTicket.setOnClickListener(null)
         }
 
         btnEliminar.setOnClickListener {
@@ -282,13 +312,18 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                     }
                 }
 
-                // Se mantiene el nombre de la foto actual como respaldo si no se ha seleccionado una nueva
+                val fotoActualParam = when {
+                    uriImagenSeleccionada != null -> ""
+                    borrarFotoPendiente -> ""
+                    else -> gasto.foto_ticket ?: ""
+                }
+
                 viewModel.editarGasto(
                     gasto.id_gasto,
                     nTitulo,
                     nImporte,
                     nDesc,
-                    gasto.foto_ticket ?: "",
+                    fotoActualParam,
                     fotoPart
                 )
                 dialog.dismiss()
@@ -297,6 +332,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                     .show()
             }
         }
+        dialog.setOnDismissListener { ivTicketEdicion = null }
         dialog.setContentView(view)
         dialog.show()
     }
@@ -305,7 +341,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
      * VISUALIZACIÓN MULTIMEDIA:
      * Genera un diálogo a pantalla completa para visualizar el ticket ampliado.
      */
-    private fun mostrarFotoGrande(url: String) {
+    private fun mostrarFotoGrande(origen: Any) {
         val dialog =
             android.app.Dialog(requireContext(), android.R.style.Theme_Black_NoTitleBar_Fullscreen)
         val root = android.widget.FrameLayout(requireContext())
@@ -335,7 +371,11 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         root.addView(btnCerrar)
         dialog.setContentView(root)
 
-        Glide.with(this).load(url).error(R.drawable.ic_sin_foto).into(visor)
+        Glide.with(this)
+            .load(origen)
+            .signature(ObjectKey(System.currentTimeMillis()))
+            .error(R.drawable.ic_sin_foto)
+            .into(visor)
         dialog.show()
     }
 
@@ -398,5 +438,8 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             calendarView.currentDate.month,
             calendarView.currentDate.year
         )
+
+        val diaActual = calendarView.selectedDate ?: CalendarDay.today()
+        viewModel.obtenerGastosDia(diaActual.year, diaActual.month, diaActual.day)
     }
 }
