@@ -1,16 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondo_app"
-    android:fillViewport="true"
-    android:importantForAccessibility="yes">
+    android:background="@drawable/micerdito_welcome"
+    android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="32dp">
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvBackRegister"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:contentDescription="Regresar a la pantalla anterior"
+            android:focusable="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:padding="8dp"
+            android:text="&lt; Atrás"
+            android:textColor="@color/texto_negro"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:contentDescription="Enlace para ir al inicio de sesión"
+            android:focusable="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:gravity="center_vertical"
+            android:minHeight="48dp"
+            android:text="¿Ya tienes una cuenta?"
+            android:textColor="@color/texto_negro"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvBackRegister"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvBackRegister" />
 
         <TextView
             android:id="@+id/tvTitleRegister"
@@ -18,120 +53,153 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:accessibilityHeading="true"
-            android:contentDescription="Título de la pantalla: Registro de nuevo usuario"
+            android:fontFamily="@font/amiko_semibold"
             android:text="REGISTRARSE"
             android:textColor="@color/texto_negro"
-            android:textSize="28sp"
+            android:textSize="32sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/tvBackRegister" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/mcvRegisterCard"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilUsername"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:importantForAccessibility="noHideDescendants"
-            app:cardBackgroundColor="@color/background_dark"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="24dp"
+            android:hint="Usuario"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:hintTextColor="@color/texto_negro"
             app:layout_constraintTop_toBottomOf="@id/tvTitleRegister">
 
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRegUsername"
                 android:layout_width="match_parent"
-                android:layout_height="593dp"
-                android:background="@drawable/fondo_cardview"
-                android:gravity="center"
-                android:importantForAccessibility="yes"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
+                android:textColor="@color/texto_negro" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etRegUsername"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/background_beige"
-                    android:hint="Usuario"
-                    android:paddingHorizontal="20dp"
-                    android:textColor="@color/texto_negro" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEmail"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Correo"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:hintTextColor="@color/texto_negro"
+            app:layout_constraintTop_toBottomOf="@id/tilUsername">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etRegEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/background_beige"
-                    android:hint="Correo"
-                    android:inputType="textEmailAddress"
-                    android:paddingHorizontal="20dp"
-                    android:textColor="@color/texto_negro" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRegEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/texto_negro" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etRegPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/background_beige"
-                    android:hint="Contraseña"
-                    android:inputType="textPassword"
-                    android:paddingHorizontal="20dp"
-                    android:textColor="@color/texto_negro" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Contraseña"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:hintTextColor="@color/texto_negro"
+            app:layout_constraintTop_toBottomOf="@id/tilEmail"
+            app:endIconMode="password_toggle">
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etRegRepeatPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/background_beige"
-                    android:hint="Repetir contraseña"
-                    android:inputType="textPassword"
-                    android:paddingHorizontal="20dp"
-                    android:textColor="@color/texto_negro" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRegPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
+                android:inputType="textPassword"
+                android:textColor="@color/texto_negro" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <FrameLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="12dp"
-                    android:background="@color/background_beige">
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilRepeatPassword"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Repetir contraseña"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:hintTextColor="@color/texto_negro"
+            app:layout_constraintTop_toBottomOf="@id/tilPassword"
+            app:endIconMode="password_toggle">
 
-                    <Spinner
-                        android:id="@+id/spinnerPreguntas"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:contentDescription="Seleccione una pregunta de seguridad"
-                        android:paddingHorizontal="10dp" />
-                </FrameLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRegRepeatPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
+                android:inputType="textPassword"
+                android:textColor="@color/texto_negro" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etRespuestaSeguridad"
-                    android:layout_width="match_parent"
-                    android:layout_height="50dp"
-                    android:layout_marginBottom="24dp"
-                    android:background="@color/background_beige"
-                    android:hint="Respuesta de seguridad"
-                    android:paddingHorizontal="20dp"
-                    android:textColor="@color/texto_negro" />
+        <FrameLayout
+            android:id="@+id/containerSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/background_beige"
+            app:layout_constraintTop_toBottomOf="@id/tilRepeatPassword">
 
-                <Button
-                    android:id="@+id/btnRegistrarse"
-                    android:layout_width="200dp"
-                    android:layout_height="48dp"
-                    android:backgroundTint="@color/background_beige"
-                    android:text="REGISTRARSE"
-                    android:textColor="@color/texto_negro"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:cornerRadius="24dp"
-                    app:strokeColor="#000000"
-                    app:strokeWidth="2dp" />
+            <Spinner
+                android:id="@+id/spinnerPreguntas"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:contentDescription="Seleccione una pregunta de seguridad"
+                android:paddingStart="12dp"
+                android:paddingEnd="12dp"
+                android:spinnerMode="dropdown" />
+        </FrameLayout>
 
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilRespuesta"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:hint="Respuesta de seguridad"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:hintTextColor="@color/texto_negro"
+            app:layout_constraintTop_toBottomOf="@id/containerSpinner">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etRespuestaSeguridad"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
+                android:textColor="@color/texto_negro" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRegistrarse"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:layout_marginTop="60dp"
+            android:layout_marginBottom="32dp"
+            android:backgroundTint="@color/rosa_cerdito"
+            android:fontFamily="@font/amiko_semibold"
+            android:text="REGISTRARSE"
+            android:textAllCaps="true"
+            android:textColor="@color/texto_negro"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:cornerRadius="32dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tilRespuesta"
+            app:layout_constraintVertical_bias="0.0"
+            app:strokeColor="#000000"
+            app:strokeWidth="1dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

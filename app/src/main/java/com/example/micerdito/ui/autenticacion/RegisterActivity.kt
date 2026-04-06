@@ -1,10 +1,12 @@
 package com.example.micerdito.ui.autenticacion
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -28,6 +30,8 @@ class RegisterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_register)
 
         // Inicialización de componentes de la vista
+        val tvBackRegister = findViewById<TextView>(R.id.tvBackRegister)
+        val tvLogin = findViewById<TextView>(R.id.tvLogin)
         val etUsername = findViewById<TextInputEditText>(R.id.etRegUsername)
         val etCorreo = findViewById<TextInputEditText>(R.id.etRegEmail)
         val etPwd = findViewById<TextInputEditText>(R.id.etRegPassword)
@@ -53,7 +57,17 @@ class RegisterActivity : AppCompatActivity() {
         setupObservers()
 
         // Configuración de interraciones
-        setupListeners(btnRegistrarse, etUsername, etCorreo, etPwd, etResp, etRepeatPwd, spinner)
+        setupListeners(
+            btnRegistrarse,
+            etUsername,
+            etCorreo,
+            etPwd,
+            etResp,
+            etRepeatPwd,
+            spinner,
+            tvBackRegister,
+            tvLogin
+        )
     }
 
     /**
@@ -97,7 +111,9 @@ class RegisterActivity : AppCompatActivity() {
         etPwd: EditText,
         etResp: EditText,
         etRepeatPwd: EditText,
-        spinner: Spinner
+        spinner: Spinner,
+        tvBackRegister: TextView,
+        tvLogin: TextView
     ) {
         /**
          * Lógica de envío del formulario.
@@ -133,6 +149,16 @@ class RegisterActivity : AppCompatActivity() {
 
             // Ejecución del registro a través del ViewModel
             viewModel.doRegister(username, correo, pwd, repeatPwd, idPregunta, resp)
+        }
+
+        // Volver a la pantalla anterior
+        tvBackRegister.setOnClickListener {
+            startActivity(Intent(this, WelcomeActivity::class.java))
+        }
+
+        // Ir al Login
+        tvLogin.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
         }
     }
 }

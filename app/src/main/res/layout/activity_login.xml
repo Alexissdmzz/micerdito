@@ -4,114 +4,127 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondo_app"
-    android:fillViewport="true"
-    android:importantForAccessibility="yes">
+    android:background="@drawable/micerdito_welcome"
+    android:fillViewport="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="32dp">
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tvBackLogin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:contentDescription="Regresar a la pantalla anterior"
+            android:focusable="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:padding="8dp"
+            android:text="&lt; Atrás"
+            android:textColor="@color/texto_negro"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvOlvido"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:contentDescription="Enlace para recuperar contraseña"
+            android:focusable="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:gravity="center_vertical"
+            android:minHeight="48dp"
+            android:text="¿Olvido su contraseña?"
+            android:textColor="@color/texto_negro"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@id/tvBackLogin"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/tvBackLogin" />
 
         <TextView
             android:id="@+id/tvTitleLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="64dp"
+            android:layout_marginTop="48dp"
             android:accessibilityHeading="true"
+            android:fontFamily="@font/amiko_semibold"
             android:text="INICIAR SESIÓN"
             android:textColor="@color/texto_negro"
-            android:textSize="35sp"
+            android:textSize="32sp"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/tvBackLogin" />
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/mcvLoginCard"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilEmail"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:importantForAccessibility="noHideDescendants"
-            app:cardBackgroundColor="@color/background_dark"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_marginTop="40dp"
+            android:hint="Correo electrónico"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:hintTextColor="@color/texto_negro"
+            app:layout_constraintTop_toBottomOf="@id/tvTitleLogin">
 
-            <LinearLayout
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etCorreo"
                 android:layout_width="match_parent"
-                android:layout_height="353dp"
-                android:background="@drawable/fondo_cardview"
-                android:importantForAccessibility="yes"
-                android:orientation="vertical"
-                android:padding="24dp">
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
+                android:inputType="textEmailAddress"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/texto_negro" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etCorreo"
-                    android:layout_width="match_parent"
-                    android:layout_height="55dp"
-                    android:background="@color/background_beige"
-                    android:contentDescription="Campo para ingresar correo electrónico"
-                    android:hint="Correo electrónico"
-                    android:inputType="textEmailAddress"
-                    android:paddingHorizontal="20dp"
-                    android:textColor="@color/texto_negro"
-                    android:textColorHint="@color/texto_negro" />
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilPassword"
+            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Contraseña"
+            app:boxBackgroundColor="@android:color/transparent"
+            app:hintTextColor="@color/texto_negro"
+            app:layout_constraintTop_toBottomOf="@id/tilEmail"
+            app:endIconMode="password_toggle">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    app:hintEnabled="false"
-                    app:passwordToggleEnabled="true"
-                    app:passwordToggleTint="@color/texto_negro">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
+                android:inputType="textPassword"
+                android:paddingHorizontal="12dp"
+                android:textColor="@color/texto_negro" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etPassword"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:background="@color/background_beige"
-                        android:contentDescription="Campo para ingresar contraseña"
-                        android:hint="Contraseña"
-                        android:textSize="18dp"
-                        android:inputType="textPassword"
-                        android:paddingHorizontal="20dp"
-                        android:gravity="center_vertical"
-                        android:textColor="@color/texto_negro"
-                        android:textColorHint="@color/texto_negro" />
-
-                </com.google.android.material.textfield.TextInputLayout>
-
-                <Button
-                    android:id="@+id/btnLogin"
-                    android:layout_width="180dp"
-                    android:layout_height="48dp"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="24dp"
-                    android:backgroundTint="@color/background_beige"
-                    android:contentDescription="Pulsar para iniciar sesión"
-                    android:text="Iniciar sesión"
-                    android:textColor="@color/texto_negro"
-                    app:cornerRadius="24dp" />
-
-                <TextView
-                    android:id="@+id/tvOlvido"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="20dp"
-                    android:clickable="true"
-                    android:contentDescription="Enlace: Olvidé mi contraseña"
-                    android:focusable="true"
-                    android:minHeight="48dp"
-                    android:text="¿Olvido su contraseña?"
-                    android:textColor="@color/title_dark"
-                    android:textSize="15sp" />
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnLogin"
+            android:layout_width="match_parent"
+            android:layout_height="69dp"
+            android:layout_marginTop="150dp"
+            android:layout_marginBottom="32dp"
+            android:backgroundTint="@color/rosa_cerdito"
+            android:contentDescription="Pulsar para iniciar sesión"
+            android:fontFamily="@font/amiko_semibold"
+            android:text="INICIAR SESIÓN"
+            android:textAllCaps="false"
+            android:textColor="@color/texto_negro"
+            android:textSize="16sp"
+            app:cornerRadius="28dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tilPassword"
+            app:layout_constraintVertical_bias="0.429"
+            app:strokeColor="@color/texto_negro"
+            app:strokeWidth="1dp"
+            tools:layout_editor_absoluteX="16dp" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

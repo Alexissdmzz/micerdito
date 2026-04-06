@@ -1,5 +1,6 @@
 package com.example.micerdito.ui.autenticacion
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -32,6 +33,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         setContentView(R.layout.activity_forgot_password)
 
         // Inicialización de componentes de la vista
+        val tvBackForgotPwd = findViewById<TextView>(R.id.tvBackForgotPwd)
         val etCorreo = findViewById<TextInputEditText>(R.id.etCorreo)
         val tvPregunta = findViewById<TextView>(R.id.tvPreguntaSeguridad)
         val layoutNuevaPass = findViewById<LinearLayout>(R.id.layoutNuevaPass)
@@ -43,7 +45,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
         setupObservers(tvPregunta, layoutNuevaPass, btnVerificar)
 
         // Configuración de interraciones
-        setupListeners(btnVerificar, etCorreo, etRespuesta, etNuevaPass)
+        setupListeners(btnVerificar, etCorreo, etRespuesta, etNuevaPass, tvBackForgotPwd)
     }
 
     /**
@@ -93,7 +95,8 @@ class ForgotPasswordActivity : AppCompatActivity() {
         btnVerificar: Button,
         etCorreo: EditText,
         etRespuesta: EditText,
-        etNuevaPass: EditText
+        etNuevaPass: EditText,
+        tvBackForgotPwd: TextView
     ) {
         /**
          * Lógica del botón de acción principal.
@@ -129,5 +132,9 @@ class ForgotPasswordActivity : AppCompatActivity() {
             }
         }
 
+        // Volver a la pantalla anterior
+        tvBackForgotPwd.setOnClickListener {
+            startActivity(Intent(this, LoginActivity::class.java))
+        }
     }
 }

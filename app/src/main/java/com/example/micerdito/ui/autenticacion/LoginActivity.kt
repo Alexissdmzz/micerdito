@@ -43,6 +43,7 @@ class LoginActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login)
 
         // Inicialización de componentes de la vista
+        val tvBackLogin = findViewById<TextView>(R.id.tvBackLogin)
         val etCorreo = findViewById<TextInputEditText>(R.id.etCorreo)
         val etPwd = findViewById<TextInputEditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
@@ -52,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
         setupObservers()
 
         // Configuración de interraciones
-        setupListeners(btnLogin, etCorreo, etPwd, tvForgotPwd)
+        setupListeners(btnLogin, etCorreo, etPwd, tvForgotPwd, tvBackLogin)
     }
 
     /**
@@ -88,7 +89,8 @@ class LoginActivity : AppCompatActivity() {
         btnLogin: Button,
         etCorreo: EditText,
         etPwd: EditText,
-        tvForgotPwd: TextView
+        tvForgotPwd: TextView,
+        tvBackLogin: TextView
     ) {
         /**
          * Acción del botón de acceso.
@@ -111,6 +113,11 @@ class LoginActivity : AppCompatActivity() {
         // Navegación hacia el flujo de recuperación de contraseña
         tvForgotPwd.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
+        }
+
+        //Navegación hacia una pantalla atrás
+        tvBackLogin.setOnClickListener {
+            startActivity(Intent(this, WelcomeActivity::class.java))
         }
     }
 
