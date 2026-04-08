@@ -2,9 +2,10 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@drawable/card_background"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="9dp">
 
     <TextView
         android:id="@+id/tvIconoCategoria"
@@ -19,10 +20,10 @@
         android:id="@+id/tvNombreCategoria"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
+        android:layout_marginTop="6dp"
         android:text="Categoría"
-        android:textColor="@color/texto_negro"
         android:textAlignment="center"
+        android:textColor="@color/texto_negro"
         android:textSize="9sp" />
 
 </LinearLayout>

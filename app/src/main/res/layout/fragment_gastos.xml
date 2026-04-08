@@ -20,17 +20,19 @@
             android:textColor="@color/texto_negro"
             android:textSize="24sp"
             android:textStyle="bold"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="MissingConstraints" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCategorias"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="8dp"
             android:nestedScrollingEnabled="false"
             app:layout_constraintTop_toBottomOf="@id/tvTitle"
-            tools:layout_editor_absoluteX="16dp" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardDetallesGasto"
@@ -46,6 +48,7 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_background"
                 android:padding="16dp">
 
                 <ImageButton
@@ -60,13 +63,14 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="32dp"
+                    android:layout_marginTop="40dp"
                     android:orientation="vertical">
 
                     <EditText
                         android:id="@+id/etTitulo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
                         android:hint="¿En qué has gastado?"
                         android:textColor="@color/texto_negro"
                         android:textColorHint="@color/texto_negro" />
@@ -74,6 +78,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
@@ -101,6 +106,7 @@
                         android:id="@+id/etDescripcion"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
                         android:hint="Notas adicionales (opcional)"
                         android:textColor="@color/texto_negro"
                         android:textColorHint="@color/texto_negro" />
@@ -110,7 +116,8 @@
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"
                         android:text="📷 Foto de Factura"
                         android:textColor="@color/texto_negro" />
 
@@ -118,7 +125,7 @@
                         android:id="@+id/ivFotoTicket"
                         android:layout_width="match_parent"
                         android:layout_height="180dp"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="12dp"
                         android:background="@color/background_beige"
                         android:scaleType="centerCrop"
                         android:visibility="gone"
@@ -129,7 +136,7 @@
                         android:id="@+id/btnGuardarGasto"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="8dp"
                         android:text="Guardar Gasto"
                         android:textColor="@color/texto_negro"
                         android:visibility="visible" />
