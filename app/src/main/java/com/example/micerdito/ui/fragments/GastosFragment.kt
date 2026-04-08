@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.micerdito.R
 import com.example.micerdito.ui.adapters.CategoriaAdapter
+import com.example.micerdito.ui.decorators.ItemDecorator
 import com.example.micerdito.ui.handlers.CameraHandler
 import com.example.micerdito.viewmodel.home.GastosViewModel
 import com.google.android.material.card.MaterialCardView
@@ -74,7 +75,12 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         val ivFoto = view.findViewById<ImageView>(R.id.ivFotoTicket)
 
         // Configuración básica del RecyclerView
-        rvCategorias.layoutManager = GridLayoutManager(requireContext(), 5)
+        rvCategorias.layoutManager = GridLayoutManager(requireContext(), 4)
+
+        if (rvCategorias.itemDecorationCount == 0) {
+            val spacing = resources.getDimensionPixelSize(R.dimen.categoria_spacing)
+            rvCategorias.addItemDecoration(ItemDecorator(4, spacing, true))
+        }
 
         // Configuración de observadores para reaccionar a cambios en el ViewModel
         setupObservers(rvCategorias, cardDetalles, etImporte, etDescripcion, ivFoto)
@@ -192,5 +198,10 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         fotoUri?.let { uri ->
             camaraLauncher.launch(uri)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? com.example.micerdito.ui.home.HomeActivity)?.mostrarHeader(false)
     }
 }

@@ -208,5 +208,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     override fun onResume() {
         super.onResume()
         viewModel.cargarDatosDeUsuario()
+        (activity as? com.example.micerdito.ui.home.HomeActivity)?.mostrarHeader(true)
     }
 }

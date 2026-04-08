@@ -29,9 +29,6 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Ocultamos elementos de la Activity principal que no pertenecen a este contexto
-        activity?.findViewById<View>(R.id.tvWelcome)?.visibility = View.GONE
-
         // Inicialización de componentes de la vista
         val btnLogout = view.findViewById<TextView>(R.id.btnLogout)
         val btnPerfil = view.findViewById<TextView>(R.id.btnPerfil)
@@ -103,7 +100,6 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
      */
     private fun configurarModosVisuales(view: View) {
         val switchDarkMode = view.findViewById<SwitchMaterial>(R.id.switchDarkMode)
-        val switchDaltonismo = view.findViewById<SwitchMaterial>(R.id.switchDaltonismo)
 
         // Sincronización del estado con SharedPreferences a través del ViewModel
         switchDarkMode.isChecked = viewModel.esModoOscuro()
@@ -112,15 +108,6 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
             val modo =
                 if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
             AppCompatDelegate.setDefaultNightMode(modo)
-        }
-
-        // Modo Daltonismo
-        switchDaltonismo.isChecked = viewModel.esDaltonico()
-        switchDaltonismo.setOnCheckedChangeListener { _, isChecked ->
-            viewModel.setDaltonico(isChecked)
-
-            // Recreamos la Activity para forzar la aplicación de los nuevos recursos de color
-            activity?.recreate()
         }
     }
 
@@ -168,5 +155,10 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
         // Limpiamos el historial para que no pueda volver atrás con el botón físico
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         startActivity(intent)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        (activity as? HomeActivity)?.mostrarHeader(false)
     }
 }

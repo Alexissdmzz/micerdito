@@ -441,5 +441,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
         val diaActual = calendarView.selectedDate ?: CalendarDay.today()
         viewModel.obtenerGastosDia(diaActual.year, diaActual.month, diaActual.day)
+
+        (activity as? com.example.micerdito.ui.home.HomeActivity)?.mostrarHeader(false)
     }
 }

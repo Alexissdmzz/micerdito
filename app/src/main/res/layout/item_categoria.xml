@@ -5,7 +5,7 @@
     android:background="@drawable/card_background"
     android:gravity="center"
     android:orientation="vertical"
-    android:padding="9dp">
+    android:padding="10dp">
 
     <TextView
         android:id="@+id/tvIconoCategoria"
@@ -18,9 +18,12 @@
 
     <TextView
         android:id="@+id/tvNombreCategoria"
-        android:layout_width="wrap_content"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:maxLines="2"
+        android:ellipsize="end"
         android:text="Categoría"
         android:textAlignment="center"
         android:textColor="@color/texto_negro"

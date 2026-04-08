@@ -1,26 +1,27 @@
 package com.example.micerdito.ui.home
 
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.micerdito.R
 import com.example.micerdito.ui.fragments.AjustesFragment
-import com.example.micerdito.ui.fragments.HomeFragment
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatDelegate
 import com.example.micerdito.ui.fragments.CalendarioFragment
 import com.example.micerdito.ui.fragments.GastosFragment
+import com.example.micerdito.ui.fragments.HomeFragment
 import com.example.micerdito.viewmodel.home.HomeViewModel
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
  * ACTIVITY - HomeActivity:
  * Actúa como el host principal de la aplicación tras el login. Gestiona el contenedor
- * de fragmentos, el menú de navegación inferior (Bottom Navigation) y la lógica
- * de accesibilidad global (Temas y Modo Oscuro).
+ * de fragmentos, el menú de navegación inferior (Bottom Navigation) y la lógica global.
  */
 class HomeActivity : AppCompatActivity() {
 
@@ -28,85 +29,53 @@ class HomeActivity : AppCompatActivity() {
     private val viewModel: HomeViewModel by viewModels()
 
     // Control de estado para la lógica de doble pulsación al salir
-    private var Salir = false
+    private var salir = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        /**
-         * CONFIGURACIÓN VISUAL GLOBAL:
-         * Leemos las preferencias del usuario antes de crear la vista para evitar
-         * parpadeos o saltos de color.
-         */
         aplicarConfiguracionVisual()
 
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
-        // Inicialización de componentes de la vista
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
 
         configurarBotonSalir()
 
-        // Inicialización del Header con el nombre persistido
-        tvWelcome.text = "Hola, ${viewModel.obtenerNombreUsuario()}"
+        // Inicialización del header con el nombre persistido
+        tvWelcome.text = "Bienvenido, ${viewModel.obtenerNombreUsuario()}"
 
-        /**
-         * CARGA INICIAL:
-         * Si es el primer arranque, cargamos el HomeFragment por defecto.
-         */
+        // Carga inicial
         if (savedInstanceState == null) {
             cargarFragmento(HomeFragment())
             bottomNav.selectedItemId = R.id.nav_home
         }
 
-        /**
-         * NAVEGACIÓN INFERIOR (Footer):
-         * Intercambio de fragmentos y gestión de la visibilidad del Header.
-         */
+        // Navegación inferior
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_home -> {
-                    tvWelcome.visibility = android.view.View.VISIBLE
-                    cargarFragmento(HomeFragment())
-                }
-
-                R.id.nav_calendario -> {
-                    tvWelcome.visibility = android.view.View.GONE
-                    cargarFragmento(CalendarioFragment())
-                }
-
-                R.id.nav_anadir_gasto -> {
-                    tvWelcome.visibility = android.view.View.GONE
-                    cargarFragmento(GastosFragment())
-                }
-
-                R.id.nav_configuracion -> {
-                    tvWelcome.visibility = android.view.View.GONE
-                    cargarFragmento(AjustesFragment())
-                }
+                R.id.nav_home -> cargarFragmento(HomeFragment())
+                R.id.nav_calendario -> cargarFragmento(CalendarioFragment())
+                R.id.nav_anadir_gasto -> cargarFragmento(GastosFragment())
+                R.id.nav_configuracion -> cargarFragmento(AjustesFragment())
             }
             true
         }
     }
 
     /**
-     * GESTIÓN DE TEMAS Y ACCESIBILIDAD:
-     * Aplica el modo daltónico y el modo oscuro recuperando los valores del ViewModel.
+     * GESTIÓN DE TEMAS:
+     * Aplica el modo oscuro recuperando el valor desde el ViewModel.
      */
     private fun aplicarConfiguracionVisual() {
-        // 1. Aplicamos el Tema (Daltonismo vs Normal)
-        if (viewModel.esDaltonico()) {
-            setTheme(R.style.Theme_MiCerdito_Daltonico)
-        } else {
-            setTheme(R.style.Theme_MiCerdito)
-        }
+        setTheme(R.style.Theme_MiCerdito)
 
-        // 2. Aplicamos el Modo Oscuro (Noche vs Día)
         val modoNoche = if (viewModel.esModoOscuro()) {
             AppCompatDelegate.MODE_NIGHT_YES
         } else {
             AppCompatDelegate.MODE_NIGHT_NO
         }
+
         AppCompatDelegate.setDefaultNightMode(modoNoche)
     }
 
@@ -117,19 +86,19 @@ class HomeActivity : AppCompatActivity() {
     private fun configurarBotonSalir() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                if (Salir) {
+                if (salir) {
                     finishAffinity()
                     return
                 }
 
-                Salir = true
+                salir = true
                 Toast.makeText(
                     this@HomeActivity,
                     "Pulsa atrás de nuevo para salir",
                     Toast.LENGTH_SHORT
                 ).show()
 
-                window.decorView.postDelayed({ Salir = false }, 2000)
+                window.decorView.postDelayed({ salir = false }, 2000)
             }
         })
     }
@@ -145,11 +114,27 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
+     * CONTROL DEL HEADER:
+     * Muestra u oculta completamente el contenedor del header.
+     */
+    fun mostrarHeader(mostrar: Boolean) {
+        val headerContainer = findViewById<View>(R.id.headerContainer)
+
+        if (mostrar) {
+            headerContainer.visibility = View.VISIBLE
+            window.statusBarColor = ContextCompat.getColor(this, R.color.rosa_cerdito)
+        } else {
+            headerContainer.visibility = View.GONE
+            window.statusBarColor = ContextCompat.getColor(this, R.color.background_light)
+        }
+    }
+
+    /**
      * ACTUALIZACIÓN DE INTERFAZ:
-     * Sincroniza el nombre del usuario en el Header tras cambios en el perfil.
+     * Sincroniza el nombre del usuario en el header tras cambios en el perfil.
      */
     fun actualizarNombreHeader(nuevoNombre: String) {
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
-        tvWelcome.text = "Hola, $nuevoNombre"
+        tvWelcome.text = "Bienvenido, $nuevoNombre"
     }
 }
