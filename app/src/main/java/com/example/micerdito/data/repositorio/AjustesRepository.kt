@@ -2,6 +2,7 @@ package com.example.micerdito.data.repositorio
 
 import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.home.AjustesResponse
+import com.example.micerdito.utils.ConexionUtils
 
 /**
  * REPOSITORIO - AjustesRepository:
@@ -25,18 +26,12 @@ class AjustesRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.deleteUser(idUsuario)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
+
     /**
      * Actualiza el nombre de perfil del usuario en el servidor.
      * @param idUsuario UUID del usuario que realiza el cambio.
@@ -50,16 +45,9 @@ class AjustesRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.editUser(idUsuario, username)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 }

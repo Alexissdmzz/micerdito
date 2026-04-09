@@ -1,116 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- CONTENEDOR SCROLL DEL DETALLE -->
+<!-- Permite desplazamiento vertical para consultar y editar la información completa del gasto -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:importantForAccessibility="yes"
     android:padding="20dp">
 
     <!-- CONTENIDO PRINCIPAL -->
+    <!-- Agrupa todos los elementos del detalle del gasto dentro del modal -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/card_background"
+        android:importantForAccessibility="yes"
         android:orientation="vertical">
 
         <!-- INDICADOR SUPERIOR DEL MODAL -->
+        <!-- Señala visualmente la zona superior del panel desplegable -->
         <View
             android:layout_width="40dp"
             android:layout_height="4dp"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
-            android:background="@color/card_border" />
+            android:background="@color/card_border"
+            android:importantForAccessibility="no" />
 
-        <!-- TÍTULO -->
+        <!-- TÍTULO DEL DETALLE -->
+        <!-- Indica que el usuario está visualizando el detalle de un gasto -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
+            android:accessibilityHeading="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:importantForAccessibility="yes"
             android:text="Detalle del Gasto"
             android:textColor="@color/texto_negro"
             android:textSize="20sp"
             android:textStyle="bold" />
 
         <!-- TARJETA DE LA FOTO -->
+        <!-- Contiene la imagen asociada al ticket o comprobante del gasto -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginBottom="8dp"
+            android:contentDescription="Tarjeta con la imagen del ticket del gasto"
+            android:importantForAccessibility="yes"
             app:cardCornerRadius="12dp"
             app:strokeColor="@color/card_border"
             app:strokeWidth="1dp">
 
             <!-- IMAGEN DEL TICKET -->
+            <!-- Muestra la foto del ticket asociada al gasto o una imagen por defecto -->
             <ImageView
                 android:id="@+id/ivFotoTicket"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="Imagen del ticket o factura del gasto"
+                android:importantForAccessibility="yes"
                 android:scaleType="centerCrop"
                 android:src="@drawable/ic_sin_foto" />
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- BOTONES DE FOTO -->
+        <!-- CONTENEDOR DE BOTONES DE FOTO -->
+        <!-- Agrupa las acciones para eliminar o cambiar la imagen del ticket -->
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="16dp"
+            android:importantForAccessibility="yes"
             android:orientation="horizontal">
 
+            <!-- BOTÓN ELIMINAR FOTO -->
+            <!-- Permite borrar la imagen actualmente asociada al gasto -->
             <Button
                 android:id="@+id/btnEliminarFoto"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="Botón, eliminar foto del ticket"
+                android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:text="Eliminar Foto"
                 android:textColor="@color/error_red" />
 
+            <!-- BOTÓN CAMBIAR FOTO -->
+            <!-- Permite sustituir la imagen actual del ticket por otra nueva -->
             <Button
                 android:id="@+id/btnCambiarFoto"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:contentDescription="Botón, cambiar foto del ticket"
+                android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:text="Cambiar Foto"
                 android:textColor="@color/link_azul" />
 
         </LinearLayout>
 
         <!-- CAMPO TÍTULO -->
+        <!-- Permite editar el nombre o concepto principal del gasto -->
         <EditText
             android:id="@+id/etTituloDetalle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@null"
+            android:contentDescription="Campo para editar el título del gasto"
+            android:fontFamily="@font/amiko_semibold"
             android:gravity="center"
             android:hint="Título del gasto"
+            android:importantForAccessibility="yes"
             android:inputType="textCapSentences"
             android:padding="8dp"
             android:textColor="@color/texto_negro"
             android:textColorHint="@color/text_body_light"
             android:textSize="18sp" />
 
-        <!-- BLOQUE IMPORTE -->
+        <!-- BLOQUE DEL IMPORTE -->
+        <!-- Agrupa el campo numérico del importe y el símbolo de moneda -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:gravity="center_vertical"
+            android:importantForAccessibility="yes"
             android:orientation="horizontal">
 
+            <!-- CAMPO IMPORTE -->
+            <!-- Permite editar la cantidad económica asociada al gasto -->
             <EditText
                 android:id="@+id/etImporteDetalle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:contentDescription="Campo para editar el importe del gasto"
+                android:fontFamily="@font/amiko_semibold"
                 android:hint="0.00"
+                android:importantForAccessibility="yes"
                 android:inputType="numberDecimal"
                 android:textColor="@color/texto_negro"
                 android:textColorHint="@color/text_body_light" />
 
+            <!-- SÍMBOLO DE MONEDA -->
+            <!-- Indica que el importe del gasto se expresa en euros -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="no"
                 android:text=" €"
                 android:textColor="@color/texto_negro"
                 android:textSize="18sp"
@@ -118,27 +161,35 @@
         </LinearLayout>
 
         <!-- CAMPO DESCRIPCIÓN -->
+        <!-- Permite editar información adicional o notas sobre el gasto -->
         <EditText
             android:id="@+id/etDescripcionDetalle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@null"
+            android:contentDescription="Campo para editar la descripción del gasto"
+            android:fontFamily="@font/amiko_semibold"
             android:hint="Descripción del gasto"
+            android:importantForAccessibility="yes"
             android:inputType="textMultiLine"
             android:padding="8dp"
             android:textColor="@color/texto_negro"
             android:textColorHint="@color/texto_negro"
             android:textSize="16sp" />
 
-        <!-- BOTONES DE ACCIÓN -->
+        <!-- CONTENEDOR DE BOTONES DE ACCIÓN -->
+        <!-- Agrupa las acciones principales para eliminar el gasto o guardar cambios -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:importantForAccessibility="yes"
             android:orientation="horizontal"
             android:weightSum="2">
 
+            <!-- BOTÓN ELIMINAR GASTO -->
+            <!-- Permite borrar definitivamente el gasto seleccionado -->
             <Button
                 android:id="@+id/btnEliminarGasto"
                 android:layout_width="0dp"
@@ -146,22 +197,32 @@
                 android:layout_marginEnd="8dp"
                 android:layout_weight="1"
                 android:backgroundTint="@color/error_red"
+                android:contentDescription="Botón, eliminar gasto"
+                android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:text="Eliminar"
                 app:cornerRadius="8dp" />
 
+            <!-- BOTÓN GUARDAR CAMBIOS -->
+            <!-- Guarda las modificaciones realizadas en el detalle del gasto -->
             <Button
                 android:id="@+id/btnGuardarCambios"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:backgroundTint="@color/rosa_cerdito"
+                android:contentDescription="Botón, guardar cambios del gasto"
+                android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:text="Guardar"
                 app:cornerRadius="8dp" />
         </LinearLayout>
 
         <!-- ESPACIO INFERIOR -->
+        <!-- Añade separación visual al final del contenido del modal -->
         <View
             android:layout_width="match_parent"
-            android:layout_height="20dp" />
+            android:layout_height="20dp"
+            android:importantForAccessibility="no" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

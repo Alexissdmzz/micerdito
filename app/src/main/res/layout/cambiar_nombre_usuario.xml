@@ -3,8 +3,11 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="20dp"
-    android:importantForAccessibility="yes">
+    android:importantForAccessibility="yes"
+    android:screenReaderFocusable="false">
 
+    <!-- TEXTO DESCRIPTIVO DEL CAMPO -->
+    <!-- Informa al usuario que debe ingresar un nuevo nombre de usuario -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -12,8 +15,13 @@
         android:textStyle="bold"
         android:textSize="16sp"
         android:textColor="@color/texto_negro"
-        android:labelFor="@+id/etNuevoNombre" />
+        android:labelFor="@+id/etNuevoNombre"
+        android:fontFamily="@font/amiko_semibold"
+        android:importantForAccessibility="yes"
+        android:accessibilityHeading="true" />
 
+    <!-- CAMPO DE ENTRADA DEL NUEVO NOMBRE -->
+    <!-- Permite al usuario escribir el nuevo nombre de usuario con soporte para TalkBack -->
     <EditText
         android:id="@+id/etNuevoNombre"
         android:layout_width="match_parent"
@@ -24,5 +32,7 @@
         android:inputType="textPersonName"
         android:layout_marginTop="10dp"
         android:contentDescription="Campo para ingresar el nuevo nombre de usuario"
-        android:importantForAccessibility="yes" />
+        android:importantForAccessibility="yes"
+        android:fontFamily="@font/amiko_semibold"
+        android:accessibilityLiveRegion="polite" />
 </LinearLayout>

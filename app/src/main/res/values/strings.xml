@@ -1,5 +1,11 @@
 <resources>
+
+    <!-- NOMBRE DE LA APLICACIÓN -->
+    <!-- Define el nombre visible de la app en el sistema y launcher -->
     <string name="app_name">MiCerdito</string>
+
+    <!-- LISTA DE PREGUNTAS DE SEGURIDAD -->
+    <!-- Proporciona opciones para recuperación de cuenta mediante validación del usuario -->
     <string-array name="preguntas_seguridad">
         <item>-- Selecciona una pregunta de seguridad --</item>
         <item>¿Cómo se llamaba tu primera mascota?</item>
@@ -9,6 +15,8 @@
         <item>¿En qué calle vivías a los 10 años?</item>
     </string-array>
 
+    <!-- LISTA DE MESES EN ESPAÑOL -->
+    <!-- Se utiliza para mostrar fechas en formato legible para el usuario -->
     <string-array name="meses_espanyol">
         <item>Enero</item>
         <item>Febrero</item>
@@ -24,6 +32,8 @@
         <item>Diciembre</item>
     </string-array>
 
+    <!-- ABREVIATURAS DE LOS DÍAS DE LA SEMANA -->
+    <!-- Se utilizan en calendarios y vistas compactas de fechas -->
     <string-array name="dias_semana_espanyol">
         <item>L</item>
         <item>M</item>

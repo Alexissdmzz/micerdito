@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
+
+    <!-- ESTILO TEXTO CABECERA DEL CALENDARIO -->
+    <!-- Define la apariencia del mes y año en la parte superior del calendario -->
     <style name="CalendarHeaderText">
         <item name="android:textColor">@color/texto_negro</item>
         <item name="android:textSize">16sp</item>
     </style>
 
+    <!-- ESTILO TEXTO DÍAS DE LA SEMANA -->
+    <!-- Controla la apariencia de las abreviaturas de los días (L, M, X, etc.) -->
     <style name="CalendarWeekDayText">
         <item name="android:textColor">@color/text_body_light</item>
         <item name="android:textSize">12sp</item>
     </style>
 
+    <!-- ESTILO TEXTO DÍAS DEL CALENDARIO -->
+    <!-- Define el color del texto de los días dentro del calendario -->
     <style name="CalendarDayText">
         <item name="android:textColor">@color/texto_negro</item>
     </style>
+
 </resources>

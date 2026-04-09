@@ -1,9 +1,22 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="@color/rosa_cerdito"/>
+<?xml version="1.0" encoding="utf-8"?>
 
+<!-- FONDO DEL HEADER / ELEMENTOS DESTACADOS -->
+<!-- Define el estilo visual del encabezado principal y componentes con color corporativo -->
+
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- COLOR PRINCIPAL -->
+    <!-- Color corporativo de la aplicación (rosa cerdito) -->
+    <solid android:color="@color/rosa_cerdito" />
+
+    <!-- BORDE EXTERIOR -->
+    <!-- Define el contorno del header para darle contraste -->
     <stroke
         android:width="2dp"
-        android:color="@color/texto_negro"/>
+        android:color="@color/texto_negro" />
 
-    <corners android:radius="12dp"/>
+    <!-- ESQUINAS REDONDEADAS -->
+    <!-- Suaviza el diseño y mantiene coherencia con las tarjetas -->
+    <corners android:radius="12dp" />
+
 </shape>

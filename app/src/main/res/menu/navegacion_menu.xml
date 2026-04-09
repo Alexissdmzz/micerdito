@@ -1,25 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- MENÚ DE NAVEGACIÓN PRINCIPAL -->
+<!-- Define las opciones de navegación inferior de la aplicación -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!-- OPCIÓN INICIO -->
+    <!-- Dirige al usuario a la pantalla principal de la aplicación -->
     <item
         android:id="@+id/nav_home"
         android:contentDescription="Ir a la pantalla de inicio"
         android:icon="@drawable/icono_home"
         android:title="Inicio" />
 
+    <!-- OPCIÓN CALENDARIO -->
+    <!-- Permite visualizar los gastos organizados por fechas -->
     <item
         android:id="@+id/nav_calendario"
         android:contentDescription="Ver gastos en el calendario"
         android:icon="@drawable/icono_calendario"
         android:title="Calendario" />
 
+    <!-- OPCIÓN AÑADIR GASTO -->
+    <!-- Abre el formulario para registrar un nuevo gasto -->
     <item
         android:id="@+id/nav_anadir_gasto"
         android:contentDescription="Registrar un nuevo gasto"
         android:icon="@drawable/icono_anadir_gasto"
         android:title="Añadir gasto" />
 
+    <!-- OPCIÓN AJUSTES -->
+    <!-- Accede a la configuración general de la aplicación -->
     <item
         android:id="@+id/nav_configuracion"
         android:contentDescription="Abrir configuración de la aplicación"

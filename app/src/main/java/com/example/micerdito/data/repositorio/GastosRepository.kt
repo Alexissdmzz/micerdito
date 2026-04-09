@@ -3,6 +3,7 @@ package com.example.micerdito.data.repositorio
 import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.home.Categoria
 import com.example.micerdito.data.model.home.GastoResponse
+import com.example.micerdito.utils.ConexionUtils
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -27,18 +28,18 @@ class GastosRepository {
         return try {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.getCategorias()
-            val body = response.body()
+            val resultado = ConexionUtils.procesarRespuesta(response)
 
-            if (response.isSuccessful && body != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(body.categorias)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error de conexión: ${response.code()}"))
-            }
+            resultado.fold(
+                onSuccess = { categoriasResponse ->
+                    Result.success(categoriasResponse.categorias)
+                },
+                onFailure = {
+                    Result.failure(it)
+                }
+            )
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -64,12 +65,12 @@ class GastosRepository {
     ): Result<GastoResponse> {
         return try {
             // Convertimos los datos de texto a RequestBody para Multipart
-            val idUserBody = idUsuario.toRequestBody("text/plain".toMediaTypeOrNull())
-            val idCatBody = idCategoria.toRequestBody("text/plain".toMediaTypeOrNull())
-            val tituloBody = titulo.toRequestBody("text/plain".toMediaTypeOrNull())
-            val importeBody = importe.toString().toRequestBody("text/plain".toMediaTypeOrNull())
-            val fechaBody = fechaGasto.toRequestBody("text/plain".toMediaTypeOrNull())
-            val descBody = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
+            val idUserBody = idUsuario.toRequestBody("text/plain; charset=utf-8".toMediaTypeOrNull())
+            val idCatBody = idCategoria.toRequestBody("text/plain; charset=utf-8".toMediaTypeOrNull())
+            val tituloBody = titulo.toRequestBody("text/plain; charset=utf-8".toMediaTypeOrNull())
+            val importeBody = importe.toString().toRequestBody("text/plain; charset=utf-8".toMediaTypeOrNull())
+            val fechaBody = fechaGasto.toRequestBody("text/plain; charset=utf-8".toMediaTypeOrNull())
+            val descBody = descripcion.toRequestBody("text/plain; charset=utf-8".toMediaTypeOrNull())
 
             // Preparamos el archivo de la foto si existe la ruta
             var fotoPart: MultipartBody.Part? = null
@@ -78,6 +79,8 @@ class GastosRepository {
                 if (file.exists()) {
                     val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
                     fotoPart = MultipartBody.Part.createFormData("foto", file.name, requestFile)
+                } else {
+                    return Result.failure(Exception("No se encontró la imagen seleccionada"))
                 }
             }
 
@@ -92,18 +95,10 @@ class GastosRepository {
                 fotoPart
             )
 
-            val body = response.body()
-            if (response.isSuccessful && body != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(body)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error de conexión: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
 
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 }

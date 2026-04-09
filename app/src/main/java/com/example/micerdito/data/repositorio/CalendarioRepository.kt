@@ -3,6 +3,7 @@ package com.example.micerdito.data.repositorio
 import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.home.CalendarioResponse
 import com.example.micerdito.data.model.home.GastoResponse
+import com.example.micerdito.utils.ConexionUtils
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
@@ -35,16 +36,9 @@ class CalendarioRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.getDataCalendario(idUsuario, mes, anio)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -68,16 +62,9 @@ class CalendarioRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.getGastosDia(idUsuario, anio, mes, dia)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -101,14 +88,12 @@ class CalendarioRepository {
     ): Result<GastoResponse> {
         return try {
             // Se incluye el parámetro fotoActual en la llamada a Retrofit
-            val response = apiService.editGasto(idGasto, titulo, importe, descripcion, fotoActual, fotoTicket)
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
-            } else {
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            val response =
+                apiService.editGasto(idGasto, titulo, importe, descripcion, fotoActual, fotoTicket)
+
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -124,16 +109,9 @@ class CalendarioRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.deleteGasto(idGasto)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 }

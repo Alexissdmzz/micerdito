@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!-- CONTENEDOR PRINCIPAL CON SCROLL -->
+<!-- Permite desplazamiento vertical del calendario, gráficos y lista de gastos -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -8,19 +9,25 @@
     android:layout_height="match_parent"
     android:background="@color/background_beige"
     android:fillViewport="true"
+    android:importantForAccessibility="yes"
     tools:context=".ui.fragments.CalendarioFragment">
 
     <!-- CONTENEDOR INTERNO -->
+    <!-- Organiza todos los elementos mediante constraints -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:importantForAccessibility="yes">
 
         <!-- CALENDARIO -->
+        <!-- Permite seleccionar fechas para visualizar gastos -->
         <com.prolificinteractive.materialcalendarview.MaterialCalendarView
             android:id="@+id/calendarView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/card_background"
+            android:contentDescription="Calendario para seleccionar fechas y consultar gastos"
+            android:importantForAccessibility="yes"
             android:padding="8dp"
             app:layout_constraintTop_toTopOf="parent"
             app:mcv_firstDayOfWeek="monday"
@@ -28,31 +35,40 @@
             app:mcv_showOtherDates="all" />
 
         <!-- SEPARADOR -->
+        <!-- Divide visualmente el calendario del contenido inferior -->
         <View
             android:id="@+id/separator"
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/card_border"
+            android:importantForAccessibility="no"
             app:layout_constraintTop_toBottomOf="@id/calendarView" />
 
         <!-- GRÁFICO MENSUAL -->
+        <!-- Muestra la distribución de gastos del mes en formato gráfico -->
         <com.github.mikephil.charting.charts.PieChart
             android:id="@+id/pieChartMensual"
             android:layout_width="match_parent"
             android:layout_height="320dp"
             android:layout_margin="16dp"
             android:background="@drawable/card_background"
+            android:contentDescription="Gráfico circular con la distribución mensual de gastos"
+            android:importantForAccessibility="yes"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/separator" />
 
         <!-- TEXTO SIN DATOS -->
+        <!-- Informa al usuario cuando no hay registros disponibles -->
         <TextView
             android:id="@+id/tvSinDatos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
+            android:contentDescription="Mensaje, no hay datos disponibles para este periodo"
+            android:fontFamily="@font/amiko_semibold"
+            android:importantForAccessibility="yes"
             android:text="No hay registros para este periodo 🐷"
             android:textColor="@color/texto_negro"
             android:visibility="gone"
@@ -61,11 +77,14 @@
             app:layout_constraintTop_toBottomOf="@id/pieChartMensual" />
 
         <!-- LISTA DE GASTOS DEL DÍA -->
+        <!-- Muestra los gastos correspondientes a la fecha seleccionada -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvGastosDia"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clipToPadding="false"
+            android:contentDescription="Lista de gastos del día seleccionado"
+            android:importantForAccessibility="yes"
             android:nestedScrollingEnabled="false"
             android:padding="16dp"
             android:visibility="visible"

@@ -5,6 +5,7 @@ import com.example.micerdito.data.model.home.GastoPorCategoria
 import com.example.micerdito.data.model.home.HomeResponse
 import com.example.micerdito.data.model.home.LimiteResponse
 import com.example.micerdito.data.model.home.MovimientosResponse
+import com.example.micerdito.utils.ConexionUtils
 
 /**
  * REPOSITORIO - HomeRepository
@@ -27,17 +28,9 @@ class HomeRepository {
         return try {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.homeUser(idUsuario)
-
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -52,23 +45,22 @@ class HomeRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.obtenerGastosGrafico(idUsuario)
 
-            if (response.isSuccessful && response.body() != null) {
-                val graficoResponse = response.body()!!
+            val resultado = ConexionUtils.procesarRespuesta(response)
 
-                // Verificamos si la lógica del servidor (PHP) fue exitosa
-                if (graficoResponse.success) {
-                    // Devolvemos solo la lista
-                    Result.success(graficoResponse.listaGrafico)
-                } else {
-                    Result.failure(Exception("Error lógico: Mensaje del servidor"))
+            resultado.fold(
+                onSuccess = { graficoResponse ->
+                    if (graficoResponse.success) {
+                        Result.success(graficoResponse.listaGrafico)
+                    } else {
+                        Result.failure(Exception("No se pudieron obtener los datos del gráfico"))
+                    }
+                },
+                onFailure = {
+                    Result.failure(it)
                 }
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            )
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -82,17 +74,9 @@ class HomeRepository {
         return try {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.homeMoves(idUsuario)
-
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -106,16 +90,9 @@ class HomeRepository {
         return try {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.homeLimit(idUsuario, limite)
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 }

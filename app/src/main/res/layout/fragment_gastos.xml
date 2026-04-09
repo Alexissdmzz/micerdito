@@ -1,21 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- CONTENEDOR PRINCIPAL CON SCROLL -->
+<!-- Permite desplazamiento vertical para navegar por las categorías y el formulario de gasto -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_beige"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:importantForAccessibility="yes">
 
+    <!-- CONTENEDOR GENERAL DEL CONTENIDO -->
+    <!-- Organiza el título, las categorías y el formulario detallado del gasto -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:importantForAccessibility="yes"
         android:padding="16dp">
 
+        <!-- TÍTULO DE LA PANTALLA -->
+        <!-- Indica al usuario que se encuentra en la sección para añadir un nuevo gasto -->
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:accessibilityHeading="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:importantForAccessibility="yes"
             android:text="AÑADIR GASTO"
             android:textColor="@color/texto_negro"
             android:textSize="24sp"
@@ -23,94 +36,135 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- LISTA DE CATEGORÍAS -->
+        <!-- Muestra las categorías disponibles para clasificar el gasto -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvCategorias"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="8dp"
+            android:contentDescription="Lista de categorías disponibles para el gasto"
+            android:importantForAccessibility="yes"
             android:nestedScrollingEnabled="false"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
+        <!-- TARJETA DE DETALLES DEL GASTO -->
+        <!-- Contiene el formulario para introducir la información completa del gasto -->
         <com.google.android.material.card.MaterialCardView
             android:id="@+id/cardDetallesGasto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
             android:layout_marginBottom="100dp"
+            android:importantForAccessibility="yes"
             android:visibility="gone"
             app:cardCornerRadius="16dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/rvCategorias">
 
+            <!-- CONTENEDOR INTERNO DEL FORMULARIO -->
+            <!-- Agrupa el botón de cierre y todos los campos necesarios para registrar el gasto -->
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/card_background"
+                android:importantForAccessibility="yes"
                 android:padding="16dp">
 
+                <!-- BOTÓN CERRAR FORMULARIO -->
+                <!-- Permite cerrar el formulario de creación del gasto -->
                 <ImageButton
                     android:id="@+id/btnCerrarFormulario"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:layout_alignParentEnd="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Botón, cerrar formulario de gasto"
+                    android:importantForAccessibility="yes"
                     android:src="@android:drawable/ic_menu_close_clear_cancel"
                     app:tint="@color/background_dark" />
 
+                <!-- CONTENEDOR DE CAMPOS DEL FORMULARIO -->
+                <!-- Organiza verticalmente los campos de texto, imagen y acciones del gasto -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="40dp"
+                    android:importantForAccessibility="yes"
                     android:orientation="vertical">
 
+                    <!-- CAMPO TÍTULO DEL GASTO -->
+                    <!-- Permite indicar en qué se ha realizado el gasto -->
                     <EditText
                         android:id="@+id/etTitulo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
+                        android:contentDescription="Campo para escribir el título o concepto del gasto"
+                        android:fontFamily="@font/amiko_semibold"
                         android:hint="¿En qué has gastado?"
+                        android:importantForAccessibility="yes"
                         android:textColor="@color/texto_negro"
                         android:textColorHint="@color/texto_negro" />
 
+                    <!-- CONTENEDOR DEL IMPORTE -->
+                    <!-- Agrupa el campo numérico del importe y el símbolo de moneda -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:gravity="center_vertical"
+                        android:importantForAccessibility="yes"
                         android:orientation="horizontal">
 
+                        <!-- CAMPO IMPORTE -->
+                        <!-- Permite introducir la cantidad económica del gasto -->
                         <EditText
                             android:id="@+id/etImporte"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:contentDescription="Campo para introducir el importe del gasto"
+                            android:fontFamily="@font/amiko_semibold"
                             android:hint="0.00"
+                            android:importantForAccessibility="yes"
                             android:inputType="numberDecimal"
                             android:textColor="@color/texto_negro"
                             android:textColorHint="@color/texto_negro" />
 
+                        <!-- SÍMBOLO DE MONEDA -->
+                        <!-- Indica que el importe introducido corresponde a euros -->
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
+                            android:fontFamily="@font/amiko_semibold"
+                            android:importantForAccessibility="no"
                             android:text="€"
                             android:textColor="@color/texto_negro"
                             android:textSize="20sp"
                             android:textStyle="bold" />
                     </LinearLayout>
 
+                    <!-- CAMPO DESCRIPCIÓN -->
+                    <!-- Permite añadir notas adicionales sobre el gasto de forma opcional -->
                     <EditText
                         android:id="@+id/etDescripcion"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
+                        android:contentDescription="Campo para escribir notas adicionales del gasto"
+                        android:fontFamily="@font/amiko_semibold"
                         android:hint="Notas adicionales (opcional)"
+                        android:importantForAccessibility="yes"
                         android:textColor="@color/texto_negro"
                         android:textColorHint="@color/texto_negro" />
 
+                    <!-- BOTÓN SUBIR FACTURA -->
+                    <!-- Permite adjuntar una foto del ticket o factura del gasto -->
                     <Button
                         android:id="@+id/btnSubirFactura"
                         style="@style/Widget.MaterialComponents.Button.OutlinedButton"
@@ -118,25 +172,37 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
                         android:layout_marginBottom="12dp"
+                        android:contentDescription="Botón para subir una foto de la factura o ticket"
+                        android:fontFamily="@font/amiko_semibold"
+                        android:importantForAccessibility="yes"
                         android:text="📷 Foto de Factura"
                         android:textColor="@color/texto_negro" />
 
+                    <!-- VISTA PREVIA DE LA FACTURA -->
+                    <!-- Muestra la imagen seleccionada del ticket o factura adjunta -->
                     <com.google.android.material.imageview.ShapeableImageView
                         android:id="@+id/ivFotoTicket"
                         android:layout_width="match_parent"
                         android:layout_height="180dp"
                         android:layout_marginBottom="12dp"
                         android:background="@color/background_beige"
+                        android:contentDescription="Vista previa de la foto del ticket o factura"
+                        android:importantForAccessibility="yes"
                         android:scaleType="centerCrop"
                         android:visibility="gone"
                         app:shapeAppearanceOverlay="@style/ShapeAppearance.MaterialComponents.SmallComponent"
                         tools:visibility="visible" />
 
+                    <!-- BOTÓN GUARDAR GASTO -->
+                    <!-- Guarda la información introducida en el formulario del gasto -->
                     <Button
                         android:id="@+id/btnGuardarGasto"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
+                        android:contentDescription="Botón para guardar el gasto registrado"
+                        android:fontFamily="@font/amiko_semibold"
+                        android:importantForAccessibility="yes"
                         android:text="Guardar Gasto"
                         android:textColor="@color/texto_negro"
                         android:visibility="visible" />

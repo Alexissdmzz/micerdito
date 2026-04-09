@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- CONTENEDOR PRINCIPAL DE LA APP -->
+<!-- Gestiona el header, el contenido dinámico (fragments) y la navegación inferior -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_light">
+    android:background="@color/background_light"
+    android:importantForAccessibility="yes">
 
     <!-- HEADER SUPERIOR -->
+    <!-- Muestra información contextual del usuario (bienvenida) -->
     <LinearLayout
         android:id="@+id/headerContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/header_background"
+        android:contentDescription="Encabezado principal de la aplicación"
+        android:importantForAccessibility="yes"
         android:orientation="vertical"
         android:padding="20dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -18,11 +25,15 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <!-- TEXTO DE BIENVENIDA -->
+        <!-- Se actualiza dinámicamente con el nombre del usuario -->
         <TextView
             android:id="@+id/tvWelcome"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:accessibilityHeading="true"
+            android:contentDescription="Mensaje de bienvenida al usuario"
             android:gravity="center"
+            android:importantForAccessibility="yes"
             android:textAlignment="center"
             android:textColor="@color/texto_negro"
             android:textSize="22sp"
@@ -30,35 +41,43 @@
     </LinearLayout>
 
     <!-- CONTENEDOR DE FRAGMENTS -->
+    <!-- Área dinámica donde se cargan las distintas pantallas de la aplicación -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/background_beige"
+        android:contentDescription="Contenido principal de la aplicación"
+        android:importantForAccessibility="yes"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerContainer" />
 
     <!-- LÍNEA SUPERIOR DEL FOOTER -->
+    <!-- Separador visual entre contenido y navegación -->
     <View
         android:id="@+id/topBorder"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/background_dark"
+        android:importantForAccessibility="no"
         app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- NAVEGACIÓN INFERIOR -->
+    <!-- Permite cambiar entre las secciones principales de la aplicación -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/rosa_cerdito"
+        android:contentDescription="Menú de navegación inferior"
+        android:importantForAccessibility="yes"
         app:itemTextAppearanceActive="@style/BottomNavText"
         app:itemTextAppearanceInactive="@style/BottomNavText"
-        app:itemTextColor="@android:color/black"
+        app:itemTextColor="@color/texto_negro"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

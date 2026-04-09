@@ -12,7 +12,7 @@
     <color name="texto_negro">#F5F5F5</color>
     <color name="texto_blanco">#FFFFFF</color>
 
-    <!-- TARJETAS (AZUL OSCURO COMO QUERÍAS) -->
+    <!-- TARJETAS -->
     <color name="card_background">#1E2A44</color>
     <color name="card_border">#31405F</color>
 

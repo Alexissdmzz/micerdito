@@ -30,10 +30,6 @@
     <color name="error_red">#FF453A</color>
     <color name="verde_exito">#161D16</color>
 
-    <!-- ACCESIBILIDAD -->
-    <color name="azul_accesible">#2196F3</color>
-    <color name="naranja_accesible">#FF9800</color>
-
     <!-- GENERALES -->
     <color name="gris_oscuro">#333333</color>
     <color name="blanco">#FFFFFF</color>

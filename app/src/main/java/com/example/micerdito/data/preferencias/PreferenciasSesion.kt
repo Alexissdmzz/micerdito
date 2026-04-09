@@ -54,12 +54,4 @@ class PreferenciasSesion(context: Context) {
     // Booleano para verificar si el usuario puso el Modo Oscuro
     fun esModoOscuro(): Boolean = sharedPref.getBoolean("modo_oscuro", false)
 
-    // Modo daltonico
-    fun setModoDaltonico(activado: Boolean) {
-        sharedPref.edit().putBoolean("modo_daltonico", activado).apply()
-    }
-
-    // Booleano para verificar si el usuario puso el Modo Daltonico
-    fun esDaltonico(): Boolean = sharedPref.getBoolean("modo_daltonico", false)
-
 }

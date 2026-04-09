@@ -1,56 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+
+<!-- TARJETA DE GASTO -->
+<!-- Representa un gasto en la lista mostrando categoría, descripción, fecha e importe -->
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginHorizontal="16dp"
     android:layout_marginVertical="8dp"
+    android:contentDescription="Elemento de gasto"
+    android:focusable="true"
+    android:importantForAccessibility="yes"
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
 
+    <!-- CONTENEDOR INTERNO -->
+    <!-- Organiza horizontalmente icono, información y monto del gasto -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp"
         android:background="@drawable/card_background"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:importantForAccessibility="noHideDescendants"
+        android:orientation="horizontal"
+        android:padding="16dp">
 
+        <!-- ICONO DE CATEGORÍA -->
+        <!-- Muestra un icono representativo del tipo de gasto -->
         <TextView
             android:id="@+id/tvIconoCategoria"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:fontFamily="@font/amiko_semibold"
             android:gravity="center"
+            android:importantForAccessibility="no"
             android:textSize="20sp" />
 
+        <!-- CONTENEDOR DE INFORMACIÓN -->
+        <!-- Agrupa la descripción del gasto y la fecha -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="16dp"
+            android:layout_weight="1"
+            android:importantForAccessibility="no"
             android:orientation="vertical">
 
+            <!-- DESCRIPCIÓN DEL GASTO -->
+            <!-- Indica el concepto o motivo del gasto -->
             <TextView
                 android:id="@+id/tvDescripcionGasto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
                 android:textColor="@color/texto_negro"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
+            <!-- FECHA DEL GASTO -->
+            <!-- Muestra cuándo se realizó el gasto -->
             <TextView
                 android:id="@+id/tvFechaGasto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/amiko_semibold"
                 android:textColor="@color/texto_negro"
                 android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- MONTO DEL GASTO -->
+        <!-- Indica la cantidad económica asociada al gasto -->
         <TextView
             android:id="@+id/tvMontoGasto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/amiko_semibold"
+            android:importantForAccessibility="no"
             android:textColor="@color/error_red"
             android:textSize="18sp"
             android:textStyle="bold" />

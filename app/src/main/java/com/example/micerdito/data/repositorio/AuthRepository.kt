@@ -4,6 +4,7 @@ import com.example.micerdito.data.conexion.RetrofitClient
 import com.example.micerdito.data.model.autenticacion.ForgotPasswordResponse
 import com.example.micerdito.data.model.autenticacion.LoginResponse
 import com.example.micerdito.data.model.autenticacion.RegisterResponse
+import com.example.micerdito.utils.ConexionUtils
 
 /**
  * REPOSITORIO - AuthRepository
@@ -27,16 +28,9 @@ class AuthRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.loginUser(email, pass)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -59,16 +53,9 @@ class AuthRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.registerUser(username, email, pwd, repeatPwd, id, res)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -82,16 +69,9 @@ class AuthRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.getPregunta(email)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 
@@ -109,16 +89,9 @@ class AuthRepository {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.cambiarPwd(email, res, nueva)
 
-            if (response.isSuccessful && response.body() != null) {
-                // Encapsulamos la respuesta exitosa del servidor
-                Result.success(response.body()!!)
-            } else {
-                // Manejo de errores de respuesta del servidor
-                Result.failure(Exception("Error en el servidor: ${response.code()}"))
-            }
+            ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
-            // Manejo de errores de red
-            Result.failure(e)
+            ConexionUtils.manejarExcepcion(e)
         }
     }
 }

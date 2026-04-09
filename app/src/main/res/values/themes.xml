@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <resources>
+
+    <!-- TEMA PRINCIPAL DE LA APLICACIÓN -->
+    <!-- Define la identidad visual general, colores base y fondo de la app -->
     <style name="Theme.MiCerdito" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/rosa_cerdito</item>
         <item name="colorSecondary">@color/verde_exito</item>
@@ -11,17 +15,10 @@
         <item name="colorOnSurface">@color/texto_negro</item>
     </style>
 
-    <style name="Theme.MiCerdito.Daltonico" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/azul_accesible</item>
-        <item name="colorSecondary">@color/naranja_accesible</item>
-
-        <item name="android:windowBackground">@color/beige_claro</item>
-        <item name="colorSurface">@color/background_beige</item>
-
-        <item name="android:textColorPrimary">@color/texto_negro</item>
-    </style>
-
+    <!-- ESTILO TEXTO BARRA DE NAVEGACIÓN INFERIOR -->
+    <!-- Define el tamaño del texto en los elementos de la Bottom Navigation -->
     <style name="BottomNavText">
         <item name="android:textSize">10sp</item>
     </style>
+
 </resources>

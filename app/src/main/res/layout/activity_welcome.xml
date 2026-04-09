@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<!-- Pantalla de bienvenida inicial con acceso a inicio de sesión y registro -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/micerdito_welcome"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:importantForAccessibility="yes">
 
+    <!-- LAYOUT INTERNO -->
+    <!-- Organiza el título principal y las acciones de acceso -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="32dp">
 
+        <!-- TÍTULO PRINCIPAL -->
+        <!-- Encabezado de bienvenida de la aplicación -->
         <TextView
             android:id="@+id/tvWelcomeTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:accessibilityHeading="true"
             android:fontFamily="@font/amiko_semibold"
             android:text="BIENVENIDO"
             android:textColor="@color/texto_negro"
@@ -25,13 +34,15 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- BOTÓN INICIAR SESIÓN -->
+        <!-- Dirige al usuario a la pantalla de autenticación -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLoginWelcome"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="0dp"
             android:layout_height="69dp"
             android:layout_marginBottom="16dp"
-            android:contentDescription="Ir a la pantalla de inicio de sesión"
+            android:contentDescription="Botón para ir a la pantalla de inicio de sesión"
             android:fontFamily="@font/amiko_semibold"
             android:text="INICIAR SESIÓN"
             android:textAllCaps="false"
@@ -45,13 +56,15 @@
             app:strokeColor="@color/texto_negro"
             app:strokeWidth="1dp" />
 
+        <!-- BOTÓN CREAR CUENTA -->
+        <!-- Dirige al usuario a la pantalla de registro -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegisterWelcome"
             android:layout_width="0dp"
             android:layout_height="69dp"
             android:layout_marginBottom="67dp"
             android:backgroundTint="@color/rosa_cerdito"
-            android:contentDescription="Ir a la pantalla de registro de usuario"
+            android:contentDescription="Botón para ir a la pantalla de registro de usuario"
             android:fontFamily="@font/amiko_semibold"
             android:text="CREAR CUENTA"
             android:textAllCaps="false"

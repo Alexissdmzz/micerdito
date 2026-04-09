@@ -1,17 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<!-- Permite desplazamiento vertical para adaptarse a diferentes tamaños de pantalla -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/micerdito_welcome"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:importantForAccessibility="yes">
 
+    <!-- LAYOUT INTERNO -->
+    <!-- Organiza todos los elementos del formulario de registro -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="24dp">
 
+        <!-- BOTÓN DE REGRESO -->
+        <!-- Permite volver a la pantalla anterior -->
         <TextView
             android:id="@+id/tvBackRegister"
             android:layout_width="wrap_content"
@@ -19,7 +27,7 @@
             android:layout_marginTop="16dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
-            android:contentDescription="Regresar a la pantalla anterior"
+            android:contentDescription="Botón volver a la pantalla anterior"
             android:focusable="true"
             android:fontFamily="@font/amiko_semibold"
             android:padding="8dp"
@@ -30,6 +38,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <!-- ENLACE A INICIO DE SESIÓN -->
+        <!-- Permite cambiar a la pantalla de autenticación -->
         <TextView
             android:id="@+id/tvLogin"
             android:layout_width="wrap_content"
@@ -47,6 +57,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tvBackRegister" />
 
+        <!-- TÍTULO PRINCIPAL -->
+        <!-- Identifica la pantalla actual -->
         <TextView
             android:id="@+id/tvTitleRegister"
             android:layout_width="wrap_content"
@@ -62,6 +74,8 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvBackRegister" />
 
+        <!-- CAMPO USUARIO -->
+        <!-- Entrada del nombre de usuario -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilUsername"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -77,10 +91,14 @@
                 android:id="@+id/etRegUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="Campo de texto para introducir el nombre de usuario"
                 android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:textColor="@color/texto_negro" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- CAMPO CORREO -->
+        <!-- Entrada del correo electrónico -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -96,11 +114,15 @@
                 android:id="@+id/etRegEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="Campo de texto para introducir el correo electrónico"
                 android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:inputType="textEmailAddress"
                 android:textColor="@color/texto_negro" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- CAMPO CONTRASEÑA -->
+        <!-- Entrada de contraseña del usuario -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -109,19 +131,24 @@
             android:layout_marginTop="8dp"
             android:hint="Contraseña"
             app:boxBackgroundColor="@android:color/transparent"
+            app:endIconContentDescription="Mostrar u ocultar contraseña"
+            app:endIconMode="password_toggle"
             app:hintTextColor="@color/texto_negro"
-            app:layout_constraintTop_toBottomOf="@id/tilEmail"
-            app:endIconMode="password_toggle">
+            app:layout_constraintTop_toBottomOf="@id/tilEmail">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etRegPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="Campo de texto para introducir la contraseña"
                 android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:inputType="textPassword"
                 android:textColor="@color/texto_negro" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- CAMPO REPETIR CONTRASEÑA -->
+        <!-- Verifica que la contraseña coincida -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilRepeatPassword"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -130,38 +157,48 @@
             android:layout_marginTop="8dp"
             android:hint="Repetir contraseña"
             app:boxBackgroundColor="@android:color/transparent"
+            app:endIconContentDescription="Mostrar u ocultar repetir contraseña"
+            app:endIconMode="password_toggle"
             app:hintTextColor="@color/texto_negro"
-            app:layout_constraintTop_toBottomOf="@id/tilPassword"
-            app:endIconMode="password_toggle">
+            app:layout_constraintTop_toBottomOf="@id/tilPassword">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etRegRepeatPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="Campo de texto para repetir la contraseña"
                 android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:inputType="textPassword"
                 android:textColor="@color/texto_negro" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- CONTENEDOR DE PREGUNTA DE SEGURIDAD -->
+        <!-- Muestra el selector de pregunta de seguridad -->
         <FrameLayout
             android:id="@+id/containerSpinner"
             android:layout_width="match_parent"
             android:layout_height="55dp"
             android:layout_marginTop="8dp"
             android:background="@color/background_beige"
+            android:importantForAccessibility="yes"
             app:layout_constraintTop_toBottomOf="@id/tilRepeatPassword">
 
+            <!-- SELECTOR DE PREGUNTA -->
+            <!-- Permite elegir una pregunta de seguridad -->
             <Spinner
                 android:id="@+id/spinnerPreguntas"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/transparent"
-                android:contentDescription="Seleccione una pregunta de seguridad"
+                android:contentDescription="Selector de pregunta de seguridad"
                 android:paddingStart="12dp"
                 android:paddingEnd="12dp"
                 android:spinnerMode="dropdown" />
         </FrameLayout>
 
+        <!-- CAMPO RESPUESTA DE SEGURIDAD -->
+        <!-- Entrada de la respuesta asociada a la pregunta elegida -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilRespuesta"
             style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox.Dense"
@@ -177,10 +214,14 @@
                 android:id="@+id/etRespuestaSeguridad"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="Campo de texto para introducir la respuesta de seguridad"
                 android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:textColor="@color/texto_negro" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- BOTÓN REGISTRARSE -->
+        <!-- Ejecuta el proceso de alta del usuario -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRegistrarse"
             android:layout_width="match_parent"
@@ -188,6 +229,7 @@
             android:layout_marginTop="60dp"
             android:layout_marginBottom="32dp"
             android:backgroundTint="@color/rosa_cerdito"
+            android:contentDescription="Botón para registrarse"
             android:fontFamily="@font/amiko_semibold"
             android:text="REGISTRARSE"
             android:textAllCaps="true"

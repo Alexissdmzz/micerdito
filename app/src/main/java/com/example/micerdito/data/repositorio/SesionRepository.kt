@@ -55,18 +55,12 @@ class SesionRepository(context: Context) {
 
     /**
      * GESTIÓN DE CONFIGURACIÓN Y ACCESIBILIDAD:
-     * Métodos para leer y escribir el estado del Modo Oscuro y Modo para Daltónicos.
+     * Métodos para leer y escribir el estado del modo oscuro.
      */
     fun esModoOscuro(): Boolean = preferenciasSesion.esModoOscuro()
 
     fun setModoOscuro(valor: Boolean) {
         preferenciasSesion.setModoOscuro(valor)
-    }
-
-    fun esDaltonico(): Boolean = preferenciasSesion.esDaltonico()
-
-    fun setDaltonico(valor: Boolean) {
-        preferenciasSesion.setModoDaltonico(valor)
     }
 
 }

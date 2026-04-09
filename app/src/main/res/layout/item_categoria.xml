@@ -1,32 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- CONTENEDOR DE ÍTEM DE CATEGORÍA -->
+<!-- Representa visualmente una categoría seleccionable con icono y nombre -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@drawable/card_background"
+    android:contentDescription="Categoría de gasto"
+    android:focusable="true"
     android:gravity="center"
+    android:importantForAccessibility="yes"
     android:orientation="vertical"
     android:padding="10dp">
 
+    <!-- ICONO DE LA CATEGORÍA -->
+    <!-- Muestra un icono representativo de la categoría -->
     <TextView
         android:id="@+id/tvIconoCategoria"
         android:layout_width="56dp"
         android:layout_height="56dp"
+        android:fontFamily="@font/amiko_semibold"
         android:gravity="center"
+        android:importantForAccessibility="no"
         android:text="🍕"
         android:textColor="@color/texto_negro"
         android:textSize="24sp" />
 
+    <!-- NOMBRE DE LA CATEGORÍA -->
+    <!-- Indica el nombre de la categoría asociada al icono -->
     <TextView
         android:id="@+id/tvNombreCategoria"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:gravity="center"
-        android:maxLines="2"
         android:ellipsize="end"
+        android:fontFamily="@font/amiko_semibold"
+        android:gravity="center"
+        android:importantForAccessibility="no"
+        android:maxLines="2"
         android:text="Categoría"
         android:textAlignment="center"
         android:textColor="@color/texto_negro"
-        android:textSize="9sp" />
+        android:textSize="8sp" />
 
 </LinearLayout>

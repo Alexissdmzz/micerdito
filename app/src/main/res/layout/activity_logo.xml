@@ -1,16 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<!-- Pantalla de bienvenida o splash con el logo de la aplicación -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/fondo_app">
+    android:background="@drawable/fondo_app"
+    android:importantForAccessibility="yes">
 
+    <!-- LOGO DE LA APLICACIÓN -->
+    <!-- Elemento visual representativo de la app -->
     <ImageView
         android:id="@+id/logo_cerdito"
         android:layout_width="256dp"
         android:layout_height="270dp"
         android:contentDescription="Logo de la aplicación Mi Cerdito"
+        android:importantForAccessibility="yes"
         android:src="@drawable/logo_micerdito"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

@@ -41,11 +41,6 @@ class AjustesViewModel(application: Application) : AndroidViewModel(application)
         sesionRepository.setModoOscuro(valor)
     }
 
-    fun esDaltonico(): Boolean = sesionRepository.esDaltonico()
-    fun setDaltonico(valor: Boolean) {
-        sesionRepository.setDaltonico(valor)
-    }
-
     fun cerrarSesion() {
         sesionRepository.cerrarSesion()
     }

@@ -1,67 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- CONTENEDOR PRINCIPAL DE AJUSTES -->
+<!-- Permite el desplazamiento vertical de toda la pantalla y mejora la navegación accesible -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_beige"
     android:importantForAccessibility="yes">
 
+    <!-- CONTENEDOR GENERAL DEL CONTENIDO -->
+    <!-- Organiza todas las secciones: cuenta, apariencia y sesión -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:importantForAccessibility="yes"
         android:orientation="vertical"
         android:paddingHorizontal="16dp"
         android:paddingTop="20dp"
         android:paddingBottom="24dp">
 
-        <!-- TÍTULO -->
+        <!-- TÍTULO DE LA PANTALLA -->
+        <!-- Indica que el usuario está en la sección de ajustes -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
+            android:accessibilityHeading="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:importantForAccessibility="yes"
             android:text="AJUSTES"
             android:textColor="@color/texto_negro"
             android:textSize="24sp"
-            android:textStyle="bold"
-            android:accessibilityHeading="true" />
+            android:textStyle="bold" />
 
-        <!-- SECCIÓN CUENTA -->
+        <!-- ENCABEZADO SECCIÓN CUENTA -->
+        <!-- Agrupa las opciones relacionadas con la cuenta del usuario -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
+            android:accessibilityHeading="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:importantForAccessibility="yes"
             android:text="Mi Cuenta"
             android:textAllCaps="true"
             android:textColor="@color/texto_negro"
             android:textSize="12sp"
-            android:textStyle="bold"
-            android:accessibilityHeading="true" />
+            android:textStyle="bold" />
 
+        <!-- TARJETA DE OPCIONES DE CUENTA -->
+        <!-- Contiene acciones de gestión como cambiar nombre o borrar cuenta -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="28dp"
-            android:importantForAccessibility="noHideDescendants">
+            android:importantForAccessibility="yes">
 
+            <!-- CONTENEDOR INTERNO DE CUENTA -->
+            <!-- Distribuye verticalmente las acciones disponibles -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <!-- BOTÓN CAMBIAR NOMBRE -->
+                <!-- Lleva al usuario a editar su nombre de perfil -->
                 <TextView
                     android:id="@+id/btnPerfil"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/card_background"
                     android:clickable="true"
+                    android:contentDescription="Botón, Cambiar nombre de usuario"
                     android:focusable="true"
+                    android:fontFamily="@font/amiko_semibold"
+                    android:importantForAccessibility="yes"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="18dp"
                     android:text="👤 Cambiar nombre de usuario"
                     android:textColor="@color/texto_negro"
-                    android:textSize="16sp"
-                    android:contentDescription="Botón, Cambiar nombre de usuario" />
+                    android:textSize="16sp" />
 
+                <!-- SEPARADOR -->
+                <!-- Elemento visual sin relevancia para accesibilidad -->
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
@@ -69,104 +91,136 @@
                     android:background="@drawable/card_background"
                     android:importantForAccessibility="no" />
 
+                <!-- BOTÓN BORRAR CUENTA -->
+                <!-- Permite eliminar la cuenta de forma permanente -->
                 <TextView
                     android:id="@+id/btnBorrarCuenta"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/card_background"
                     android:clickable="true"
+                    android:contentDescription="Botón, Borrar cuenta permanentemente"
                     android:focusable="true"
+                    android:fontFamily="@font/amiko_semibold"
+                    android:importantForAccessibility="yes"
                     android:paddingHorizontal="16dp"
                     android:paddingVertical="18dp"
                     android:text="🗑️ Borrar cuenta"
                     android:textColor="#E53935"
-                    android:textSize="16sp"
-                    android:contentDescription="Botón, Borrar cuenta permanentemente" />
+                    android:textSize="16sp" />
+
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- SECCIÓN APARIENCIA -->
+        <!-- ENCABEZADO SECCIÓN APARIENCIA -->
+        <!-- Agrupa opciones visuales como el modo oscuro -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
+            android:accessibilityHeading="true"
+            android:fontFamily="@font/amiko_semibold"
+            android:importantForAccessibility="yes"
             android:text="Apariencia"
             android:textAllCaps="true"
             android:textColor="@color/texto_negro"
             android:textSize="12sp"
-            android:textStyle="bold"
-            android:accessibilityHeading="true" />
+            android:textStyle="bold" />
 
+        <!-- TARJETA DE APARIENCIA -->
+        <!-- Contiene configuraciones visuales de la app -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="28dp">
+            android:layout_marginBottom="28dp"
+            android:importantForAccessibility="yes">
 
+            <!-- CONTENEDOR INTERNO DE APARIENCIA -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <!-- FILA MODO OSCURO -->
+                <!-- Permite activar o desactivar el tema oscuro -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
                     android:background="@drawable/card_background"
-                    android:paddingHorizontal="16dp"
-                    android:paddingVertical="18dp"
+                    android:contentDescription="Opción para activar o desactivar Modo Oscuro"
                     android:focusable="true"
-                    android:contentDescription="Opción para activar o desactivar Modo Oscuro">
+                    android:gravity="center_vertical"
+                    android:importantForAccessibility="yes"
+                    android:paddingHorizontal="16dp"
+                    android:paddingVertical="18dp">
 
+                    <!-- TEXTO MODO OSCURO -->
+                    <!-- Describe la funcionalidad del interruptor -->
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:fontFamily="@font/amiko_semibold"
+                        android:importantForAccessibility="no"
                         android:text="🌙 Modo Oscuro"
                         android:textColor="@color/texto_negro"
-                        android:textSize="16sp"
-                        android:importantForAccessibility="no" />
+                        android:textSize="16sp" />
 
+                    <!-- SWITCH MODO OSCURO -->
+                    <!-- Controla el estado activado/desactivado del tema -->
                     <com.google.android.material.switchmaterial.SwitchMaterial
                         android:id="@+id/switchDarkMode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:contentDescription="Modo Oscuro" />
+                        android:contentDescription="Interruptor, activar o desactivar modo oscuro"
+                        android:importantForAccessibility="yes" />
+
                 </LinearLayout>
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- LOGOUT -->
+        <!-- TARJETA CERRAR SESIÓN -->
+        <!-- Contiene la acción para salir de la cuenta -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="yes">
 
+            <!-- BOTÓN LOGOUT -->
+            <!-- Permite cerrar la sesión actual del usuario -->
             <TextView
                 android:id="@+id/btnLogout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/card_background"
                 android:clickable="true"
+                android:contentDescription="Botón, Cerrar sesión de la aplicación"
                 android:focusable="true"
+                android:fontFamily="@font/amiko_semibold"
+                android:importantForAccessibility="yes"
                 android:paddingHorizontal="16dp"
                 android:paddingVertical="18dp"
                 android:text="🚪 Cerrar Sesión"
                 android:textColor="#E53935"
                 android:textSize="16sp"
-                android:textStyle="bold"
-                android:contentDescription="Botón, Cerrar sesión de la aplicación" />
+                android:textStyle="bold" />
+
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- VERSIÓN -->
+        <!-- TEXTO DE VERSIÓN -->
+        <!-- Muestra información de la versión actual instalada -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:layout_marginBottom="16dp"
+            android:contentDescription="Versión de la aplicación 1.0.0 Mi Cerdito"
+            android:fontFamily="@font/amiko_semibold"
             android:gravity="center"
+            android:importantForAccessibility="yes"
             android:text="Versión 1.0.0 - MiCerdito 🐷"
             android:textColor="@color/texto_negro"
-            android:textSize="12sp"
-            android:contentDescription="Versión de la aplicación 1.0.0 Mi Cerdito" />
+            android:textSize="12sp" />
 
     </LinearLayout>
 </ScrollView>

@@ -37,8 +37,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
     // Consultas rápidas a la sesión local
     fun obtenerNombreUsuario(): String = sesionRepository.getNombreUsuario()
-    fun esDaltonico(): Boolean = sesionRepository.esDaltonico()
-
     fun esModoOscuro(): Boolean = sesionRepository.esModoOscuro()
 
     /**
