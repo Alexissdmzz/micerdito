@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- CONTENEDOR PRINCIPAL SCROLL -->
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -7,12 +9,14 @@
     android:background="@color/background_beige"
     android:importantForAccessibility="yes">
 
+    <!-- CONTENEDOR VERTICAL -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- TARJETA RESUMEN MENSUAL -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -23,14 +27,16 @@
             app:cardCornerRadius="16dp"
             app:cardElevation="4dp">
 
+            <!-- CONTENIDO DE LA TARJETA -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:background="@drawable/card_background"
                 android:importantForAccessibility="noHideDescendants"
                 android:orientation="vertical"
-                android:background="@drawable/card_background"
                 android:padding="16dp">
 
+                <!-- MES ACTUAL -->
                 <TextView
                     android:id="@+id/tvMesActual"
                     android:layout_width="wrap_content"
@@ -38,6 +44,7 @@
                     android:textColor="@color/texto_negro"
                     android:textSize="14sp" />
 
+                <!-- TOTAL GASTADO -->
                 <TextView
                     android:id="@+id/tvTotalSpent"
                     android:layout_width="wrap_content"
@@ -46,6 +53,7 @@
                     android:textSize="28sp"
                     android:textStyle="bold" />
 
+                <!-- ESTADO DEL LÍMITE -->
                 <TextView
                     android:id="@+id/tvLimitStatus"
                     android:layout_width="wrap_content"
@@ -53,19 +61,21 @@
                     android:textColor="@color/texto_negro"
                     android:textSize="14sp" />
 
+                <!-- ENLACE PARA ESTABLECER LÍMITE -->
                 <TextView
                     android:id="@+id/tvEstablecerLimite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="end"
                     android:clickable="true"
                     android:focusable="true"
                     android:text="Establecer límite"
-                    android:layout_gravity="end"
                     android:textColor="@color/link_azul"
                     android:textSize="12sp" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- TÍTULO DISTRIBUCIÓN -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -75,6 +85,7 @@
             android:textColor="@color/texto_negro"
             android:textStyle="bold" />
 
+        <!-- TARJETA GRÁFICO -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="250dp"
@@ -83,6 +94,7 @@
             android:focusable="true"
             app:cardCornerRadius="16dp">
 
+            <!-- GRÁFICO CIRCULAR -->
             <com.github.mikephil.charting.charts.PieChart
                 android:id="@+id/graficoCircular"
                 android:layout_width="match_parent"
@@ -91,6 +103,7 @@
                 android:importantForAccessibility="no" />
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- TÍTULO LISTA -->
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -100,10 +113,10 @@
             android:textColor="@color/texto_negro"
             android:textStyle="bold" />
 
+        <!-- LISTA DE GASTOS -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvGastos"
             android:layout_width="match_parent"
-
             android:layout_height="wrap_content"
             android:contentDescription="Lista de transacciones recientes"
             android:nestedScrollingEnabled="false"

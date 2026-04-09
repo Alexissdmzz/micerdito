@@ -22,6 +22,6 @@ class EventDecorator(private val color: Int, dates: Collection<CalendarDay>) : D
 
     // Si está en la lista, le añade el punto (Radio de 8f, puedes ajustarlo)
     override fun decorate(view: DayViewFacade) {
-        view.addSpan(DotSpan(8f, color))
+        view.addSpan(DotSpan(10f, color))
     }
 }

@@ -12,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -117,9 +118,14 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             adapter = gastoAdapter
         }
 
+        val colorTexto = ContextCompat.getColor(requireContext(), R.color.texto_negro)
+
         calendarView.selectedDate = CalendarDay.today()
         calendarView.setTitleFormatter(MonthArrayTitleFormatter(resources.getTextArray(R.array.meses_espanyol)))
         calendarView.setWeekDayFormatter(ArrayWeekDayFormatter(resources.getTextArray(R.array.dias_semana_espanyol)))
+        calendarView.setHeaderTextAppearance(R.style.CalendarHeaderText)
+        calendarView.setWeekDayTextAppearance(R.style.CalendarWeekDayText)
+        calendarView.setDateTextAppearance(R.style.CalendarDayText)
 
         setupObservers(calendarView, pieChartMensual, rvGastosDia, tvSinDatos)
         setupListeners(calendarView, pieChartMensual)
@@ -141,6 +147,9 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                 val decoradores = mutableListOf<DayViewDecorator>()
                 var diaRegLocal: CalendarDay? = null
 
+                val colorAzul = ContextCompat.getColor(requireContext(), R.color.accent_blue)
+                val colorRojo = ContextCompat.getColor(requireContext(), R.color.error_red)
+
                 if (!data.fecha_registro.isNullOrEmpty()) {
                     try {
                         val partes = data.fecha_registro.split(" ")[0].split("-")
@@ -154,7 +163,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                             limiteSeteado = diaReg
                             cv.state().edit().setMinimumDate(diaReg).commit()
                         }
-                        decoradores.add(EventDecorator(Color.BLUE, listOf(diaReg)))
+                        decoradores.add(EventDecorator(colorAzul, listOf(diaReg)))
                     } catch (e: Exception) {
                         e.printStackTrace()
                     }
@@ -164,7 +173,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                     val diasConGastos = data.dias_con_gastos.map {
                         CalendarDay.from(cv.currentDate.year, cv.currentDate.month, it)
                     }.filter { it != diaRegLocal }
-                    decoradores.add(EventDecorator(Color.RED, diasConGastos))
+                    decoradores.add(EventDecorator(colorRojo, diasConGastos))
                 }
                 cv.addDecorators(decoradores)
 
@@ -412,19 +421,39 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             valueTextColor = Color.WHITE
             sliceSpace = 2f
         }
+
+        val colorTexto = ContextCompat.getColor(requireContext(), R.color.texto_negro)
+
         pc.apply {
             data = PieData(dataSet)
             description.isEnabled = false
             setDrawEntryLabels(false)
+
             legend.isWordWrapEnabled = true
+            legend.textColor = colorTexto
+
             centerText = "Resumen Mensual"
+            setCenterTextColor(colorTexto)
+
+            isDrawHoleEnabled = true
+            setHoleColor(Color.TRANSPARENT)
+            setTransparentCircleAlpha(0)
+
+            legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
+            legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
+            legend.orientation = Legend.LegendOrientation.HORIZONTAL
+
+            data.setDrawValues(false)
+
             setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
                     centerText = "${(e as PieEntry).label}\n${e.value} €"
+                    setCenterTextColor(colorTexto)
                 }
 
                 override fun onNothingSelected() {
                     centerText = "Resumen Mensual"
+                    setCenterTextColor(colorTexto)
                 }
             })
             animateY(1200, Easing.EaseInOutQuad)

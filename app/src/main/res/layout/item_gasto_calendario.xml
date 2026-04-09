@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- TARJETA DE GASTO DEL DÍA -->
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -7,6 +9,7 @@
     app:cardCornerRadius="12dp"
     app:cardElevation="2dp">
 
+    <!-- CONTENEDOR INTERNO -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,6 +18,7 @@
         android:orientation="horizontal"
         android:padding="12dp">
 
+        <!-- ICONO DE CATEGORÍA -->
         <TextView
             android:id="@+id/tvIconoCat"
             android:layout_width="40dp"
@@ -22,6 +26,7 @@
             android:gravity="center"
             android:textSize="20sp" />
 
+        <!-- BLOQUE DE TEXTO -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -29,27 +34,30 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- TÍTULO DEL GASTO -->
             <TextView
                 android:id="@+id/tvTituloGasto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#212121"
+                android:textColor="@color/texto_negro"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
+            <!-- HORA DEL GASTO -->
             <TextView
                 android:id="@+id/tvHoraGasto"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#757575"
+                android:textColor="@color/texto_negro"
                 android:textSize="12sp" />
         </LinearLayout>
 
+        <!-- IMPORTE DEL GASTO -->
         <TextView
             android:id="@+id/tvImporteGasto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="#E53935"
+            android:textColor="@color/error_red"
             android:textSize="16sp"
             android:textStyle="bold" />
 

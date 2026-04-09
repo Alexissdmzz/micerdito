@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -140,6 +141,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val entradas = mutableListOf<PieEntry>()
         val colores = mutableListOf<Int>()
 
+        // Color dinámico del texto según el tema actual
+        val colorTexto = ContextCompat.getColor(requireContext(), R.color.texto_negro)
+
         lista.forEach { item ->
             // Creamos la porción
             entradas.add(PieEntry(item.totalGasto.toFloat(), item.nombreCategoria))
@@ -175,12 +179,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             legend.orientation = Legend.LegendOrientation.HORIZONTAL
             legend.isWordWrapEnabled = true
             legend.form = Legend.LegendForm.CIRCLE
+            legend.textColor = colorTexto // Texto de la leyenda dinámico
 
             // Configuración del Centro Dinámico
             isDrawHoleEnabled = true
             setHoleColor(Color.TRANSPARENT)
             centerText = "Gastos"
             setCenterTextSize(16f)
+            setCenterTextColor(colorTexto) // Texto central dinámico
 
             // Interacción: Mostrar info al tocar
             setTouchEnabled(true)
@@ -188,10 +194,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
                     val pieEntry = e as PieEntry
                     centerText = "${pieEntry.label}\n${pieEntry.value} €"
+                    setCenterTextColor(colorTexto)
                 }
 
                 override fun onNothingSelected() {
                     centerText = "Gastos"
+                    setCenterTextColor(colorTexto)
                 }
             })
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="CalendarHeaderText">
+        <item name="android:textColor">@color/texto_negro</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="CalendarWeekDayText">
+        <item name="android:textColor">@color/text_body_light</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="CalendarDayText">
+        <item name="android:textColor">@color/texto_negro</item>
+    </style>
+</resources>

@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     android:background="@color/background_light">
 
+    <!-- HEADER SUPERIOR -->
     <LinearLayout
         android:id="@+id/headerContainer"
         android:layout_width="match_parent"
@@ -16,6 +17,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
+        <!-- TEXTO DE BIENVENIDA -->
         <TextView
             android:id="@+id/tvWelcome"
             android:layout_width="wrap_content"
@@ -27,6 +29,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
+    <!-- CONTENEDOR DE FRAGMENTS -->
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"
@@ -37,6 +40,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/headerContainer" />
 
+    <!-- LÍNEA SUPERIOR DEL FOOTER -->
     <View
         android:id="@+id/topBorder"
         android:layout_width="match_parent"
@@ -46,6 +50,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- NAVEGACIÓN INFERIOR -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
