@@ -1,89 +1,63 @@
 <?php
 
 /**
- * API - Eliminación de Usuario
- * Gestiona la baja definitiva de un perfil y sus datos asociados.
+ * API: Eliminación de Usuario
+ * Gestiona la baja definitiva de un perfil y de los datos asociados a la cuenta.
+ * Este proceso elimina el registro del usuario de forma permanente.
  */
 
-/**
- * CONTROL DE BUFFER Y ERRORES:
- * ob_get_level: Comprueba si hay contenido almacenado en el búfer de salida.
- * ob_end_clean: Borra cualquier espacio en blanco, aviso (Notice) o eco previo.
- * Esto garantiza que el ÚNICO resultado que reciba Android sea el JSON limpio.
- * Sin esto, un espacio en blanco antes de "<?php" rompería el parseo en Kotlin/Retrofit.
- */
+// Limpiamos cualquier salida previa que pueda romper el JSON
 if (ob_get_level()) ob_end_clean();
 error_reporting(0);
 ini_set('display_errors', 0);
 
-// Comunicación JSON en UTF-8.
+// Comunicación JSON en UTF-8
 header('Content-Type: application/json; charset=utf-8');
 
-// Clase de conexión a la Base de Datos.
+// Conexión y utilidades comunes
 require_once '../conexion/conexion.php';
+require_once '../utils/respuesta.php';
 
+// Recogida y normalización de datos
+$id_usuario = trim($_POST['id_usuario'] ?? '');
 
-// Recogida de datos enviados desde la App.
-$id_usuario = $_POST["id_usuario"] ?? '';
-
-/**
- * Validación de seguridad inicial:
- * Verificamos que el ID no llegue vacío antes de procesar la petición.
- */
 if (empty($id_usuario)) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Identificador de usuario no proporcionado."
-    ]);
-    exit;
+    responderError("Identificador de usuario no proporcionado.", 400);
 }
 
-/**
- * Preparación de la consulta mediante SP:
- * El uso de 'prepare' evita ataques de Inyección SQL.
- * Se llama al procedimiento 'sp_eliminar_usuario' definido en MySQL.
- */
-if ($sentencia = $conexion->prepare("CALL sp_eliminar_usuario(?)")) {
+// Preparación de la consulta
+$stmt = $conexion->prepare("CALL sp_eliminar_usuario(?)");
 
-    // Vinculamos el parámetro como String ("s").
-    $sentencia->bind_param("s", $id_usuario);
+if (!$stmt) {
+    responderError("Error interno del servidor", 500);
+}
 
-    // Ejecutamos la sentencia en el servidor de BBDD.
-    if ($sentencia->execute()) {
+$stmt->bind_param("s", $id_usuario);
 
-        /**
-         * Verificación de filas afectadas:
-         * Si affected_rows > 0, significa que el usuario existía y fue borrado.
-         */
-        if ($sentencia->affected_rows > 0) {
-            echo json_encode([
-                "success" => true,
-                "message" => "Cuenta y datos asociados eliminados correctamente.",
-                "id_usuario" => $id_usuario
-            ]);
-        } else {
-            echo json_encode([
-                "success" => false,
-                "message" => "No se encontró el registro o el usuario ya fue borrado previamente."
-            ]);
-        }
-    } else {
-        // Error durante la ejecución del procedimiento.
-        echo json_encode([
-            "success" => false,
-            "message" => "Error crítico al ejecutar la operación en la base de datos."
-        ]);
+// Ejecución
+if (!$stmt->execute()) {
+    $stmt->close();
+    responderError("Error interno del servidor", 500);
+}
+
+// Verificamos el resultado de la operación
+if ($stmt->affected_rows > 0) {
+    $stmt->close();
+
+    while ($conexion->next_result()) {
+        $conexion->store_result();
     }
 
-    // Cerramos la sentencia para liberar recursos del servidor.
-    $sentencia->close();
-} else {
-    // Error en la preparación.
-    echo json_encode([
-        "success" => false,
-        "message" => "Error interno: No se pudo preparar la consulta."
+    responderExito("Cuenta y datos asociados eliminados correctamente.", [
+        "id_usuario" => (string)$id_usuario
     ]);
 }
 
-//Cerramos la conexión.
-$conexion->close();
+$stmt->close();
+
+// Limpiamos resultados pendientes del procedimiento
+while ($conexion->next_result()) {
+    $conexion->store_result();
+}
+
+responderError("No se encontró el registro o el usuario ya fue borrado previamente.", 404);
