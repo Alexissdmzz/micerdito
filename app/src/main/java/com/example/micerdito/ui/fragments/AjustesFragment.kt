@@ -107,7 +107,9 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
             viewModel.setModoOscuro(isChecked)
             val modo =
                 if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-            AppCompatDelegate.setDefaultNightMode(modo)
+            if (AppCompatDelegate.getDefaultNightMode() != modo) {
+                AppCompatDelegate.setDefaultNightMode(modo)
+            }
         }
     }
 

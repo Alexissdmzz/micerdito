@@ -1,9 +1,11 @@
 package com.example.micerdito.ui.fragments
 
 import android.Manifest
+import android.app.DatePickerDialog
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,8 +20,11 @@ import com.example.micerdito.ui.decorators.ItemDecorator
 import com.example.micerdito.ui.handlers.CameraHandler
 import com.example.micerdito.viewmodel.home.GastosViewModel
 import com.google.android.material.card.MaterialCardView
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.text.SimpleDateFormat
-import java.util.Date
+import java.util.Calendar
 import java.util.Locale
 
 /**
@@ -37,23 +42,61 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
     private lateinit var cameraHandler: CameraHandler
     private var fotoUri: Uri? = null
 
-    // Launcher para la captura de imagen
-    private val camaraLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { exito ->
-        if (exito) {
-            val ivFoto = view?.findViewById<ImageView>(R.id.ivFotoTicket)
-            ivFoto?.setImageURI(fotoUri)
-            ivFoto?.visibility = View.VISIBLE
-        }
-    }
+    // Ruta final de la imagen seleccionada o capturada
+    private var fotoRuta: String? = null
 
-    // Launcher para solicitar el permiso de cámara dinámicamente
+    // Fecha seleccionada por el usuario para registrar el gasto
+    private val calendarioSeleccionado: Calendar = Calendar.getInstance()
+
+    /**
+     * Launcher para la captura de imagen con cámara.
+     * Si la operación es exitosa, se guarda la ruta y se muestra la previsualización.
+     */
+    private val camaraLauncher =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { exito ->
+            if (exito) {
+                fotoRuta = cameraHandler.rutaFotoActual
+                val ivFoto = view?.findViewById<ImageView>(R.id.ivFotoTicket)
+                ivFoto?.setImageURI(fotoUri)
+                ivFoto?.visibility = View.VISIBLE
+            }
+        }
+
+    /**
+     * Launcher para seleccionar una imagen desde galería.
+     * La imagen se copia a almacenamiento interno para poder trabajar con una ruta local.
+     */
+    private val galeriaLauncher =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uriSeleccionada ->
+            uriSeleccionada?.let {
+                val rutaLocal = copiarImagenAGuardadoInterno(it)
+                if (rutaLocal != null) {
+                    fotoRuta = rutaLocal
+                    view?.findViewById<ImageView>(R.id.ivFotoTicket)?.apply {
+                        setImageURI(uriSeleccionada)
+                        visibility = View.VISIBLE
+                    }
+                } else {
+                    Toast.makeText(
+                        requireContext(),
+                        "No se pudo cargar la imagen",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+        }
+
+    /**
+     * Launcher para solicitar el permiso de cámara dinámicamente.
+     */
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
         if (isGranted) {
             abrirCamaraConSeguridad()
         } else {
-            Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
@@ -69,6 +112,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         val btnCerrar = view.findViewById<ImageButton>(R.id.btnCerrarFormulario)
         val etTitulo = view.findViewById<EditText>(R.id.etTitulo)
         val etImporte = view.findViewById<EditText>(R.id.etImporte)
+        val btnFechaGasto = view.findViewById<Button>(R.id.btnFechaGasto)
         val etDescripcion = view.findViewById<EditText>(R.id.etDescripcion)
         val btnGuardarGasto = view.findViewById<Button>(R.id.btnGuardarGasto)
         val btnCamara = view.findViewById<Button>(R.id.btnSubirFactura)
@@ -85,14 +129,31 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         // Configuración de observadores para reaccionar a cambios en el ViewModel
         setupObservers(rvCategorias, cardDetalles, etImporte, etDescripcion, ivFoto)
 
-        // Configuración de interraciones
-        setupListeners(btnCerrar, btnCamara, etTitulo, btnGuardarGasto, etImporte, etDescripcion)
+        // Inicializa el selector visual con la fecha actual
+        actualizarTextoFecha(btnFechaGasto)
+
+        // Configuración de interacciones
+        setupListeners(
+            btnCerrar,
+            btnCamara,
+            etTitulo,
+            btnGuardarGasto,
+            etImporte,
+            etDescripcion,
+            btnFechaGasto
+        )
     }
 
     /**
      * Observadores de estado: Reaccionan a los cambios en el flujo de datos.
      */
-    private fun setupObservers(rvCategorias: RecyclerView, cardDetalles: MaterialCardView, etImporte: EditText, etDescripcion: EditText, ivFoto: ImageView) {
+    private fun setupObservers(
+        rvCategorias: RecyclerView,
+        cardDetalles: MaterialCardView,
+        etImporte: EditText,
+        etDescripcion: EditText,
+        ivFoto: ImageView
+    ) {
         // Carga la lista de categorías obtenidas desde la base de datos MySQL
         viewModel.categorias.observe(viewLifecycleOwner) { lista ->
             rvCategorias.adapter = CategoriaAdapter(lista) { cat ->
@@ -140,20 +201,33 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
     /**
      * Configuración de interacciones del usuario.
      */
-    private fun setupListeners(btnCerrar: ImageButton, btnCamara: Button,  etTitulo: EditText, btnGuardarGasto: Button, etImporte: EditText, etDescripcion: EditText) {
+    private fun setupListeners(
+        btnCerrar: ImageButton,
+        btnCamara: Button,
+        etTitulo: EditText,
+        btnGuardarGasto: Button,
+        etImporte: EditText,
+        etDescripcion: EditText,
+        btnFechaGasto: Button
+    ) {
         // Botón para cancelar la operación y ocultar el formulario
         btnCerrar.setOnClickListener {
             viewModel.seleccionarCategoria(null)
         }
 
-        // ACCIÓN: Abrir Cámara usando el módulo externo con chequeo de permisos
+        // ACCIÓN: Mostrar selector con cámara o galería
         btnCamara.setOnClickListener {
-            verificarPermisosYAbriCamara()
+            mostrarOpcionesImagen()
+        }
+
+        // ACCIÓN: Abrir selector de fecha para el gasto
+        btnFechaGasto.setOnClickListener {
+            mostrarDatePicker(btnFechaGasto)
         }
 
         /**
          * Envío del gasto:
-         * Valida el importe y formatea la fecha actual antes de llamar al ViewModel.
+         * Valida el importe y formatea la fecha seleccionada antes de llamar al ViewModel.
          */
         btnGuardarGasto.setOnClickListener {
             val importeStr = etImporte.text.toString()
@@ -164,16 +238,17 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
                 val importe = importeStr.toDouble()
 
                 // Formateo de fecha estándar ISO para compatibilidad con MySQL (DATETIME)
-                val fechaActual = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(
-                    Date()
-                )
+                val fechaSeleccionada = SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss",
+                    Locale.getDefault()
+                ).format(calendarioSeleccionado.time)
 
                 viewModel.registrarGasto(
                     titulo = tituloGasto,
                     importe = importe,
-                    fecha = fechaActual,
+                    fecha = fechaSeleccionada,
                     descripcion = if (descripcion.isEmpty()) null else descripcion,
-                    fotoRuta = cameraHandler.rutaFotoActual
+                    fotoRuta = fotoRuta
                 )
             } else {
                 // Validación visual de error si el campo está vacío
@@ -186,18 +261,100 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
      * Gestión de permisos de cámara para evitar SecurityException.
      */
     private fun verificarPermisosYAbriCamara() {
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+        if (
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             abrirCamaraConSeguridad()
         } else {
             requestPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 
+    /**
+     * Abre la cámara de forma segura creando previamente la URI de destino.
+     */
     private fun abrirCamaraConSeguridad() {
         fotoUri = cameraHandler.generarUriParaCamara()
         fotoUri?.let { uri ->
             camaraLauncher.launch(uri)
         }
+    }
+
+    /**
+     * Muestra el calendario para que el usuario seleccione la fecha del gasto.
+     */
+    private fun mostrarDatePicker(btnFechaGasto: Button) {
+        val year = calendarioSeleccionado.get(Calendar.YEAR)
+        val month = calendarioSeleccionado.get(Calendar.MONTH)
+        val day = calendarioSeleccionado.get(Calendar.DAY_OF_MONTH)
+
+        DatePickerDialog(
+            requireContext(),
+            { _, selectedYear, selectedMonth, selectedDay ->
+                calendarioSeleccionado.set(Calendar.YEAR, selectedYear)
+                calendarioSeleccionado.set(Calendar.MONTH, selectedMonth)
+                calendarioSeleccionado.set(Calendar.DAY_OF_MONTH, selectedDay)
+                actualizarTextoFecha(btnFechaGasto)
+            },
+            year,
+            month,
+            day
+        ).show()
+    }
+
+    /**
+     * Actualiza el texto visible con la fecha seleccionada.
+     */
+    private fun actualizarTextoFecha(btnFechaGasto: Button) {
+        val formatoVisual = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        val fecha = formatoVisual.format(calendarioSeleccionado.time)
+        btnFechaGasto.text = "📅 $fecha"
+    }
+
+    /**
+     * Copia una imagen seleccionada desde galería al almacenamiento de la app.
+     * Devuelve la ruta absoluta del archivo generado o null si falla.
+     */
+    private fun copiarImagenAGuardadoInterno(uri: Uri): String? {
+        return try {
+            val inputStream: InputStream =
+                requireContext().contentResolver.openInputStream(uri) ?: return null
+
+            val archivoDestino = File(
+                requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+                "TICKET_GALERIA_${System.currentTimeMillis()}.jpg"
+            )
+
+            FileOutputStream(archivoDestino).use { output ->
+                inputStream.copyTo(output)
+            }
+            inputStream.close()
+
+            archivoDestino.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
+    /**
+     * Muestra un diálogo para elegir si la imagen se obtiene desde cámara o galería.
+     */
+    private fun mostrarOpcionesImagen() {
+        val opciones = arrayOf("Cámara", "Galería")
+
+        android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Selecciona una opción")
+            .setItems(opciones) { _, which ->
+                when (which) {
+                    0 -> verificarPermisosYAbriCamara()
+                    1 -> galeriaLauncher.launch("image/*")
+                }
+            }
+            .show()
     }
 
     override fun onResume() {

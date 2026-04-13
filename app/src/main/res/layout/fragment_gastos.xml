@@ -149,8 +149,17 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
-                    <!-- CAMPO DESCRIPCIÓN -->
-                    <!-- Permite añadir notas adicionales sobre el gasto de forma opcional -->
+                    <!-- BOTÓN FECHA DEL GASTO -->
+                    <!-- Permite seleccionar la fecha a la cuál quieres añadir el gasto -->
+                    <Button
+                        android:id="@+id/btnFechaGasto"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:fontFamily="@font/amiko_semibold"
+                        android:text="📅 Seleccionar fecha" />
+
                     <EditText
                         android:id="@+id/etDescripcion"
                         android:layout_width="match_parent"

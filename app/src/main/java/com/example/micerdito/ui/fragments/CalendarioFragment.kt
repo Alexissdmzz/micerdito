@@ -159,9 +159,9 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                             partes[2].toInt()
                         )
                         diaRegLocal = diaReg
+
                         if (limiteSeteado != diaReg) {
                             limiteSeteado = diaReg
-                            cv.state().edit().setMinimumDate(diaReg).commit()
                         }
                         decoradores.add(EventDecorator(colorAzul, listOf(diaReg)))
                     } catch (e: Exception) {
