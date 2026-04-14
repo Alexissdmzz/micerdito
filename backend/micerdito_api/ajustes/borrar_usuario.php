@@ -17,6 +17,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Conexión y utilidades comunes
 require_once '../conexion/conexion.php';
 require_once '../utils/respuesta.php';
+require_once '../utils/auth.php';
 
 // Recogida y normalización de datos
 $id_usuario = trim($_POST['id_usuario'] ?? '');
@@ -29,12 +30,24 @@ if (!ctype_digit($id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
+/**
+ * Validación de autenticación:
+ * Comprobamos que el usuario exista realmente antes de operar.
+ */
+validarUsuarioExistente($conexion, $id_usuario);
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_eliminar_usuario(?)");
 
 if (!$stmt) {
     responderError("Error interno del servidor", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el error real en servidor sin exponer detalles al cliente.
+ */
+error_log("Error en borrar_usuario.php al preparar sp_eliminar_usuario: " . $conexion->error);
 
 $stmt->bind_param("s", $id_usuario);
 
@@ -43,6 +56,12 @@ if (!$stmt->execute()) {
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el error real de ejecución para facilitar depuración.
+ */
+error_log("Error en borrar_usuario.php al ejecutar sp_eliminar_usuario para id_usuario {$id_usuario}: " . $stmt->error);
 
 // Verificamos el resultado de la operación
 if ($stmt->affected_rows > 0) {

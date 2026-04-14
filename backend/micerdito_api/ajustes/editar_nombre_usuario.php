@@ -16,6 +16,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Conexión y utilidades comunes
 require_once '../conexion/conexion.php';
 require_once '../utils/respuesta.php';
+require_once '../utils/auth.php';
 
 // Recogida y normalización de datos
 $id_usuario = trim($_POST['id_usuario'] ?? '');
@@ -29,6 +30,12 @@ if (!ctype_digit($id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
+/**
+ * Validación de autenticación:
+ * Comprobamos que el usuario exista realmente antes de permitir la modificación.
+ */
+validarUsuarioExistente($conexion, $id_usuario);
+
 if (!preg_match("/^[\p{L}0-9\s]+$/u", $nombre_usuario)) {
     responderError("El nombre contiene caracteres no válidos.", 400);
 }
@@ -40,6 +47,12 @@ if (!$stmt) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al preparar la consulta.
+ */
+error_log("Error en editar_nombre_usuario.php al preparar sp_editar_nom_usu: " . $conexion->error);
+
 $stmt->bind_param("ss", $id_usuario, $nombre_usuario);
 
 // Ejecución
@@ -47,6 +60,12 @@ if (!$stmt->execute()) {
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el error de ejecución para depuración.
+ */
+error_log("Error en editar_nombre_usuario.php al ejecutar para id_usuario {$id_usuario}: " . $stmt->error);
 
 // Cierre de la sentencia
 $stmt->close();

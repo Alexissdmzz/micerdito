@@ -16,6 +16,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Conexión y utilidades comunes
 require_once '../conexion/conexion.php';
 require_once '../utils/respuesta.php';
+require_once '../utils/auth.php';
 
 // Aseguramos comunicación en UTF-8
 $conexion->set_charset("utf8mb4");
@@ -46,12 +47,24 @@ if (!ctype_digit($dia) || (int)$dia < 1 || (int)$dia > 31) {
     responderError("Día inválido.", 400);
 }
 
+/**
+ * Validación de autenticación:
+ * Comprobamos que el usuario exista realmente antes de consultar sus gastos.
+ */
+validarUsuarioExistente($conexion, $id_usuario);
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_obtener_gastos_dia(?, ?, ?, ?)");
 
 if (!$stmt) {
     responderError("Error interno del servidor", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el error al preparar la consulta de gastos por día.
+ */
+error_log("Error en obtener_gastos_dia.php al preparar sp_obtener_gastos_dia: " . $conexion->error);
 
 $stmt->bind_param("siii", $id_usuario, $anio, $mes, $dia);
 
@@ -61,12 +74,24 @@ if (!$stmt->execute()) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al ejecutar la consulta de gastos por día.
+ */
+error_log("Error en obtener_gastos_dia.php al ejecutar sp_obtener_gastos_dia para id_usuario {$id_usuario}, fecha {$anio}-{$mes}-{$dia}: " . $stmt->error);
+
 $res = $stmt->get_result();
 
 if (!$res) {
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el fallo al recuperar el resultset del procedimiento.
+ */
+error_log("Error en obtener_gastos_dia.php al recuperar resultados para id_usuario {$id_usuario}, fecha {$anio}-{$mes}-{$dia}.");
 
 $gastos = [];
 

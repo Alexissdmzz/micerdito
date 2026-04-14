@@ -17,6 +17,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Conexión y utilidades comunes
 require_once '../conexion/conexion.php';
 require_once '../utils/respuesta.php';
+require_once '../utils/auth.php';
 
 // Aseguramos comunicación en UTF-8
 $conexion->set_charset("utf8mb4");
@@ -42,12 +43,24 @@ if (!ctype_digit($anio) || (int)$anio < 2000 || (int)$anio > 2100) {
     responderError("Año inválido.", 400);
 }
 
+/**
+ * Validación de autenticación:
+ * Comprobamos que el usuario exista realmente antes de consultar sus datos del calendario.
+ */
+validarUsuarioExistente($conexion, $id_usuario);
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_obtener_datos_calendario(?, ?, ?)");
 
 if (!$stmt) {
     responderError("Error interno del servidor", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el error al preparar la consulta del resumen de calendario.
+ */
+error_log("Error en obtener_datos_calendario.php al preparar sp_obtener_datos_calendario: " . $conexion->error);
 
 $stmt->bind_param("sii", $id_usuario, $mes, $anio);
 
@@ -57,6 +70,13 @@ if (!$stmt->execute()) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al ejecutar la consulta del calendario.
+ */
+error_log("Error en obtener_datos_calendario.php al ejecutar sp_obtener_datos_calendario para id_usuario {$id_usuario}, mes {$mes}, anio {$anio}: " . $stmt->error);
+
+
 // --- 1. RESULTADO: Fecha de Registro ---
 $res1 = $stmt->get_result();
 
@@ -64,6 +84,12 @@ if (!$res1) {
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el fallo al recuperar el primer resultset del procedimiento.
+ */
+error_log("Error en obtener_datos_calendario.php al recuperar fecha de registro para id_usuario {$id_usuario}.");
 
 $fecha_registro = null;
 

@@ -16,6 +16,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Conexión y utilidades comunes
 require_once '../conexion/conexion.php';
 require_once '../utils/respuesta.php';
+require_once '../utils/auth.php';
 
 // Configuración regional para fechas en español
 $conexion->query("SET lc_time_names = 'es_ES'");
@@ -31,12 +32,24 @@ if (!ctype_digit($id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
+/**
+ * Validación de autenticación:
+ * Comprobamos que el usuario exista realmente antes de obtener sus datos.
+ */
+validarUsuarioExistente($conexion, $id_usuario);
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_obtener_datos(?)");
 
 if (!$stmt) {
     responderError("Error interno del servidor", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el error al preparar la obtención de datos de home.
+ */
+error_log("Error en obtener_datos_home.php al preparar sp_obtener_datos: " . $conexion->error);
 
 $stmt->bind_param("s", $id_usuario);
 
@@ -46,12 +59,24 @@ if (!$stmt->execute()) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al ejecutar la obtención de datos de home.
+ */
+error_log("Error en obtener_datos_home.php al ejecutar sp_obtener_datos para id_usuario {$id_usuario}: " . $stmt->error);
+
 $res = $stmt->get_result();
 
 if (!$res) {
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el fallo al recuperar el resultset del procedimiento.
+ */
+error_log("Error en obtener_datos_home.php al recuperar resultados para id_usuario {$id_usuario}.");
 
 $datos = $res->fetch_assoc();
 $res->free();
@@ -67,5 +92,11 @@ while ($conexion->next_result()) {
 if (!$datos) {
     responderError("Usuario no encontrado.", 404);
 }
+
+/**
+ * Logging interno:
+ * Registramos el caso en el que no se encontraron datos para el usuario.
+ */
+error_log("Error en obtener_datos_home.php: no se encontraron datos para id_usuario {$id_usuario}.");
 
 responderExito("Datos recuperados correctamente.", $datos);

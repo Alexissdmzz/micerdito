@@ -41,7 +41,22 @@ if (!$sentencia) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al preparar la consulta de login.
+ */
+error_log("Error en login.php al preparar sp_login: " . $conexion->error);
+
 $sentencia->bind_param("s", $correo);
+if (!$sentencia->execute()) {
+    /**
+     * Logging interno:
+     * Registramos el error al ejecutar la consulta de login.
+     */
+    error_log("Error en login.php al ejecutar sp_login para correo {$correo}: " . $sentencia->error);
+    $sentencia->close();
+    responderError("Error interno del servidor", 500);
+}
 $sentencia->execute();
 
 $resultado = $sentencia->get_result();
@@ -55,7 +70,7 @@ $usuario = $resultado->fetch_assoc();
 
 if (!$usuario) {
     $sentencia->close();
-    responderError("Creedenciales incorrectas", 404);
+    responderError("Creedenciales incorrectas", 401);
 }
 
 /**
@@ -80,7 +95,14 @@ if (password_verify($passInput, $usuario['pwd'])) {
     $stmtStatus = $conexion->prepare("CALL sp_login_intentos(?, 1)");
     if ($stmtStatus) {
         $stmtStatus->bind_param("s", $correo);
-        $stmtStatus->execute();
+        if (!$stmtStatus->execute()) {
+            /**
+             * Logging interno:
+             * Registramos el error al actualizar intentos correctos.
+             */
+            error_log("Error en login.php al ejecutar sp_login_intentos éxito para correo {$correo}: " . $stmtStatus->error);
+        }
+
         $stmtStatus->close();
     }
 
@@ -97,7 +119,14 @@ if (password_verify($passInput, $usuario['pwd'])) {
 $stmtStatus = $conexion->prepare("CALL sp_login_intentos(?, 0)");
 if ($stmtStatus) {
     $stmtStatus->bind_param("s", $correo);
-    $stmtStatus->execute();
+    if (!$stmtStatus->execute()) {
+        /**
+         * Logging interno:
+         * Registramos el error al actualizar intentos fallidos.
+         */
+        error_log("Error en login.php al ejecutar sp_login_intentos fallo para correo {$correo}: " . $stmtStatus->error);
+    }
+
     $stmtStatus->close();
 }
 

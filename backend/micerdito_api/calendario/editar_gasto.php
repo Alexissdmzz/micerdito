@@ -17,11 +17,13 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../conexion/conexion.php';
 require_once '../utils/respuesta.php';
 require_once '../utils/subir_imagen.php';
+require_once '../utils/auth.php';
 
 // Aseguramos comunicación en UTF-8
 $conexion->set_charset("utf8mb4");
 
 // Recogida y normalización de datos
+$id_usuario  = trim($_POST['id_usuario'] ?? '');
 $id_gasto    = trim($_POST['id_gasto'] ?? '');
 $titulo      = trim($_POST['titulo'] ?? '');
 $importe     = trim($_POST['importe'] ?? '');
@@ -29,7 +31,7 @@ $descripcion = trim($_POST['descripcion'] ?? '');
 $nombre_foto_final = trim($_POST['foto_ticket'] ?? '');
 
 // Validación de datos obligatorios
-if (empty($id_gasto) || empty($titulo) || $importe === '') {
+if (empty($id_usuario) || empty($id_gasto) || empty($titulo) || $importe === '') {
     responderError("Faltan parámetros obligatorios para editar.", 400);
 }
 
@@ -40,6 +42,22 @@ if (!ctype_digit($id_gasto)) {
 if (!is_numeric($importe) || (float)$importe <= 0) {
     responderError("El importe debe ser un número válido mayor que 0.", 400);
 }
+
+if (!ctype_digit($id_usuario)) {
+    responderError("Identificador de usuario inválido.", 400);
+}
+
+/**
+ * Validación de autenticación:
+ * Comprobamos que el usuario exista realmente antes de editar el gasto.
+ */
+validarUsuarioExistente($conexion, $id_usuario);
+
+/**
+ * Validación de autorización:
+ * Comprobamos que el gasto exista y pertenezca realmente al usuario.
+ */
+validarGastoDeUsuario($conexion, $id_gasto, $id_usuario);
 
 /**
  * Gestión de la foto:
@@ -79,6 +97,12 @@ if (!$stmt) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al preparar la edición del gasto.
+ */
+error_log("Error en editar_gasto.php al preparar sp_editar_gasto: " . $conexion->error);
+
 $stmt->bind_param("ssdss", $id_gasto, $titulo, $importe, $descripcion, $nombre_foto_final);
 
 // Ejecución
@@ -87,12 +111,24 @@ if (!$stmt->execute()) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al ejecutar la edición del gasto.
+ */
+error_log("Error en editar_gasto.php al ejecutar sp_editar_gasto para id_gasto {$id_gasto} e id_usuario {$id_usuario}: " . $stmt->error);
+
 $res = $stmt->get_result();
 
 if (!$res) {
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos el fallo al recuperar el resultado del procedimiento.
+ */
+error_log("Error en editar_gasto.php al recuperar resultados de sp_editar_gasto para id_gasto {$id_gasto}.");
 
 $fila = $res->fetch_assoc();
 $res->free();
@@ -111,6 +147,12 @@ while ($conexion->next_result()) {
 if (!$fila || !isset($fila['success'])) {
     responderError("Respuesta inválida del servidor.", 500);
 }
+
+/**
+ * Logging interno:
+ * Registramos una respuesta inesperada devuelta por el procedimiento.
+ */
+error_log("Error en editar_gasto.php: respuesta inesperada de sp_editar_gasto para id_gasto {$id_gasto}.");
 
 if ((bool)$fila['success'] === false) {
     responderError($fila['message'] ?? "No se pudo editar el gasto.", 400);

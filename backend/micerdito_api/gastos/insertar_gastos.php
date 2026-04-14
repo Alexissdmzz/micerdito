@@ -17,6 +17,7 @@ header('Content-Type: application/json; charset=utf-8');
 require_once '../conexion/conexion.php';
 require_once '../utils/respuesta.php';
 require_once '../utils/subir_imagen.php';
+require_once '../utils/auth.php';
 
 // Aseguramos comunicación en UTF-8
 $conexion->set_charset("utf8mb4");
@@ -42,6 +43,12 @@ if (!ctype_digit($id_usuario) || !ctype_digit($id_categoria)) {
 if (!is_numeric($importe) || (float)$importe <= 0) {
     responderError("El importe debe ser un número válido mayor que 0.", 400);
 }
+
+/**
+ * Validación de autenticación:
+ * Comprobamos que el usuario exista realmente antes de registrar el gasto.
+ */
+validarUsuarioExistente($conexion, $id_usuario);
 
 /**
  * Gestión de la foto:
@@ -78,6 +85,12 @@ if (!$stmt) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al preparar la inserción del gasto.
+ */
+error_log("Error en insertar_gasto.php al preparar sp_insertar_gasto: " . $conexion->error);
+
 $stmt->bind_param("sssdsss", $id_usuario, $id_categoria, $titulo, $importe, $fecha_gasto, $descripcion, $nombre_foto);
 
 // Ejecución
@@ -86,7 +99,22 @@ if (!$stmt->execute()) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Registramos el error al ejecutar la inserción del gasto.
+ */
+error_log("Error en insertar_gasto.php al ejecutar sp_insertar_gasto para id_usuario {$id_usuario}: " . $stmt->error);
+
 $res = $stmt->get_result();
+
+if (!$res) {
+    /**
+     * Logging interno:
+     * Registramos el fallo al recuperar el resultado del procedimiento.
+     */
+    error_log("Error en insertar_gasto.php al recuperar resultados de sp_insertar_gasto para id_usuario {$id_usuario}.");
+}
+
 $id_gasto = null;
 
 if ($res && $res->num_rows > 0) {

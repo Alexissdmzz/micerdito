@@ -52,12 +52,24 @@ if (!$stmt) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Error al preparar recuperación de pregunta de seguridad.
+ */
+error_log("Error en cambiar_pwd.php al preparar sp_recuperar_pregunta: " . $conexion->error);
+
 $stmt->bind_param("s", $correo);
 
 if (!$stmt->execute()) {
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
+
+/**
+ * Logging interno:
+ * Error al ejecutar recuperación de pregunta.
+ */
+error_log("Error en cambiar_pwd.php al ejecutar sp_recuperar_pregunta para correo {$correo}: " . $stmt->error);
 
 $res = $stmt->get_result();
 
@@ -101,12 +113,24 @@ if (!$update) {
     responderError("Error interno del servidor", 500);
 }
 
+/**
+ * Logging interno:
+ * Error al preparar actualización de contraseña.
+ */
+error_log("Error en cambiar_pwd.php al preparar sp_cambiar_pwd: " . $conexion->error);
+
 $update->bind_param("ss", $correo, $nueva_pwd_hash);
 
 if (!$update->execute()) {
     $update->close();
     responderError("Error interno del servidor", 500);
 }
+
+/**
+ * Logging interno:
+ * Error al ejecutar actualización de contraseña.
+ */
+error_log("Error en cambiar_pwd.php al ejecutar sp_cambiar_pwd para correo {$correo}: " . $update->error);
 
 $update->close();
 
