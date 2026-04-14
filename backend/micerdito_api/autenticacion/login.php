@@ -55,7 +55,7 @@ $usuario = $resultado->fetch_assoc();
 
 if (!$usuario) {
     $sentencia->close();
-    responderError("El usuario no existe", 404);
+    responderError("Creedenciales incorrectas", 404);
 }
 
 /**

@@ -45,6 +45,18 @@ if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
     responderError("El correo no tiene un formato válido.", 400);
 }
 
+$pattern = '/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/';
+if (!preg_match($pattern, $pwd)) {
+    responderError(
+        "La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial.",
+        400
+    );
+}
+
+if (!ctype_digit((string)$id_pregunta)) {
+    responderError("La pregunta de seguridad no es válida.", 400);
+}
+
 if ($pwd !== $repeat_pwd) {
     responderError("Las contraseñas no coinciden.", 400);
 }

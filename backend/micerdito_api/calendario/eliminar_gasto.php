@@ -27,6 +27,10 @@ if (empty($id_gasto)) {
     responderError("ID de gasto no proporcionado.", 400);
 }
 
+if (!ctype_digit($id_gasto)) {
+    responderError("Identificador de gasto inválido.", 400);
+}
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_eliminar_gasto(?)");
 

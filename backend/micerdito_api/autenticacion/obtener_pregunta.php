@@ -56,7 +56,7 @@ if (!$res) {
 if ($res->num_rows === 0) {
     $res->free();
     $stmt->close();
-    responderError("No existe ninguna cuenta con ese correo.", 404);
+    responderError("No se puedo recuperar la pregunta de seguridad.", 404);
 }
 
 $fila = $res->fetch_assoc();

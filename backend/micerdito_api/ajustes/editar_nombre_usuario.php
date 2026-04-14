@@ -25,6 +25,14 @@ if (empty($id_usuario) || empty($nombre_usuario)) {
     responderError("Faltan datos obligatorios.", 400);
 }
 
+if (!ctype_digit($id_usuario)) {
+    responderError("Identificador de usuario inválido.", 400);
+}
+
+if (!preg_match("/^[\p{L}0-9\s]+$/u", $nombre_usuario)) {
+    responderError("El nombre contiene caracteres no válidos.", 400);
+}
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_editar_nom_usu(?, ?)");
 

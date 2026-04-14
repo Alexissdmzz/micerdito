@@ -16,6 +16,7 @@ header('Content-Type: application/json; charset=utf-8');
 // Conexión y utilidades comunes
 require_once '../conexion/conexion.php';
 require_once '../utils/respuesta.php';
+require_once '../utils/subir_imagen.php';
 
 // Aseguramos comunicación en UTF-8
 $conexion->set_charset("utf8mb4");
@@ -32,10 +33,22 @@ if (empty($id_gasto) || empty($titulo) || $importe === '') {
     responderError("Faltan parámetros obligatorios para editar.", 400);
 }
 
+if (!ctype_digit($id_gasto)) {
+    responderError("Identificador de gasto inválido.", 400);
+}
+
+if (!is_numeric($importe) || (float)$importe <= 0) {
+    responderError("El importe debe ser un número válido mayor que 0.", 400);
+}
+
 /**
  * Gestión de la foto:
  * Si el usuario sube una nueva imagen, se procesa y sustituye.
  */
+
+/*
+// ❌ BLOQUE ANTIGUO (se deja comentado por seguridad)
+
 if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
 
     $directorio_subida = "../uploads/tickets/";
@@ -51,6 +64,12 @@ if (isset($_FILES['foto']) && $_FILES['foto']['error'] === UPLOAD_ERR_OK) {
     if (move_uploaded_file($_FILES['foto']['tmp_name'], $ruta_final)) {
         $nombre_foto_final = $nuevo_nombre;
     }
+}
+*/
+
+// ✅ BLOQUE NUEVO (seguro)
+if (isset($_FILES['foto']) && $_FILES['foto']['error'] !== UPLOAD_ERR_NO_FILE) {
+    $nombre_foto_final = guardarImagenTicket($_FILES['foto'], 'TK_EDIT_' . $id_gasto);
 }
 
 // Preparación de la consulta

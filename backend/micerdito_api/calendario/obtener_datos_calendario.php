@@ -30,6 +30,18 @@ if (empty($id_usuario) || empty($mes) || empty($anio)) {
     responderError("Faltan parámetros para consultar el calendario.", 400);
 }
 
+if (!ctype_digit($id_usuario)) {
+    responderError("Identificador de usuario inválido.", 400);
+}
+
+if (!ctype_digit($mes) || (int)$mes < 1 || (int)$mes > 12) {
+    responderError("Mes inválido.", 400);
+}
+
+if (!ctype_digit($anio) || (int)$anio < 2000 || (int)$anio > 2100) {
+    responderError("Año inválido.", 400);
+}
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_obtener_datos_calendario(?, ?, ?)");
 

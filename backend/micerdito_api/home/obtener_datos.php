@@ -27,6 +27,10 @@ if (empty($id_usuario)) {
     responderError("ID de usuario no proporcionado.", 400);
 }
 
+if (!ctype_digit($id_usuario)) {
+    responderError("Identificador de usuario inválido.", 400);
+}
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_obtener_datos(?)");
 

@@ -25,6 +25,14 @@ if (empty($id_usuario) || $limite === '') {
     responderError("Faltan datos obligatorios.", 400);
 }
 
+if (!ctype_digit($id_usuario)) {
+    responderError("Identificador de usuario inválido.", 400);
+}
+
+if (!is_numeric($limite) || (float)$limite < 0) {
+    responderError("El límite debe ser un número válido.", 400);
+}
+
 // Preparación de la consulta
 $stmt = $conexion->prepare("CALL sp_guardar_limite(?, ?)");
 
