@@ -9,6 +9,10 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import com.example.micerdito.R
 import com.example.micerdito.ui.fragments.AjustesFragment
@@ -37,8 +41,15 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        val root = findViewById<View>(android.R.id.content)
+        val headerContainer = findViewById<View>(R.id.headerContainer)
+        val fragmentContainer = findViewById<View>(R.id.fragment_container)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
+
+        configurarInsets(root, headerContainer, fragmentContainer, bottomNav)
 
         configurarBotonSalir()
 
@@ -136,5 +147,47 @@ class HomeActivity : AppCompatActivity() {
     fun actualizarNombreHeader(nuevoNombre: String) {
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         tvWelcome.text = "Bienvenido, $nuevoNombre"
+    }
+
+    private fun configurarInsets(
+        root: View,
+        headerContainer: View,
+        fragmentContainer: View,
+        bottomNav: BottomNavigationView
+    ) {
+        val headerTopOriginal = headerContainer.paddingTop
+        val headerLeftOriginal = headerContainer.paddingLeft
+        val headerRightOriginal = headerContainer.paddingRight
+        val headerBottomOriginal = headerContainer.paddingBottom
+
+        val bottomLeftOriginal = bottomNav.paddingLeft
+        val bottomTopOriginal = bottomNav.paddingTop
+        val bottomRightOriginal = bottomNav.paddingRight
+        val bottomBottomOriginal = bottomNav.paddingBottom
+
+        ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            headerContainer.updatePadding(
+                left = headerLeftOriginal + systemBars.left,
+                top = headerTopOriginal + systemBars.top,
+                right = headerRightOriginal + systemBars.right,
+                bottom = headerBottomOriginal
+            )
+
+            bottomNav.updatePadding(
+                left = bottomLeftOriginal + systemBars.left,
+                top = bottomTopOriginal,
+                right = bottomRightOriginal + systemBars.right,
+                bottom = bottomBottomOriginal + systemBars.bottom
+            )
+
+            fragmentContainer.updatePadding(
+                left = systemBars.left,
+                right = systemBars.right
+            )
+
+            insets
+        }
     }
 }

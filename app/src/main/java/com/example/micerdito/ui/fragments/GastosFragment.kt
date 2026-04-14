@@ -18,6 +18,7 @@ import com.example.micerdito.R
 import com.example.micerdito.ui.adapters.CategoriaAdapter
 import com.example.micerdito.ui.decorators.ItemDecorator
 import com.example.micerdito.ui.handlers.CameraHandler
+import com.example.micerdito.utils.parsePositiveAmount
 import com.example.micerdito.viewmodel.home.GastosViewModel
 import com.google.android.material.card.MaterialCardView
 import java.io.File
@@ -230,30 +231,43 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
          * Valida el importe y formatea la fecha seleccionada antes de llamar al ViewModel.
          */
         btnGuardarGasto.setOnClickListener {
-            val importeStr = etImporte.text.toString()
-            val tituloGasto = etTitulo.text.toString()
-            val descripcion = etDescripcion.text.toString()
+            val importeStr = etImporte.text.toString().trim()
+            val tituloGasto = etTitulo.text.toString().trim()
+            val descripcion = etDescripcion.text.toString().trim()
 
-            if (importeStr.isNotEmpty()) {
-                val importe = importeStr.toDouble()
-
-                // Formateo de fecha estándar ISO para compatibilidad con MySQL (DATETIME)
-                val fechaSeleccionada = SimpleDateFormat(
-                    "yyyy-MM-dd HH:mm:ss",
-                    Locale.getDefault()
-                ).format(calendarioSeleccionado.time)
-
-                viewModel.registrarGasto(
-                    titulo = tituloGasto,
-                    importe = importe,
-                    fecha = fechaSeleccionada,
-                    descripcion = if (descripcion.isEmpty()) null else descripcion,
-                    fotoRuta = fotoRuta
-                )
-            } else {
-                // Validación visual de error si el campo está vacío
-                etImporte.error = "Introduce un importe"
+            if (tituloGasto.isEmpty()) {
+                etTitulo.error = "Introduce un título"
+                etTitulo.requestFocus()
+                return@setOnClickListener
             }
+
+            if (importeStr.isEmpty()) {
+                etImporte.error = "Introduce un importe"
+                etImporte.requestFocus()
+                return@setOnClickListener
+            }
+
+            val importe = parsePositiveAmount(importeStr)
+            if (importe == null) {
+                etImporte.error = "Introduce un importe válido mayor que 0"
+                etImporte.requestFocus()
+                return@setOnClickListener
+            }
+
+            // Formateo de fecha estándar ISO para compatibilidad con MySQL (DATETIME)
+            val fechaSeleccionada = SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss",
+                Locale.getDefault()
+            ).format(calendarioSeleccionado.time)
+
+            viewModel.registrarGasto(
+                titulo = tituloGasto,
+                importe = importe,
+                fecha = fechaSeleccionada,
+                descripcion = if (descripcion.isEmpty()) null else descripcion,
+                fotoRuta = fotoRuta
+            )
+
         }
     }
 

@@ -15,9 +15,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
 
-    // URL base del servidor local (Usamos 10.0.2.2 que es el "localhost" de Android)
-    private val BASE_URL = BuildConfig.BASE_URL + "/micerdito_api/"
-
     // Configuración de GSON, @setLenient permite procesar JSON aunque no sean perfectos o tengan errores
     private val gson = GsonBuilder()
         .setLenient()
@@ -25,7 +22,11 @@ object RetrofitClient {
 
     // Permite ver todo el tráfico de red en el Logcat
     private val interceptor = HttpLoggingInterceptor().apply {
-        level = HttpLoggingInterceptor.Level.BODY
+        level = if (BuildConfig.LOG_HTTP_BODY) {
+            HttpLoggingInterceptor.Level.BODY
+        } else {
+            HttpLoggingInterceptor.Level.BASIC
+        }
     }
 
     // Cliente HTTP que gestiona la conexión técnica
@@ -36,7 +37,7 @@ object RetrofitClient {
     // Inicializamos el retrofit
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BASE_URL) // Usamos la constante de arriba, no la "X"
+            .baseUrl(BuildConfig.BASE_URL) // Usamos la constante de arriba, no la "X"
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()

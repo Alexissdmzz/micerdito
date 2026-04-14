@@ -47,6 +47,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
+import com.example.micerdito.utils.parsePositiveAmount
 
 /**
  * FRAGMENTO - CalendarioFragment:
@@ -309,37 +310,52 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
         btnGuardar.setOnClickListener {
             val nTitulo = etTitulo.text.toString().trim()
-            val nImporte = etImporte.text.toString().toDoubleOrNull() ?: 0.0
+            val nImporteTexto = etImporte.text.toString().trim()
             val nDesc = etDescripcion.text.toString().trim()
 
-            if (nTitulo.isNotEmpty()) {
-                var fotoPart: MultipartBody.Part? = null
-                uriImagenSeleccionada?.let { uri ->
-                    obtenerFileDesdeUri(requireContext(), uri)?.let { file ->
-                        val rb = file.asRequestBody("image/*".toMediaTypeOrNull())
-                        fotoPart = MultipartBody.Part.createFormData("foto", file.name, rb)
-                    }
-                }
-
-                val fotoActualParam = when {
-                    uriImagenSeleccionada != null -> ""
-                    borrarFotoPendiente -> ""
-                    else -> gasto.foto_ticket ?: ""
-                }
-
-                viewModel.editarGasto(
-                    gasto.id_gasto,
-                    nTitulo,
-                    nImporte,
-                    nDesc,
-                    fotoActualParam,
-                    fotoPart
-                )
-                dialog.dismiss()
-            } else {
-                Toast.makeText(requireContext(), "El título es obligatorio", Toast.LENGTH_SHORT)
-                    .show()
+            if (nTitulo.isEmpty()) {
+                etTitulo.error = "El título es obligatorio"
+                etTitulo.requestFocus()
+                return@setOnClickListener
             }
+
+            if (nImporteTexto.isEmpty()) {
+                etImporte.error = "El importe es obligatorio"
+                etImporte.requestFocus()
+                return@setOnClickListener
+            }
+
+            val nImporte = parsePositiveAmount(nImporteTexto)
+            if (nImporte == null) {
+                etImporte.error = "Introduce un importe válido mayor que 0"
+                etImporte.requestFocus()
+                return@setOnClickListener
+            }
+
+
+            var fotoPart: MultipartBody.Part? = null
+            uriImagenSeleccionada?.let { uri ->
+                obtenerFileDesdeUri(requireContext(), uri)?.let { file ->
+                    val rb = file.asRequestBody("image/*".toMediaTypeOrNull())
+                    fotoPart = MultipartBody.Part.createFormData("foto", file.name, rb)
+                }
+            }
+
+            val fotoActualParam = when {
+                uriImagenSeleccionada != null -> ""
+                borrarFotoPendiente -> ""
+                else -> gasto.foto_ticket ?: ""
+            }
+
+            viewModel.editarGasto(
+                gasto.id_gasto,
+                nTitulo,
+                nImporte,
+                nDesc,
+                fotoActualParam,
+                fotoPart
+            )
+            dialog.dismiss()
         }
         dialog.setOnDismissListener { ivTicketEdicion = null }
         dialog.setContentView(view)

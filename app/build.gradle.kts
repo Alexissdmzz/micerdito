@@ -18,15 +18,18 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        buildConfigField("String", "BASE_URL", "\"http://10.0.2.2\"")
-
-        //buildConfigField("String", "BASE_URL", "\"https://unmerited-republishable-myra.ngrok-free.dev\"")
     }
 
     buildTypes {
+        debug {
+            isDebuggable = true
+            buildConfigField("String", "BASE_URL", "\"http://10.0.2.2/micerdito_api/\"")
+            buildConfigField("Boolean", "LOG_HTTP_BODY", "true")
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField("String", "BASE_URL", "\"https://unmerited-republishable-myra.ngrok-free.dev/micerdito_api/\"")
+            buildConfigField("Boolean", "LOG_HTTP_BODY", "false")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
