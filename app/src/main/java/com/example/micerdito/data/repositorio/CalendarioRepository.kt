@@ -79,6 +79,7 @@ class CalendarioRepository {
      * @return Result con GastoResponse confirmando el resultado de la operación.
      */
     suspend fun editarGastos(
+        idUsuario: RequestBody,
         idGasto: RequestBody,
         titulo: RequestBody,
         importe: RequestBody,
@@ -89,7 +90,7 @@ class CalendarioRepository {
         return try {
             // Se incluye el parámetro fotoActual en la llamada a Retrofit
             val response =
-                apiService.editGasto(idGasto, titulo, importe, descripcion, fotoActual, fotoTicket)
+                apiService.editGasto(idUsuario, idGasto, titulo, importe, descripcion, fotoActual, fotoTicket)
 
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
@@ -104,10 +105,10 @@ class CalendarioRepository {
      * La función es 'suspend' para garantizar que la operación de eliminación no
      * interfiera con el rendimiento de la interfaz de usuario.
      */
-    suspend fun deleteGastos(idGasto: String): Result<GastoResponse> {
+    suspend fun deleteGastos(idUsuario: String, idGasto: String): Result<GastoResponse> {
         return try {
             // Ejecución de la llamada síncrona dentro del contexto de la corrutina
-            val response = apiService.deleteGasto(idGasto)
+            val response = apiService.deleteGasto(idUsuario, idGasto)
 
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {

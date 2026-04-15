@@ -147,6 +147,7 @@ interface ApiService {
     @Multipart
     @POST("calendario/editar_gasto.php")
     suspend fun editGasto(
+        @Part("id_usuario") idUsuario: RequestBody,
         @Part("id_gasto") idGasto: RequestBody,
         @Part("titulo") titulo: RequestBody,
         @Part("importe") importe: RequestBody,
@@ -159,6 +160,7 @@ interface ApiService {
     @FormUrlEncoded
     @POST("calendario/eliminar_gasto.php")
     suspend fun deleteGasto(
+        @Field("id_usuario") idUsuario: String,
         @Field("id_gasto") idGasto: String
     ): Response<GastoResponse>
 }

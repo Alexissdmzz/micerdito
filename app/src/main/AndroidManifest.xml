@@ -55,7 +55,9 @@
         <!-- LOGIN -->
         <activity
             android:name=".ui.autenticacion.LoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="stateHidden"/>
 
         <!-- REGISTER -->
         <activity

@@ -132,7 +132,15 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     ) {
         _cargando.value = true
 
+        val idUsuario = sesionRepository.getIdUsuario() ?: ""
+
+        if (idUsuario.isEmpty()) {
+            _error.value = "Sesión no válida"
+            return
+        }
+
         // Conversión de tipos primitivos a RequestBody para el envío Multipart
+        val idUsuarioBody = idUsuario.toRequestBody("text/plain".toMediaTypeOrNull())
         val idBody = idGasto.toRequestBody("text/plain".toMediaTypeOrNull())
         val tituloBody = titulo.toRequestBody("text/plain".toMediaTypeOrNull())
         val importeBody = importe.toString().toRequestBody("text/plain".toMediaTypeOrNull())
@@ -144,6 +152,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         viewModelScope.launch {
             // Ejecución de la llamada al repositorio con los datos convertidos, incluyendo la foto actual
             val result = repository.editarGastos(
+                idUsuarioBody,
                 idBody,
                 tituloBody,
                 importeBody,
@@ -170,9 +179,16 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     fun eliminarGasto(idGasto: String) {
         _cargando.value = true
 
+        val idUsuario = sesionRepository.getIdUsuario() ?: ""
+
+        if (idUsuario.isEmpty()) {
+            _error.value = "Sesión no válida"
+            return
+        }
+
         viewModelScope.launch {
             // Ejecución de la llamada al repositorio dentro de la corrutina
-            val result = repository.deleteGastos(idGasto)
+            val result = repository.deleteGastos(idUsuario, idGasto)
 
             result.onSuccess { data ->
                 // Encapsulamos la respuesta exitosa del servidor

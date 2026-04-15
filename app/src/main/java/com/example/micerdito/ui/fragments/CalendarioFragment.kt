@@ -263,15 +263,21 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         etDescripcion.setText(gasto.descripcion ?: "")
 
         if (!gasto.foto_ticket.isNullOrEmpty()) {
-            val urlCompleta = URL_BASE_IMAGENES + gasto.foto_ticket
+            // //CAMBIO RECOMENDADO: Detectamos si ya es una URL completa
+            val urlFinal = if (gasto.foto_ticket.startsWith("http")) {
+                gasto.foto_ticket // Usamos la que viene del PHP tal cual
+            } else {
+                URL_BASE_IMAGENES + gasto.foto_ticket // Por si acaso quedara algún registro viejo
+            }
+
             Glide.with(requireContext())
-                .load(urlCompleta)
+                .load(urlFinal) // <--- Usamos urlFinal
                 .signature(ObjectKey(System.currentTimeMillis()))
                 .error(R.drawable.ic_sin_foto)
                 .into(ivTicket)
 
             btnEliminarFoto.visibility = View.VISIBLE
-            ivTicket.setOnClickListener { mostrarFotoGrande(urlCompleta) }
+            ivTicket.setOnClickListener { mostrarFotoGrande(urlFinal) } // <--- Aquí también
         } else {
             ivTicket.setImageResource(R.drawable.ic_sin_foto)
             btnEliminarFoto.visibility = View.GONE
