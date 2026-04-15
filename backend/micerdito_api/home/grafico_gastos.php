@@ -25,7 +25,8 @@ if (empty($id_usuario)) {
     responderError("ID de usuario no proporcionado.", 400);
 }
 
-if (!ctype_digit($id_usuario)) {
+// Cambia el ctype_digit por esta expresión regular:
+if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
@@ -39,41 +40,26 @@ validarUsuarioExistente($conexion, $id_usuario);
 $stmt = $conexion->prepare("CALL sp_obtener_gastos_grafico(?)");
 
 if (!$stmt) {
+    error_log("Error en obtener_gastos_grafico.php al preparar sp_obtener_gastos_grafico: " . $conexion->error);
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el error al preparar la consulta del gráfico de gastos.
- */
-error_log("Error en obtener_gastos_grafico.php al preparar sp_obtener_gastos_grafico: " . $conexion->error);
 
 $stmt->bind_param("s", $id_usuario);
 
 // Ejecución
 if (!$stmt->execute()) {
+    error_log("Error en obtener_gastos_grafico.php al ejecutar sp_obtener_gastos_grafico para id_usuario {$id_usuario}: " . $stmt->error);
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
 
-/**
- * Logging interno:
- * Registramos el error al ejecutar la consulta del gráfico de gastos.
- */
-error_log("Error en obtener_gastos_grafico.php al ejecutar sp_obtener_gastos_grafico para id_usuario {$id_usuario}: " . $stmt->error);
-
 $res = $stmt->get_result();
 
 if (!$res) {
+    error_log("Error en obtener_gastos_grafico.php al recuperar resultados para id_usuario {$id_usuario}.");
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el fallo al recuperar el resultset del procedimiento.
- */
-error_log("Error en obtener_gastos_grafico.php al recuperar resultados para id_usuario {$id_usuario}.");
 
 $datos = [];
 

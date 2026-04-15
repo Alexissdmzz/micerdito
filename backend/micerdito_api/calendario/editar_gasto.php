@@ -30,12 +30,16 @@ $importe     = trim($_POST['importe'] ?? '');
 $descripcion = trim($_POST['descripcion'] ?? '');
 $nombre_foto_final = trim($_POST['foto_ticket'] ?? '');
 
-// Validación de datos obligatorios
-if (empty($id_usuario) || empty($id_gasto) || empty($titulo) || $importe === '') {
-    responderError("Faltan parámetros obligatorios para editar.", 400);
+if (empty($id_usuario)) {
+    // Esto nos confirmará en el JSON de la App que el ID no está llegando
+    responderError("El servidor no recibió el campo id_usuario. Revisa Retrofit.", 400);
 }
+// Validación de datos obligatorios
+/*if (empty($id_usuario) || empty($id_gasto) || empty($titulo) || $importe === '') {
+    responderError("Faltan parámetros obligatorios para editar.", 400);
+}*/
 
-if (!ctype_digit($id_gasto)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_gasto)) {
     responderError("Identificador de gasto inválido.", 400);
 }
 
@@ -43,7 +47,7 @@ if (!is_numeric($importe) || (float)$importe <= 0) {
     responderError("El importe debe ser un número válido mayor que 0.", 400);
 }
 
-if (!ctype_digit($id_usuario)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
@@ -107,28 +111,20 @@ $stmt->bind_param("ssdss", $id_gasto, $titulo, $importe, $descripcion, $nombre_f
 
 // Ejecución
 if (!$stmt->execute()) {
+    error_log("Error en editar_gasto.php al ejecutar sp_editar_gasto para id_gasto {$id_gasto} e id_usuario {$id_usuario}: " . $stmt->error);
+
+$res = $stmt->get_result();
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
 
-/**
- * Logging interno:
- * Registramos el error al ejecutar la edición del gasto.
- */
-error_log("Error en editar_gasto.php al ejecutar sp_editar_gasto para id_gasto {$id_gasto} e id_usuario {$id_usuario}: " . $stmt->error);
-
 $res = $stmt->get_result();
 
 if (!$res) {
+    error_log("Error en editar_gasto.php al recuperar resultados de sp_editar_gasto para id_gasto {$id_gasto}.");
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el fallo al recuperar el resultado del procedimiento.
- */
-error_log("Error en editar_gasto.php al recuperar resultados de sp_editar_gasto para id_gasto {$id_gasto}.");
 
 $fila = $res->fetch_assoc();
 $res->free();
@@ -158,8 +154,12 @@ if ((bool)$fila['success'] === false) {
     responderError($fila['message'] ?? "No se pudo editar el gasto.", 400);
 }
 
+$nombre_archivo_limpio = basename($nombre_foto_final);
+$foto_ticket_url = !empty($nombre_archivo_limpio) ? $url_base_fotos . $nombre_archivo_limpio : null;
+
+
 // Respuesta exitosa
 responderExito($fila['message'] ?? "Gasto actualizado correctamente.", [
     "id_gasto" => (string)$id_gasto,
-    "foto_ticket" => (string)$nombre_foto_final
+    "foto_ticket" => $foto_ticket_url
 ]);

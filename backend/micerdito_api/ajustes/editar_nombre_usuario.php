@@ -26,7 +26,7 @@ if (empty($id_usuario) || empty($nombre_usuario)) {
     responderError("Faltan datos obligatorios.", 400);
 }
 
-if (!ctype_digit($id_usuario)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
@@ -44,28 +44,18 @@ if (!preg_match("/^[\p{L}0-9\s]+$/u", $nombre_usuario)) {
 $stmt = $conexion->prepare("CALL sp_editar_nom_usu(?, ?)");
 
 if (!$stmt) {
+    error_log("Error en editar_nombre_usuario.php al preparar sp_editar_nom_usu: " . $conexion->error);
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el error al preparar la consulta.
- */
-error_log("Error en editar_nombre_usuario.php al preparar sp_editar_nom_usu: " . $conexion->error);
 
 $stmt->bind_param("ss", $id_usuario, $nombre_usuario);
 
 // Ejecución
 if (!$stmt->execute()) {
+    error_log("Error en editar_nombre_usuario.php al ejecutar para id_usuario {$id_usuario}: " . $stmt->error);
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el error de ejecución para depuración.
- */
-error_log("Error en editar_nombre_usuario.php al ejecutar para id_usuario {$id_usuario}: " . $stmt->error);
 
 // Cierre de la sentencia
 $stmt->close();

@@ -35,41 +35,26 @@ if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
 $stmt = $conexion->prepare("CALL sp_obtener_pregunta(?)");
 
 if (!$stmt) {
+    error_log("Error en obtener_pregunta.php al preparar sp_obtener_pregunta: " . $conexion->error);
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el error al preparar la consulta de recuperación de pregunta.
- */
-error_log("Error en obtener_pregunta.php al preparar sp_obtener_pregunta: " . $conexion->error);
 
 $stmt->bind_param("s", $correo);
 
 // Ejecución
 if (!$stmt->execute()) {
+    error_log("Error en obtener_pregunta.php al ejecutar sp_obtener_pregunta para correo {$correo}: " . $stmt->error);
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
 
-/**
- * Logging interno:
- * Registramos el error al ejecutar la recuperación de pregunta.
- */
-error_log("Error en obtener_pregunta.php al ejecutar sp_obtener_pregunta para correo {$correo}: " . $stmt->error);
-
 $res = $stmt->get_result();
 
 if (!$res) {
+    error_log("Error en obtener_pregunta.php al recuperar resultados para correo {$correo}.");
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el fallo al obtener el resultset del procedimiento.
- */
-error_log("Error en obtener_pregunta.php al recuperar resultados para correo {$correo}.");
 
 if ($res->num_rows === 0) {
     $res->free();

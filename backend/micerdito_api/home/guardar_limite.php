@@ -26,7 +26,7 @@ if (empty($id_usuario) || $limite === '') {
     responderError("Faltan datos obligatorios.", 400);
 }
 
-if (!ctype_digit($id_usuario)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 

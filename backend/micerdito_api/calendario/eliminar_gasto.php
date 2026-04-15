@@ -29,11 +29,11 @@ if (empty($id_usuario) || empty($id_gasto)) {
     responderError("Faltan datos obligatorios para eliminar el gasto.", 400);
 }
 
-if (!ctype_digit($id_gasto)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_gasto)) {
     responderError("Identificador de gasto inválido.", 400);
 }
 
-if (!ctype_digit($id_usuario)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
@@ -53,41 +53,26 @@ validarGastoDeUsuario($conexion, $id_gasto, $id_usuario);
 $stmt = $conexion->prepare("CALL sp_eliminar_gasto(?)");
 
 if (!$stmt) {
+    error_log("Error en eliminar_gasto.php al preparar sp_eliminar_gasto: " . $conexion->error);
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el error al preparar la eliminación del gasto.
- */
-error_log("Error en eliminar_gasto.php al preparar sp_eliminar_gasto: " . $conexion->error);
 
 $stmt->bind_param("s", $id_gasto);
 
 // Ejecución
 if (!$stmt->execute()) {
+    error_log("Error en eliminar_gasto.php al ejecutar sp_eliminar_gasto para id_gasto {$id_gasto} e id_usuario {$id_usuario}: " . $stmt->error);
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
 
-/**
- * Logging interno:
- * Registramos el error al ejecutar la eliminación del gasto.
- */
-error_log("Error en eliminar_gasto.php al ejecutar sp_eliminar_gasto para id_gasto {$id_gasto} e id_usuario {$id_usuario}: " . $stmt->error);
-
 $res = $stmt->get_result();
 
 if (!$res) {
+    error_log("Error en eliminar_gasto.php al recuperar resultados de sp_eliminar_gasto para id_gasto {$id_gasto}.");
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el fallo al recuperar el resultado del procedimiento.
- */
-error_log("Error en eliminar_gasto.php al recuperar resultados de sp_eliminar_gasto para id_gasto {$id_gasto}.");
 
 $fila = $res->fetch_assoc();
 $res->free();
@@ -104,14 +89,9 @@ while ($conexion->next_result()) {
 
 // Validamos respuesta del procedimiento
 if (!$fila || !isset($fila['success'])) {
+    error_log("Error en eliminar_gasto.php: respuesta inesperada de sp_eliminar_gasto para id_gasto {$id_gasto}.");
     responderError("Respuesta inválida del servidor.", 500);
 }
-
-/**
- * Logging interno:
- * Registramos una respuesta inesperada devuelta por el procedimiento.
- */
-error_log("Error en eliminar_gasto.php: respuesta inesperada de sp_eliminar_gasto para id_gasto {$id_gasto}.");
 
 if ((bool)$fila['success'] === false) {
     responderError($fila['message'] ?? "No se pudo eliminar el gasto.", 400);

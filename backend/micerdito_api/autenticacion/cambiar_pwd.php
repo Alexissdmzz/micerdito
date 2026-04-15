@@ -110,27 +110,17 @@ $nueva_pwd_hash = password_hash($nueva_pwd_plana, PASSWORD_DEFAULT);
 $update = $conexion->prepare("CALL sp_cambiar_pwd(?, ?)");
 
 if (!$update) {
+    error_log("Error en cambiar_pwd.php al preparar sp_cambiar_pwd: " . $conexion->error);
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Error al preparar actualización de contraseña.
- */
-error_log("Error en cambiar_pwd.php al preparar sp_cambiar_pwd: " . $conexion->error);
 
 $update->bind_param("ss", $correo, $nueva_pwd_hash);
 
 if (!$update->execute()) {
+    error_log("Error en cambiar_pwd.php al ejecutar sp_cambiar_pwd para correo {$correo}: " . $update->error);
     $update->close();
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Error al ejecutar actualización de contraseña.
- */
-error_log("Error en cambiar_pwd.php al ejecutar sp_cambiar_pwd para correo {$correo}: " . $update->error);
 
 $update->close();
 

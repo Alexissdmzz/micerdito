@@ -38,26 +38,16 @@ if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
 $sentencia = $conexion->prepare("CALL sp_login(?)");
 
 if (!$sentencia) {
+    error_log("Error en login.php al preparar sp_login: " . $conexion->error);
     responderError("Error interno del servidor", 500);
 }
 
-/**
- * Logging interno:
- * Registramos el error al preparar la consulta de login.
- */
-error_log("Error en login.php al preparar sp_login: " . $conexion->error);
-
 $sentencia->bind_param("s", $correo);
 if (!$sentencia->execute()) {
-    /**
-     * Logging interno:
-     * Registramos el error al ejecutar la consulta de login.
-     */
     error_log("Error en login.php al ejecutar sp_login para correo {$correo}: " . $sentencia->error);
     $sentencia->close();
     responderError("Error interno del servidor", 500);
 }
-$sentencia->execute();
 
 $resultado = $sentencia->get_result();
 

@@ -31,7 +31,7 @@ if (empty($id_usuario) || empty($anio) || empty($mes) || empty($dia)) {
     responderError("Faltan parámetros para consultar los gastos del día.", 400);
 }
 
-if (!ctype_digit($id_usuario)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
@@ -93,9 +93,19 @@ if (!$res) {
  */
 error_log("Error en obtener_gastos_dia.php al recuperar resultados para id_usuario {$id_usuario}, fecha {$anio}-{$mes}-{$dia}.");
 
+$url_base_fotos = "https://unmerited-republishable-myra.ngrok-free.dev/micerdito_api/uploads/tickets/";
+
 $gastos = [];
 
 while ($fila = $res->fetch_assoc()) {
+
+    $url_foto = null;
+    if (!empty($fila['foto_ticket'])) {
+        // Usamos basename por seguridad y concatenamos con la URL de ngrok
+        $nombre_archivo_limpio = basename($fila['foto_ticket']);
+        $url_foto = $url_base_fotos . $nombre_archivo_limpio;
+    }
+
     $gastos[] = [
         "id_gasto"        => $fila['id_gasto'],
         "titulo"          => $fila['titulo'],
@@ -104,7 +114,7 @@ while ($fila = $res->fetch_assoc()) {
         "fecha_gasto"     => $fila['fecha_gasto'],
         "icono_categoria" => $fila['icono_categoria'],
         "color_categoria" => $fila['color_categoria'],
-        "foto_ticket"     => $fila['foto_ticket']
+        "foto_ticket"     => $url_foto
     ];
 }
 

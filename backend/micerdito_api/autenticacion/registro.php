@@ -69,42 +69,27 @@ $respuesta_hash = password_hash(mb_strtolower($respuesta, 'UTF-8'), PASSWORD_DEF
 $stmt = $conexion->prepare("CALL sp_registro(?, ?, ?, ?, ?)");
 
 if (!$stmt) {
+    error_log("Error en registro.php al preparar sp_registro: " . $conexion->error);
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el error al preparar el procedimiento de registro.
- */
-error_log("Error en registro.php al preparar sp_registro: " . $conexion->error);
 
 $id_int = (int)$id_pregunta;
 $stmt->bind_param("sssis", $nombre_usuario, $correo, $password_hash, $id_int, $respuesta_hash);
 
 // Ejecución
 if (!$stmt->execute()) {
+    error_log("Error en registro.php al ejecutar sp_registro para correo {$correo}: " . $stmt->error);
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
 
-/**
- * Logging interno:
- * Registramos el error al ejecutar el alta del usuario.
- */
-error_log("Error en registro.php al ejecutar sp_registro para correo {$correo}: " . $stmt->error);
-
 $result = $stmt->get_result();
 
 if (!$result) {
+    error_log("Error en registro.php al recuperar resultados de sp_registro para correo {$correo}.");
     $stmt->close();
     responderError("Respuesta inesperada del servidor.", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el fallo al recuperar el resultado del procedimiento.
- */
-error_log("Error en registro.php al recuperar resultados de sp_registro para correo {$correo}.");
 
 $datos = $result->fetch_assoc();
 

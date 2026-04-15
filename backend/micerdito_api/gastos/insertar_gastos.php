@@ -36,7 +36,7 @@ if (empty($id_usuario) || empty($id_categoria) || empty($titulo) || empty($impor
     responderError("Faltan campos obligatorios para registrar el gasto.", 400);
 }
 
-if (!ctype_digit($id_usuario) || !ctype_digit($id_categoria)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario) || !preg_match('/^[a-f0-9-]+$/i', $id_categoria)) {
     responderError("Identificadores inválidos.", 400);
 }
 

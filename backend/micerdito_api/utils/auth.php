@@ -4,7 +4,8 @@ require_once __DIR__ . '/respuesta.php';
 
 function validarUsuarioExistente(mysqli $conexion, string $id_usuario): void
 {
-    if (!ctype_digit($id_usuario)) {
+    // Validación para UUID (acepta letras, números y guiones)
+    if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
         responderError("Identificador de usuario inválido.", 400);
     }
 
@@ -14,7 +15,8 @@ function validarUsuarioExistente(mysqli $conexion, string $id_usuario): void
         responderError("Error interno del servidor", 500);
     }
 
-    $stmt->bind_param("i", $id_usuario);
+    // CAMBIO CLAVE: 's' en lugar de 'i' porque el UUID es un String
+    $stmt->bind_param("s", $id_usuario);
 
     if (!$stmt->execute()) {
         $stmt->close();
@@ -55,7 +57,8 @@ function validarUsuarioExistente(mysqli $conexion, string $id_usuario): void
  */
 function validarGastoDeUsuario(mysqli $conexion, string $id_gasto, string $id_usuario): void
 {
-    if (!ctype_digit($id_gasto) || !ctype_digit($id_usuario)) {
+    // Validamos id_gasto como número y id_usuario como UUID
+    if (!preg_match('/^[a-f0-9-]+$/i', $id_gasto) || !preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
         responderError("Identificadores inválidos.", 400);
     }
 
@@ -65,7 +68,8 @@ function validarGastoDeUsuario(mysqli $conexion, string $id_gasto, string $id_us
         responderError("Error interno del servidor", 500);
     }
 
-    $stmt->bind_param("ii", $id_gasto, $id_usuario);
+    // CAMBIO CLAVE: 'is' -> 'i' para el gasto (Integer), 's' para el usuario (String UUID)
+    $stmt->bind_param("ss", $id_gasto, $id_usuario);
 
     if (!$stmt->execute()) {
         $stmt->close();

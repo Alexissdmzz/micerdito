@@ -26,7 +26,7 @@ if (empty($id_usuario)) {
     responderError("Identificador de usuario no proporcionado.", 400);
 }
 
-if (!ctype_digit($id_usuario)) {
+if (!preg_match('/^[a-f0-9-]+$/i', $id_usuario)) {
     responderError("Identificador de usuario inválido.", 400);
 }
 
@@ -40,28 +40,18 @@ validarUsuarioExistente($conexion, $id_usuario);
 $stmt = $conexion->prepare("CALL sp_eliminar_usuario(?)");
 
 if (!$stmt) {
+    error_log("Error en borrar_usuario.php al preparar sp_eliminar_usuario: " . $conexion->error);
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el error real en servidor sin exponer detalles al cliente.
- */
-error_log("Error en borrar_usuario.php al preparar sp_eliminar_usuario: " . $conexion->error);
 
 $stmt->bind_param("s", $id_usuario);
 
 // Ejecución
 if (!$stmt->execute()) {
+    error_log("Error en borrar_usuario.php al ejecutar sp_eliminar_usuario para id_usuario {$id_usuario}: " . $stmt->error);
     $stmt->close();
     responderError("Error interno del servidor", 500);
 }
-
-/**
- * Logging interno:
- * Registramos el error real de ejecución para facilitar depuración.
- */
-error_log("Error en borrar_usuario.php al ejecutar sp_eliminar_usuario para id_usuario {$id_usuario}: " . $stmt->error);
 
 // Verificamos el resultado de la operación
 if ($stmt->affected_rows > 0) {
