@@ -2,8 +2,8 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Servidor: 127.0.0.1
--- Tiempo de generación: 14-04-2026 a las 16:15:31
+-- Servidor: 127.0.0.1:3306
+-- Tiempo de generación: 15-04-2026 a las 01:55:37
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -33,6 +33,24 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_cambiar_pwd` (IN `p_correo` VARC
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_editar_gasto` (IN `p_id_gasto` VARCHAR(36), IN `p_titulo` VARCHAR(100), IN `p_importe` DECIMAL(10,2), IN `p_descripcion` TEXT, IN `p_foto_ticket` VARCHAR(255))   BEGIN
+    -- Verificamos si el gasto existe antes de intentar actualizar
+    IF EXISTS (SELECT 1 FROM gastos WHERE id_gasto = p_id_gasto) THEN
+        UPDATE gastos 
+        SET titulo = p_titulo, 
+            importe = p_importe, 
+            descripcion = p_descripcion,
+            foto_ticket = p_foto_ticket
+        WHERE id_gasto = p_id_gasto;
+
+        -- Devolvemos éxito siempre que el ID exista, aunque no haya cambios en los datos
+        SELECT 1 AS success, 'Gasto actualizado correctamente' AS message;
+    ELSE
+        -- Solo devolvemos error si el ID del gasto no está en la tabla
+        SELECT 0 AS success, 'El gasto no existe en la base de datos' AS message;
+    END IF;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_editar_gasto_backup` (IN `p_id_gasto` VARCHAR(36), IN `p_titulo` VARCHAR(100), IN `p_importe` DECIMAL(10,2), IN `p_descripcion` TEXT, IN `p_foto_ticket` VARCHAR(255))   BEGIN
     UPDATE gastos 
     SET titulo = p_titulo, 
         importe = p_importe, 
@@ -304,17 +322,17 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_registro` (IN `p_nombre` VARCHAR
     END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_validar_gasto_usuario` (IN `p_id_gasto` INT, IN `p_id_usuario` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_validar_gasto_usuario` (IN `p_id_gasto` VARCHAR(36), IN `p_id_usuario` VARCHAR(36))   BEGIN
     SELECT id_gasto
-    FROM gasto
+    FROM gastos
     WHERE id_gasto = p_id_gasto
       AND id_usuario = p_id_usuario
     LIMIT 1;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_validar_usuario` (IN `p_id_usuario` INT)   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_validar_usuario` (IN `p_id_usuario` VARCHAR(36))   BEGIN
     SELECT id_usuario
-    FROM usuario
+    FROM usuarios
     WHERE id_usuario = p_id_usuario
     LIMIT 1;
 END$$
@@ -375,6 +393,7 @@ CREATE TABLE `gastos` (
 INSERT INTO `gastos` (`id_gasto`, `id_usuario`, `id_categoria`, `titulo`, `importe`, `fecha_gasto`, `descripcion`, `foto_ticket`, `fecha_registro_gasto`) VALUES
 ('00612336-1e12-11f1-ad10-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05d50-0d77-11f1-aabd-88aedd238f3e', 'Fuet', 2.50, '2026-03-12 12:50:05', 'Muy caro', '', '2026-03-12 12:50:08'),
 ('121b0f87-161a-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd04ab2-0d77-11f1-aabd-88aedd238f3e', 'Alquiler pasado', 12.00, '2026-03-02 09:27:16', '', NULL, '2026-03-02 09:27:45'),
+('360c78f2-3857-11f1-b1a9-80fa5b9d62c2', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05ccd-0d77-11f1-aabd-88aedd238f3e', 'Póker', 40.00, '2026-01-12 01:08:34', '', 'TK_3d53259e-10b3-11f1-8e4f-88aedd238f3e_6357611a012879c9.jpg', '2026-04-14 23:11:04'),
 ('4b7715a7-1618-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd04ab2-0d77-11f1-aabd-88aedd238f3e', 'Alquiler', 700.00, '2026-02-25 09:14:33', '', NULL, '2026-03-02 09:15:02'),
 ('6601abdc-1619-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05ccd-0d77-11f1-aabd-88aedd238f3e', 'Casino', 10.00, '2026-03-02 09:22:27', '', NULL, '2026-03-02 09:22:56'),
 ('828f75b6-1620-11f1-8ef4-88aedd238f3e', '3d53259e-10b3-11f1-8e4f-88aedd238f3e', '4fd05d50-0d77-11f1-aabd-88aedd238f3e', 'Chuche', 10.00, '2026-03-02 10:13:22', 'Muy duras', '', '2026-03-02 10:13:51'),
@@ -454,7 +473,8 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`id_usuario`, `nombre_usuario`, `correo`, `pwd`, `id_pregunta_seguridad`, `respuesta_seguridad`, `fecha_registro_usuario`, `intentos_fallidos`, `fecha_bloqueo`) VALUES
-('3d53259e-10b3-11f1-8e4f-88aedd238f3e', 'Alechi', 'alexis@gmail.com', '$2y$10$AddOm7k6XGiBWJlRefoaMO7O9JesKqUBRC9564sqFzYRIFcBnEotS', 3, '$2y$10$Z/8Vb3IrvdmoohKCVFhu9uyFwVjO4xFA.HTfBTvcOK0cdIcdmqkH2', '2026-02-23 12:29:03', 0, NULL);
+('3d53259e-10b3-11f1-8e4f-88aedd238f3e', 'Alexis', 'alexis@gmail.com', '$2y$10$AddOm7k6XGiBWJlRefoaMO7O9JesKqUBRC9564sqFzYRIFcBnEotS', 3, '$2y$10$Z/8Vb3IrvdmoohKCVFhu9uyFwVjO4xFA.HTfBTvcOK0cdIcdmqkH2', '2026-02-23 12:29:03', 0, NULL),
+('76128a22-3856-11f1-b1a9-80fa5b9d62c2', 'Messi', 'elgoat@gmail.com', '$2y$10$wSg14fBKxncVoSUjSvZcOOYBK0/jYmbguV8aqTlcgXOSaNhh3ZJ6y', 2, '$2y$10$6B2u8evH.QUx20abWZgEOuJOObLa2m43u59FteIj9DyCFFJtM9xCm', '2026-04-14 23:05:42', 0, NULL);
 
 --
 -- Índices para tablas volcadas
