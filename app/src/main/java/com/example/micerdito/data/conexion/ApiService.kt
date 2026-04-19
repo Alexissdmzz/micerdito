@@ -1,36 +1,24 @@
 package com.example.micerdito.data.conexion
 
-import com.example.micerdito.data.model.autenticacion.ForgotPasswordResponse
-import com.example.micerdito.data.model.autenticacion.LoginResponse
-import com.example.micerdito.data.model.autenticacion.RegisterResponse
-import com.example.micerdito.data.model.home.AjustesResponse
-import com.example.micerdito.data.model.home.CalendarioResponse
-import com.example.micerdito.data.model.home.CategoriaResponse
-import com.example.micerdito.data.model.home.GastoResponse
-import com.example.micerdito.data.model.home.GraficoResponse
-import com.example.micerdito.data.model.home.HomeResponse
-import com.example.micerdito.data.model.home.LimiteResponse
-import com.example.micerdito.data.model.home.MovimientosResponse
+import com.example.micerdito.data.model.autenticacion.*
+import com.example.micerdito.data.model.home.*
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.GET
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
-import retrofit2.http.Query
+import retrofit2.http.*
 
 /**
- * INTERFAZ - ApiService:
- * Define las rutas de la API mediante Retrofit, es decir,
- * gestiona la comunicación entre la APP y el servidor PHP
+ * INTERFAZ - ApiService
+ * Define los endpoints del backend.
+ * Utiliza Corrutinas (suspend) para garantizar la asincronía y no bloquear el hilo principal.
+ * Las respuestas se envuelven en Response<T> para delegar el manejo de códigos HTTP (200, 400, 500) al Repositorio.
  */
-
 interface ApiService {
 
-    // POST - Inicio de sesión del usuario
+    // ==========================================
+    // CAPA DE AUTENTICACIÓN Y SEGURIDAD
+    // ==========================================
+
     @FormUrlEncoded
     @POST("autenticacion/login.php")
     suspend fun loginUser(
@@ -38,7 +26,6 @@ interface ApiService {
         @Field("pwd") password: String
     ): Response<LoginResponse>
 
-    // POST - Registrar usuario
     @FormUrlEncoded
     @POST("autenticacion/registro.php")
     suspend fun registerUser(
@@ -50,14 +37,12 @@ interface ApiService {
         @Field("respuesta_seguridad") res: String
     ): Response<RegisterResponse>
 
-    // POST - Obtenemos la pregunta de seguridad del usuario
     @FormUrlEncoded
     @POST("autenticacion/obtener_pregunta.php")
     suspend fun getPregunta(
         @Field("correo") email: String
     ): Response<ForgotPasswordResponse>
 
-    // POST - Verificamos y cambiamos la pwd
     @FormUrlEncoded
     @POST("autenticacion/cambiar_pwd.php")
     suspend fun cambiarPwd(
@@ -66,27 +51,25 @@ interface ApiService {
         @Field("nueva_pwd") nuevaPwd: String
     ): Response<ForgotPasswordResponse>
 
-    // POST - Obtiene los datos principales para la pantalla home
-    @FormUrlEncoded
-    @POST("home/obtener_datos.php")
+    // ==========================================
+    // CAPA PRINCIPAL (HOME)
+    // ==========================================
+
+    @GET("home/obtener_datos.php")
     suspend fun homeUser(
-        @Field("id_usuario") id: String
+        @Query("id_usuario") id: String
     ): Response<HomeResponse>
 
-    // GET - Obtener los gastos totales de cada categoría
     @GET("home/grafico_gastos.php")
     suspend fun obtenerGastosGrafico(
         @Query("id_usuario") id: String
     ): Response<GraficoResponse>
 
-    // POST - Obtenemos los movimientos del usuario
-    @FormUrlEncoded
-    @POST("home/obtener_movimientos.php")
+    @GET("home/obtener_movimientos.php")
     suspend fun homeMoves(
-        @Field("id_usuario") id: String
+        @Query("id_usuario") id: String
     ): Response<MovimientosResponse>
 
-    // POST - Guardamos el límite de gasto mensual
     @FormUrlEncoded
     @POST("home/guardar_limite.php")
     suspend fun homeLimit(
@@ -94,14 +77,16 @@ interface ApiService {
         @Field("limite") limite: Double
     ): Response<LimiteResponse>
 
-    // POST - Borra el usuario de la BBDD
+    // ==========================================
+    // CAPA DE AJUSTES (PERFIL)
+    // ==========================================
+
     @FormUrlEncoded
     @POST("ajustes/borrar_usuario.php")
     suspend fun deleteUser(
         @Field("id_usuario") id: String
     ): Response<AjustesResponse>
 
-    // POST - Cambia el nombre de usuario de la BBDD
     @FormUrlEncoded
     @POST("ajustes/editar_nombre_usuario.php")
     suspend fun editUser(
@@ -109,11 +94,13 @@ interface ApiService {
         @Field("nombre_usuario") username: String
     ): Response<AjustesResponse>
 
-    // GET - Obtenemos las categorias guardadas en la BBDD
+    // ==========================================
+    // CAPA DE GESTIÓN DE GASTOS
+    // ==========================================
     @GET("gastos/obtener_categorias.php")
     suspend fun getCategorias(): Response<CategoriaResponse>
 
-    // POST - Insertamos el gasto
+    // Uso de @Multipart para permitir la transmisión de archivos binarios (fotos) junto con datos de texto
     @Multipart
     @POST("gastos/insertar_gastos.php")
     suspend fun insertGasto(
@@ -123,27 +110,9 @@ interface ApiService {
         @Part("importe") importe: RequestBody,
         @Part("fecha_gasto") fechaGasto: RequestBody,
         @Part("descripcion") descripcion: RequestBody?,
-        @Part foto : MultipartBody.Part?
+        @Part foto: MultipartBody.Part?
     ): Response<GastoResponse>
 
-    // GET - Obtenemos los datos guardados en la BBDD en referencia a la pantalla Calendario
-    @GET("calendario/obtener_datos_calendario.php")
-    suspend fun getDataCalendario(
-        @Query("id_usuario") id: String,
-        @Query("mes") mes: Int,
-        @Query("anio") anio: Int
-    ): Response<CalendarioResponse>
-
-    // GET - Obtenemos los gastos por día guardados en la BBDD
-    @GET("calendario/obtener_gastos_dia.php")
-    suspend fun getGastosDia(
-        @Query("id_usuario") id: String,
-        @Query("anio") anio: Int,
-        @Query("mes") mes: Int,
-        @Query("dia") dia: Int
-    ): Response<GastoResponse>
-
-    // POST - Editamos el gasto
     @Multipart
     @POST("calendario/editar_gasto.php")
     suspend fun editGasto(
@@ -156,11 +125,29 @@ interface ApiService {
         @Part foto: MultipartBody.Part?
     ): Response<GastoResponse>
 
-    // POST - Eliminamos el gasto
     @FormUrlEncoded
     @POST("calendario/eliminar_gasto.php")
     suspend fun deleteGasto(
         @Field("id_usuario") idUsuario: String,
         @Field("id_gasto") idGasto: String
+    ): Response<GastoResponse>
+
+    // ==========================================
+    // CAPA DE CALENDARIO
+    // ==========================================
+
+    @GET("calendario/obtener_datos_calendario.php")
+    suspend fun getDataCalendario(
+        @Query("id_usuario") id: String,
+        @Query("mes") mes: Int,
+        @Query("anio") anio: Int
+    ): Response<CalendarioResponse>
+
+    @GET("calendario/obtener_gastos_dia.php")
+    suspend fun getGastosDia(
+        @Query("id_usuario") id: String,
+        @Query("anio") anio: Int,
+        @Query("mes") mes: Int,
+        @Query("dia") dia: Int
     ): Response<GastoResponse>
 }

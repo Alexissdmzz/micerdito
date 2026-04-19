@@ -1,13 +1,29 @@
 package com.example.micerdito.data.model.home
 
+import com.google.gson.annotations.SerializedName
+
 /**
- * MODELO DE DATOS - CalendarioResponse:
- * Esta clase recoge los datos de la API para el fragmento de Calendario.
+ * DTO (Data Transfer Object) - CalendarioResponse
+ * Modelo de datos inmutable encargado de deserializar la carga múltiple (Multi-Result Set)
+ * devuelta por la API para popular la vista del Calendario y sus gráficos asociados.
  */
 data class CalendarioResponse(
-    val success: Boolean, //Indica si la operación fue exitosa (True) o no (False)
-    val message: String, // Mensaje informativo que viene del servidor
-    val fecha_registro: String?,      // Variable donde guardamos la fecha de registro del usuario
-    val dias_con_gastos: List<Int>,   // Lista que guarda aquellos días que contengan gastos
-    val resumen_grafico: List<ResumenCategoria> // Lista que guarda los gastos para el gráfico
+    // Bandera booleana que determina el flujo de ejecución (Éxito o Fallo de la petición)
+    val success: Boolean,
+
+    // Mensaje de feedback proporcionado por el servidor para la capa de presentación
+    val message: String,
+
+    // Fecha original de alta del usuario, utilizada para limitar la navegación histórica del calendario.
+    // Se utiliza @SerializedName para adaptar el formato de base de datos al estándar de Kotlin.
+    @SerializedName("fecha_registro")
+    val fechaRegistro: String?,
+
+    // Colección de días (numéricos) que registran actividad financiera en el mes consultado.
+    @SerializedName("dias_con_gastos")
+    val diasConGastos: List<Int>,
+
+    // Agregación de métricas financieras desglosadas por categoría para la renderización del gráfico.
+    @SerializedName("resumen_grafico")
+    val resumenGrafico: List<ResumenCategoria>
 )

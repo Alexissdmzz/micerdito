@@ -1,11 +1,17 @@
 package com.example.micerdito.data.model.autenticacion
 
 /**
- * MODELO DE DATOS - User:
- * Esta clase recoge los datos de la API para el usuario ya existente.
+ * DTO (Data Transfer Object) - Entidad User
+ * Representa el modelo de dominio principal del usuario dentro de la capa de cliente.
+ * Se utiliza como carga útil (payload) anidada en las respuestas de autenticación exitosas.
  */
 data class User(
-    val id: String, // Id del usuario en la BBDD
-    val username: String, // Nombre del usuario en la BBDD
-    val email: String // Correo del usuario en la BBDD
+    // Identificador único universal (UUID) generado por el servidor para la gestión de relaciones
+    val id: String,
+
+    // Nombre de visualización utilizado para personalizar la capa de presentación (UI)
+    val username: String,
+
+    // Credencial principal de contacto y validación de identidad
+    val email: String
 )

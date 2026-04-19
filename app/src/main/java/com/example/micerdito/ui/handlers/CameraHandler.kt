@@ -8,25 +8,30 @@ import java.io.File
 import java.io.IOException
 
 /**
- * Gestiona la lógica de captura fotográfica, encargándose de la creación de archivos
- * temporales y la generación de URIs seguras para la interacción con la cámara del sistema.
+ * GESTOR - CameraHandler
+ * Componente encargado de aislar la lógica de captura fotográfica.
+ * Administra la creación de archivos temporales y la generación de URIs seguras
+ * para interactuar con la cámara del sistema operativo.
  */
 class CameraHandler(private val context: Context) {
 
     /**
-     * Almacena la ubicación física del último archivo generado para su posterior procesamiento.
+     * Almacena la ruta absoluta del último archivo generado en el almacenamiento local
+     * para su posterior procesamiento o envío al servidor.
      */
     var rutaFotoActual: String? = null
         private set
 
     /**
-     * Crea un archivo físico y genera una URI de contenido mediante FileProvider.
-     * Esto evita exponer rutas directas del sistema de archivos, cumpliendo con las políticas de Android.
+     * Crea un archivo físico y genera un identificador seguro mediante FileProvider.
+     * Esta abstracción evita exponer rutas directas del sistema de archivos,
+     * cumpliendo estrictamente con las políticas de seguridad de Android.
      */
     fun generarUriParaCamara(): Uri? {
         val archivoFoto = try {
             crearArchivoFoto()
-        } catch (ex: IOException) {
+        } catch (e: IOException) {
+            android.util.Log.e("CameraHandler", "Error al crear el archivo de imagen", e)
             null
         }
 
@@ -40,8 +45,9 @@ class CameraHandler(private val context: Context) {
     }
 
     /**
-     * Genera un archivo .jpg en el directorio privado de imágenes de la App.
-     * Utiliza una marca de tiempo (timestamp) para garantizar la unicidad del nombre del archivo.
+     * Instancia un archivo de imagen en el directorio privado de la aplicación.
+     * Utiliza una marca de tiempo del sistema operativo para garantizar
+     * la unicidad del documento y evitar colisiones de sobreescritura.
      */
     private fun crearArchivoFoto(): File {
         val nombreFoto = "TICKET_${System.currentTimeMillis()}_"

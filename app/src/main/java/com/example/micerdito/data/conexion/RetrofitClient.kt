@@ -8,19 +8,21 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 /**
- * OBJETO SINGLENTON - RetrofitClient:
- * Contiene la configuración de Retrofit.
- * Permite establecer la conexión con el servidor y convertir los datos
+ * PATRÓN SINGLETON - RetrofitClient
+ * Cliente HTTP centralizado para la capa de datos.
+ * Garantiza que toda la aplicación comparta una única instancia de conexión y socket HTTP,
+ * optimizando los recursos de red y la memoria del dispositivo.
  */
-
 object RetrofitClient {
 
-    // Configuración de GSON, @setLenient permite procesar JSON aunque no sean perfectos o tengan errores
+    // Configuración de serialización. Se habilita 'Lenient' como mecanismo de tolerancia a fallos
+    // ante posibles cabeceras malformadas o trazas de debug no deseadas emitidas por el backend PHP.
     private val gson = GsonBuilder()
         .setLenient()
         .create()
 
-    // Permite ver todo el tráfico de red en el Logcat
+    // Interceptor de telemetría. Se inyecta la configuración desde el BuildConfig
+    // para garantizar que los datos sensibles (Body) no se filtren en los logs de la versión Release (Producción).
     private val interceptor = HttpLoggingInterceptor().apply {
         level = if (BuildConfig.LOG_HTTP_BODY) {
             HttpLoggingInterceptor.Level.BODY
@@ -29,21 +31,23 @@ object RetrofitClient {
         }
     }
 
-    // Cliente HTTP que gestiona la conexión técnica
+    // Motor de red subyacente
     private val client = OkHttpClient.Builder()
         .addInterceptor(interceptor)
         .build()
 
-    // Inicializamos el retrofit
+    // Inicialización diferida (Lazy initialization). El objeto Retrofit solo se construye
+    // y reserva memoria en el momento exacto en que se realiza la primera petición de red.
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL) // Usamos la constante de arriba, no la "X"
+            .baseUrl(BuildConfig.BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
-    // Lo instanciamos para poder usarlo en todo el proyecto siguiendo el patrón MVVM
+    // Exposición pública del contrato de red (ApiService) para ser inyectado
+    // en los Repositorios siguiendo el principio de Inversión de Dependencias en MVVM.
     val apiService: ApiService by lazy {
         retrofit.create(ApiService::class.java)
     }

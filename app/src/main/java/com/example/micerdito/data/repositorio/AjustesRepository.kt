@@ -5,46 +5,45 @@ import com.example.micerdito.data.model.home.AjustesResponse
 import com.example.micerdito.utils.ConexionUtils
 
 /**
- * REPOSITORIO - AjustesRepository:
- * Esta clase implementa el patrón de diseño Repository, actuando como una capa de abstracción
- * entre el ViewModel y el servicio de API (Retrofit). Su responsabilidad es gestionar las
- * peticiones de red relacionadas con la configuración del perfil del usuario.
+ * PATRÓN REPOSITORIO - AjustesRepository
+ * Actúa como un mediador estructural entre la capa de presentación (ViewModel)
+ * y la fuente de datos remota (Retrofit), encapsulando la lógica de red.
  */
 class AjustesRepository {
-    private val apiService =
-        RetrofitClient.apiService // Herramienta que nos permite conectar con el servidor
+
+    // Inyección de la dependencia de red.
+    // Al instanciarlo vía Singleton, optimizamos el consumo de memoria.
+    private val apiService = RetrofitClient.apiService
 
     /**
-     * Elimina la cuenta del usuario de forma permanente.
+     * Solicita la eliminación permanente de la cuenta de usuario.
      * @param idUsuario Identificador único (UUID) del usuario.
-     * @return Result con AjustesResponse en caso de éxito o Exception en caso de fallo.
-     * Implementa 'suspend' para ejecutarse dentro de una corrutina, asegurando que
-     * la petición de red no bloquee el hilo principal.
+     * @return Result<AjustesResponse> - Patrón de envoltura funcional.
+     * que encapsula el estado de éxito o la excepción capturada de forma segura.
      */
     suspend fun eliminarUsuario(idUsuario: String): Result<AjustesResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
+            // Se suspende la corrutina actual sin bloquear el Main Thread
+            // mientras se espera la resolución del socket HTTP.
             val response = apiService.deleteUser(idUsuario)
 
+            // Delegación del mapeo de códigos HTTP (200, 400, 500) a la capa de utilidades
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
+            // Captura de excepciones de red previniendo cierres forzados
             ConexionUtils.manejarExcepcion(e)
         }
     }
 
     /**
-     * Actualiza el nombre de perfil del usuario en el servidor.
-     * @param idUsuario UUID del usuario que realiza el cambio.
-     * @param username Nuevo nombre de usuario solicitado.
-     * @return Result con la respuesta de éxito o el error capturado.
-     * Implementa 'suspend' para ejecutarse dentro de una corrutina, asegurando que
-     * la petición de red no bloquee el hilo principal.
+     * Solicita la mutación del nombre de perfil del usuario.
+     * @param idUsuario UUID del usuario autenticado.
+     * @param username Nuevo identificador en texto plano.
+     * @return Result<AjustesResponse> con la confirmación de la mutación.
      */
     suspend fun editarNombreUsuario(idUsuario: String, username: String): Result<AjustesResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.editUser(idUsuario, username)
-
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
             ConexionUtils.manejarExcepcion(e)

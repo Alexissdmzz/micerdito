@@ -3,10 +3,17 @@ package com.example.micerdito.data.model.home
 import com.google.gson.annotations.SerializedName
 
 /**
- * MODELO DE DATOS - MovimientosResponse:
- * Esta clase recoge los datos de la API de los movimientos para el fragmento de Home.
+ * DTO (Data Transfer Object) - MovimientosResponse
+ * Modelo de datos inmutable que actúa como envoltorio (Wrapper Response) para deserializar
+ * el historial de transacciones. Diseñado específicamente para alimentar listas en pantalla
+ * (RecyclerViews) orientadas a mostrar los últimos movimientos o resultados de paginación.
  */
-data class MovimientosResponse (
-    val success: Boolean, // Indica si la operación fue exitosa (True) o no (False)
-    @SerializedName("gastos_recientes") val gastosRecientes: List<Gasto> // Lista de los gastos recientes
+data class MovimientosResponse(
+    // Bandera booleana que determina el flujo de ejecución (Éxito o Fallo de la petición)
+    val success: Boolean,
+
+    // Colección de las transacciones financieras recientes.
+    // Se aplica un mapeo explícito para proteger el estándar camelCase de Kotlin.
+    @SerializedName("gastos_recientes")
+    val gastosRecientes: List<Gasto>
 )

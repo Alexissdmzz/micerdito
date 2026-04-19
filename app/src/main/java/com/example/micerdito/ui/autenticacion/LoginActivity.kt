@@ -1,6 +1,5 @@
 package com.example.micerdito.ui.autenticacion
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -10,30 +9,27 @@ import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.micerdito.R
-import com.example.micerdito.data.preferencias.PreferenciasSesion
 import com.example.micerdito.ui.home.HomeActivity
-import com.example.micerdito.ui.autenticacion.ForgotPasswordActivity
-import com.example.micerdito.viewmodel.auth.AuthViewModel
+import com.example.micerdito.viewmodel.autenticacion.AuthViewModel
 import com.google.android.material.textfield.TextInputEditText
 
 /**
  * ACTIVITY - LoginActivity
- * Gestiona la autenticación de usuarios y la verificación de sesiones activas.
- * Actúa como el controlador principal de la primera pantalla de la aplicación.
+ * Pantalla encargada de iniciar sesión y comprobar si el usuario ya estaba conectado.
+ * Es la puerta de entrada principal a la aplicación.
  */
-
 class LoginActivity : AppCompatActivity() {
 
-    // Inicialización del ViewModel
+    // Conexión con el ViewModel para gestionar los datos
     private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         /**
-         * COMPROBACIÓN DE SESIÓN (Auto-Login):
-         * Antes de inflar la vista del login, consultamos al ViewModel si existen credenciales
-         * guardadas en SharedPreferences. Si es así, saltamos directamente al Home.
+         * AUTO-LOGIN:
+         * Comprueba si hay una sesión guardada antes de cargar la pantalla.
+         * Si el usuario ya está conectado, lo mandamos directamente al inicio.
          */
         if (viewModel.estaLogueado()) {
             irAHome(viewModel.obtenerIdUsuario(), viewModel.obtenerNombreUsuario())
@@ -42,48 +38,45 @@ class LoginActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_login)
 
-        // Inicialización de componentes de la vista
+        // Vinculación de los elementos de la pantalla
         val tvBackLogin = findViewById<TextView>(R.id.tvBackLogin)
         val etCorreo = findViewById<TextInputEditText>(R.id.etCorreo)
         val etPwd = findViewById<TextInputEditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
         val tvForgotPwd = findViewById<TextView>(R.id.tvOlvido)
 
-        // Configuración de observadores para reaccionar a cambios en el ViewModel
         setupObservers()
-
-        // Configuración de interraciones
         setupListeners(btnLogin, etCorreo, etPwd, tvForgotPwd, tvBackLogin)
     }
 
     /**
-     * Define los observadores que reaccionarán a los cambios de estado en el ViewModel.
+     * Escucha las respuestas del servidor a través del ViewModel y actualiza la pantalla.
      */
     private fun setupObservers() {
-        // Observa el resultado del intento de inicio de sesión
+
+        // Respuesta al intentar iniciar sesión
         viewModel.loginResult.observe(this) { response ->
             if (response?.success == true && response.user != null) {
-
                 Toast.makeText(this, "Bienvenido: ${response.user.username}", Toast.LENGTH_SHORT)
                     .show()
-                // Navegación al Dashboard principal tras éxito
                 irAHome(response.user.id, response.user.username)
             } else {
-                // Muestra el mensaje de error proveniente del servidor
-                Toast.makeText(this, response?.message ?: "Error de login", Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(
+                    this,
+                    response?.message ?: "Error al iniciar sesión",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
 
-        // Observa errores críticos de red o excepciones del servidor
+        // Respuesta en caso de que falle la conexión o el servidor
         viewModel.errorMsg.observe(this) { error ->
-            // Si el error contiene "correo", podrías incluso marcar el EditText
             Toast.makeText(this, error, Toast.LENGTH_LONG).show()
         }
     }
 
     /**
-     * Configuración de interacciones del usuario.
+     * Configura los clics en los botones y enlaces de la pantalla.
      */
     private fun setupListeners(
         btnLogin: Button,
@@ -92,39 +85,34 @@ class LoginActivity : AppCompatActivity() {
         tvForgotPwd: TextView,
         tvBackLogin: TextView
     ) {
-        /**
-         * Acción del botón de acceso.
-         * Realiza una validación previa en el cliente para ahorrar peticiones innecesarias al servidor.
-         */
+
         btnLogin.setOnClickListener {
             val correo = etCorreo.text.toString().trim()
             val pwd = etPwd.text.toString().trim()
 
-            // Delegamos la validación al ViewModel o la hacemos aquí para feedback rápido
+            // Comprobación rápida para no hacer esperar al servidor si faltan datos
             if (correo.isEmpty() || pwd.isEmpty()) {
                 Toast.makeText(this, "Por favor, rellena todos los campos", Toast.LENGTH_SHORT)
                     .show()
             } else {
-                // Inicia el proceso de autenticación asíncrona
                 viewModel.doLogin(correo, pwd)
             }
         }
 
-        // Navegación hacia el flujo de recuperación de contraseña
+        // Enlace para recuperar la cuenta
         tvForgotPwd.setOnClickListener {
             startActivity(Intent(this, ForgotPasswordActivity::class.java))
         }
 
-        //Navegación hacia una pantalla atrás
+        // Botón para volver a la pantalla de bienvenida
         tvBackLogin.setOnClickListener {
-            startActivity(Intent(this, WelcomeActivity::class.java))
+            finish() // Cierra la pantalla actual en lugar de crear una nueva
         }
     }
 
     /**
-     * Gestiona la transición hacia la HomeActivity, pasando los datos de sesión
-     * necesarios y finalizando la actividad actual para evitar que el usuario regrese
-     * al login pulsando el botón "Atrás".
+     * Manda al usuario a la pantalla principal y borra el Login del historial
+     * para que no pueda volver atrás dándole al botón del móvil.
      */
     private fun irAHome(id: String, nombre: String) {
         val intent = Intent(this, HomeActivity::class.java).apply {
@@ -132,6 +120,6 @@ class LoginActivity : AppCompatActivity() {
             putExtra("nombre_usuario", nombre)
         }
         startActivity(intent)
-        finish() // Elimina esta Activity del stack de navegación
+        finish()
     }
 }

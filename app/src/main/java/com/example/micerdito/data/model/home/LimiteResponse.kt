@@ -1,10 +1,14 @@
 package com.example.micerdito.data.model.home
 
 /**
- * MODELO DE DATOS - LimiteResponse:
- * Esta clase recoge los datos de la API de los límites para el fragmento de Home.
+ * DTO (Data Transfer Object) - LimiteResponse
+ * Modelo de datos inmutable utilizado para deserializar la confirmación del servidor
+ * tras la operación de mutación (actualización) del umbral o presupuesto mensual del usuario.
  */
 data class LimiteResponse(
-    val success: Boolean, // Indica si la operación fue exitosa (True) o no (False)
-    val message: String // Mensaje informativo que viene del servidor
+    // Bandera booleana que determina el flujo de ejecución (Éxito o Fallo de la operación)
+    val success: Boolean,
+
+    // Mensaje de feedback proporcionado por el servidor para la capa de presentación
+    val message: String
 )

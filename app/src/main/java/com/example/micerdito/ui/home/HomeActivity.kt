@@ -1,5 +1,6 @@
 package com.example.micerdito.ui.home
 
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -8,7 +9,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -23,16 +23,17 @@ import com.example.micerdito.viewmodel.home.HomeViewModel
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
 /**
- * ACTIVITY - HomeActivity:
- * Actúa como el host principal de la aplicación tras el login. Gestiona el contenedor
- * de fragmentos, el menú de navegación inferior (Bottom Navigation) y la lógica global.
+ * ACTIVITY - HomeActivity
+ * Controlador principal de la interfaz post-autenticación.
+ * Gestiona el contenedor dinámico de fragmentos, el enrutamiento del menú de navegación
+ * inferior y la aplicación global de márgenes del sistema a pantalla completa.
  */
 class HomeActivity : AppCompatActivity() {
 
-    // Inicialización del ViewModel
+    // Conexión con la lógica de negocio a nivel de actividad
     private val viewModel: HomeViewModel by viewModels()
 
-    // Control de estado para la lógica de doble pulsación al salir
+    // Bandera de control para prevenir el cierre accidental de la aplicación
     private var salir = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +42,10 @@ class HomeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
 
+        // Activamos el renderizado a pantalla completa
         WindowCompat.setDecorFitsSystemWindows(window, false)
+        // Volvemos la barra de estado transparente para que las vistas se dibujen debajo
+        window.statusBarColor = Color.TRANSPARENT
 
         val root = findViewById<View>(android.R.id.content)
         val headerContainer = findViewById<View>(R.id.headerContainer)
@@ -50,19 +54,15 @@ class HomeActivity : AppCompatActivity() {
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
 
         configurarInsets(root, headerContainer, fragmentContainer, bottomNav)
-
         configurarBotonSalir()
 
-        // Inicialización del header con el nombre persistido
         tvWelcome.text = "Bienvenido, ${viewModel.obtenerNombreUsuario()}"
 
-        // Carga inicial
         if (savedInstanceState == null) {
             cargarFragmento(HomeFragment())
             bottomNav.selectedItemId = R.id.nav_home
         }
 
-        // Navegación inferior
         bottomNav.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_home -> cargarFragmento(HomeFragment())
@@ -75,8 +75,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
-     * GESTIÓN DE TEMAS:
-     * Aplica el modo oscuro recuperando el valor desde el ViewModel.
+     * Sincroniza la paleta de colores de la aplicación con la preferencia guardada en memoria.
      */
     private fun aplicarConfiguracionVisual() {
         setTheme(R.style.Theme_MiCerdito)
@@ -91,8 +90,8 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
-     * GESTIÓN DEL BOTÓN ATRÁS:
-     * Evita cierres accidentales mediante doble pulsación.
+     * Intercepta el evento de retroceso del dispositivo.
+     * Requiere confirmación secuencial en un intervalo de dos segundos para finalizar el proceso.
      */
     private fun configurarBotonSalir() {
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
@@ -115,8 +114,7 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
-     * TRANSACCIÓN DE FRAGMENTOS:
-     * Reemplaza el contenedor principal por el fragmento seleccionado.
+     * Ejecuta la transacción de componentes de interfaz.
      */
     private fun cargarFragmento(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
@@ -125,30 +123,39 @@ class HomeActivity : AppCompatActivity() {
     }
 
     /**
-     * CONTROL DEL HEADER:
-     * Muestra u oculta completamente el contenedor del header.
+     * Controla la visibilidad de la cabecera principal y ajusta el color de los iconos
+     * del sistema para garantizar el contraste visual.
      */
     fun mostrarHeader(mostrar: Boolean) {
         val headerContainer = findViewById<View>(R.id.headerContainer)
+        val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
 
         if (mostrar) {
             headerContainer.visibility = View.VISIBLE
-            window.statusBarColor = ContextCompat.getColor(this, R.color.rosa_cerdito)
+            // Forzamos iconos oscuros porque el fondo rosa de la cabecera es claro
+            windowInsetsController.isAppearanceLightStatusBars = true
         } else {
             headerContainer.visibility = View.GONE
-            window.statusBarColor = ContextCompat.getColor(this, R.color.background_light)
+            // Si el header no está, el color de los iconos depende del modo oscuro
+            windowInsetsController.isAppearanceLightStatusBars = !viewModel.esModoOscuro()
         }
+
+        // Solicitamos al sistema operativo que recalcule los márgenes dinámicos
+        findViewById<View>(android.R.id.content).requestApplyInsets()
     }
 
     /**
-     * ACTUALIZACIÓN DE INTERFAZ:
-     * Sincroniza el nombre del usuario en el header tras cambios en el perfil.
+     * Sincroniza el componente de texto tras una actualización del perfil en la base de datos.
      */
     fun actualizarNombreHeader(nuevoNombre: String) {
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
         tvWelcome.text = "Bienvenido, $nuevoNombre"
     }
 
+    /**
+     * Lógica dinámica de márgenes. Reparte de forma inteligente el espacio del sistema
+     * (Barra de estado y barra de navegación) entre los contenedores de la aplicación.
+     */
     private fun configurarInsets(
         root: View,
         headerContainer: View,
@@ -168,13 +175,7 @@ class HomeActivity : AppCompatActivity() {
         ViewCompat.setOnApplyWindowInsetsListener(root) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
 
-            headerContainer.updatePadding(
-                left = headerLeftOriginal + systemBars.left,
-                top = headerTopOriginal + systemBars.top,
-                right = headerRightOriginal + systemBars.right,
-                bottom = headerBottomOriginal
-            )
-
+            // La barra de navegación inferior siempre absorbe su propio margen
             bottomNav.updatePadding(
                 left = bottomLeftOriginal + systemBars.left,
                 top = bottomTopOriginal,
@@ -182,11 +183,28 @@ class HomeActivity : AppCompatActivity() {
                 bottom = bottomBottomOriginal + systemBars.bottom
             )
 
-            fragmentContainer.updatePadding(
-                left = systemBars.left,
-                right = systemBars.right
-            )
-
+            // Distribución dinámica del margen superior (Barra de Estado)
+            if (headerContainer.visibility == View.VISIBLE) {
+                // El header asume el margen; el fragmento puede subir libremente
+                headerContainer.updatePadding(
+                    left = headerLeftOriginal + systemBars.left,
+                    top = headerTopOriginal + systemBars.top,
+                    right = headerRightOriginal + systemBars.right,
+                    bottom = headerBottomOriginal
+                )
+                fragmentContainer.updatePadding(
+                    left = systemBars.left,
+                    top = 0,
+                    right = systemBars.right
+                )
+            } else {
+                // Sin header, el fragmento asume el margen para no quedar tapado
+                fragmentContainer.updatePadding(
+                    left = systemBars.left,
+                    top = systemBars.top,
+                    right = systemBars.right
+                )
+            }
             insets
         }
     }

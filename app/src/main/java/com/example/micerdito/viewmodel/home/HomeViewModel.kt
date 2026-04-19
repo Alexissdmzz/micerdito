@@ -2,6 +2,7 @@ package com.example.micerdito.viewmodel.home
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.micerdito.data.model.home.Gasto
@@ -12,92 +13,109 @@ import com.example.micerdito.data.repositorio.SesionRepository
 import kotlinx.coroutines.launch
 
 /**
- * VIEWMODEL - HomeViewModel:
- * Motor lógico del Dashboard principal. Gestiona la recuperación de métricas financieras,
- * el historial de movimientos y la administración de preferencias de usuario como
- * el límite de gasto y el tema visual.
+ * VIEWMODEL - HomeViewModel
+ * Motor lógico del panel de control principal. Gestiona la recuperación asíncrona de
+ * métricas financieras, el historial de movimientos y la administración de preferencias
+ * de usuario, como el límite de gasto y el tema visual.
  */
 class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
-    // Repositorios para acceso a datos remotos (MySQL/PHP) y persistencia local (Prefs)
+    // Instancias de los repositorios para acceso a datos remotos y persistencia local
     private val repository = HomeRepository()
     private val sesionRepository = SesionRepository(application)
 
-    // LiveData para la actualización reactiva de la interfaz de usuario
-    val homeResult = MutableLiveData<HomeResponse>()
-    val graficoResult = MutableLiveData<List<GastoPorCategoria>>()
-    val movimientosResult = MutableLiveData<List<Gasto>>() // Lista de transacciones recientes
-    val errorMsg = MutableLiveData<String>()
+    // ==========================================
+    // CANALES DE ESTADO REACTIVO (Backing Properties)
+    // ==========================================
+
+    private val _homeResult = MutableLiveData<HomeResponse>()
+    val homeResult: LiveData<HomeResponse> get() = _homeResult
+
+    private val _graficoResult = MutableLiveData<List<GastoPorCategoria>>()
+    val graficoResult: LiveData<List<GastoPorCategoria>> get() = _graficoResult
+
+    private val _movimientosResult = MutableLiveData<List<Gasto>>()
+    val movimientosResult: LiveData<List<Gasto>> get() = _movimientosResult
+
+    private val _errorMsg = MutableLiveData<String>()
+    val errorMsg: LiveData<String> get() = _errorMsg
 
     /**
-     * Lógica de Negocio: LiveData booleano que determina si el usuario ha excedido
-     * su presupuesto mensual, permitiendo cambios de color dinámicos en la View.
+     * Lógica de Negocio: Determina si el usuario ha excedido su presupuesto mensual,
+     * permitiendo a la capa de presentación aplicar alertas visuales semánticas.
      */
-    val islimiteSuperado = MutableLiveData<Boolean>()
+    private val _islimiteSuperado = MutableLiveData<Boolean>()
+    val islimiteSuperado: LiveData<Boolean> get() = _islimiteSuperado
 
-    // Consultas rápidas a la sesión local
+    // ==========================================
+    // CONSULTAS DE SESIÓN LOCAL
+    // ==========================================
+
     fun obtenerNombreUsuario(): String = sesionRepository.getNombreUsuario()
     fun esModoOscuro(): Boolean = sesionRepository.esModoOscuro()
 
+    // ==========================================
+    // OPERACIONES DE RED
+    // ==========================================
+
     /**
      * CARGA INTEGRAL DE DATOS:
-     * Ejecuta dos peticiones de red simultáneas mediante corrutinas para poblar
-     * el Dashboard de forma eficiente sin bloquear el hilo principal.
+     * Orquesta tres peticiones de red concurrentes mediante corrutinas para poblar
+     * la vista principal de forma eficiente sin bloquear el hilo de la interfaz.
      */
     fun cargarDatosDeUsuario() {
         val idUsuario = sesionRepository.getIdUsuario()
 
         if (idUsuario.isEmpty()) {
-            errorMsg.value = "No se encontró el ID del usuario"
+            _errorMsg.value = "No se encontró el identificador de usuario"
             return
         }
 
-        // Lanzamiento de corrutina en el ámbito del ViewModel
         viewModelScope.launch {
             // PETICIÓN 1: Datos globales (Totales, Mes y Límite)
             val resultHome = repository.obtenerDatosHome(idUsuario)
             resultHome.onSuccess { data ->
-                homeResult.value = data
-                // Lógica de validación: Comparamos gasto real vs presupuesto establecido
-                islimiteSuperado.value = data.total_dinerogastado > data.limite_mes
+                _homeResult.value = data
+                // Evaluación de reglas de negocio: Gasto real frente a presupuesto establecido
+                _islimiteSuperado.value = data.totalDineroGastado > data.limiteMes
             }.onFailure {
-                errorMsg.value = "Error totales: ${it.message}"
+                _errorMsg.value = "Error en totales: ${it.message}"
             }
 
-            // PETICIÓN 3: Datos para el gráfico circular
+            // PETICIÓN 2: Desglose analítico para la gráfica circular
             val resultGrafico = repository.obtenerGastosPorCategoria(idUsuario)
             resultGrafico.onSuccess { lista ->
-                // Enviamos la lista de categorías y totales al LiveData
-                graficoResult.value = lista
+                _graficoResult.value = lista
             }.onFailure {
-                errorMsg.value = "Error gráfico: ${it.message}"
+                _errorMsg.value = "Error en gráfica: ${it.message}"
             }
 
-            // PETICIÓN 3: Historial de movimientos
+            // PETICIÓN 3: Historial reciente de transacciones
             val resultMovs = repository.obtenerMovimientosRecientes(idUsuario)
             resultMovs.onSuccess { response ->
-                movimientosResult.value = response.gastosRecientes
+                _movimientosResult.value = response.gastosRecientes
             }.onFailure {
-                errorMsg.value = "Error movimientos: ${it.message}"
+                _errorMsg.value = "Error en movimientos: ${it.message}"
             }
         }
     }
 
     /**
      * ACTUALIZACIÓN DE PRESUPUESTO:
-     * Persiste el nuevo límite en el servidor y fuerza una recarga de datos
-     * para asegurar que el Dashboard refleje el cambio inmediatamente.
+     * Persiste el nuevo límite de gasto en la base de datos remota y fuerza una recarga
+     * del estado global para asegurar que la interfaz refleje el cambio inmediatamente.
      */
     fun actualizarLimiteMensual(nuevoLimite: Double) {
         val id = sesionRepository.getIdUsuario()
+
         viewModelScope.launch {
             val result = repository.guardarLimite(id, nuevoLimite)
+
             result.onSuccess {
-                // Sincronización: Refrescamos la UI tras el éxito en el servidor
+                // Sincronización: Refrescamos la UI tras confirmar el guardado en el servidor
                 cargarDatosDeUsuario()
-            }
-            result.onFailure {
-                errorMsg.value = "No se pudo actualizar el límite"
+            }.onFailure {
+                _errorMsg.value = "No se pudo actualizar el límite establecido"
             }
         }
     }

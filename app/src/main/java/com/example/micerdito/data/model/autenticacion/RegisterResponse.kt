@@ -1,10 +1,14 @@
 package com.example.micerdito.data.model.autenticacion
 
 /**
- * MODELO DE DATOS - RegisterResponse:
- * Esta clase recoge los datos de la API para el registro del usuario.
+ * DTO (Data Transfer Object) - RegisterResponse
+ * Modelo de datos inmutable encargado de deserializar la carga útil (payload) devuelta por la API
+ * durante el proceso de registro de un nuevo usuario. Actúa como puente entre la capa de red y el Repositorio.
  */
 data class RegisterResponse(
-    val success: Boolean, //Indica si la operación fue exitosa (True) o no (False)
-    val message: String // Mensaje informativo que viene del servidor
+    // Bandera booleana que determina el flujo de ejecución (Éxito o Fallo de registro)
+    val success: Boolean,
+
+    // Mensaje de feedback proporcionado por el servidor (ej. formato inválido, cuenta ya existente, etc.)
+    val message: String
 )

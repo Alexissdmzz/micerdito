@@ -24,21 +24,20 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 
 /**
- * FRAGMENTO - HomeFragment:
- * Actúa como el centro de control (Dashboard) del usuario.
+ * FRAGMENTO - HomeFragment
+ * Actúa como el centro de control principal del usuario.
  * Muestra el resumen financiero del mes actual, el estado del presupuesto
  * y el historial de transacciones recientes mediante una arquitectura reactiva.
  */
-
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
-    // Inicialización del viewmodel
+    // Conexión con el ViewModel para gestionar los datos
     private val viewModel: HomeViewModel by viewModels()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicialización de componentes de la vista
+        // Vinculación de los componentes de la vista
         val tvGasto = view.findViewById<TextView>(R.id.tvTotalSpent)
         val tvLimite = view.findViewById<TextView>(R.id.tvLimitStatus)
         val tvMes = view.findViewById<TextView>(R.id.tvMesActual)
@@ -46,15 +45,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val graficoCircular = view.findViewById<PieChart>(R.id.graficoCircular)
         val rvGastos = view.findViewById<RecyclerView>(R.id.rvGastos)
 
-        // Configuración de observadores para reaccionar a cambios en el ViewModel
         setupObservers(tvGasto, tvLimite, tvMes, rvGastos, graficoCircular)
-
-        // Configuración de interraciones
         setupListeners(tvEstablecerLimite)
     }
 
     /**
-     * Observadores de estado: Reaccionan a los cambios en el flujo de datos.
+     * Implementa el patrón Observer para reaccionar dinámicamente a los cambios en los datos.
      */
     private fun setupObservers(
         tvGasto: TextView,
@@ -64,37 +60,36 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         graficoCircular: PieChart
     ) {
 
-        // OBSERVADOR 1: Datos globales del mes (Total gastado y Límite)
+        // Sincronización de los datos globales del mes actual
         viewModel.homeResult.observe(viewLifecycleOwner) { data ->
-            tvGasto.text = "${data.total_dinerogastado} €"
-            tvLimite.text = "Límite: ${data.limite_mes} €"
-            tvMes.text = data.mes_actual.uppercase()
+            tvGasto.text = "${String.format("%.2f", data.totalDineroGastado)} €"
+            tvLimite.text = "Límite: ${String.format("%.2f", data.limiteMes)} €"
+            tvMes.text = data.mesActual.uppercase()
         }
 
-        // OBSERVADOR 2: Datos del Gráfico Circular
+        // Configuración y despliegue del gráfico analítico
         viewModel.graficoResult.observe(viewLifecycleOwner) { lista ->
             if (!lista.isNullOrEmpty()) {
                 actualizarGrafico(lista)
             } else {
-                // Si no hay datos, podemos mostrar un mensaje en el centro del gráfico
+                // Estado vacío de seguridad si no existen registros
                 graficoCircular.centerText = "Sin gastos este mes"
                 graficoCircular.data = null
                 graficoCircular.invalidate()
             }
         }
 
-        // OBSERVADOR 3: Lista de movimientos recientes
+        // Población de la lista de transacciones recientes
         viewModel.movimientosResult.observe(viewLifecycleOwner) { lista ->
             if (!lista.isNullOrEmpty()) {
-                // Se asigna el adaptador con la lista de gastos procesada
                 rvGastos.adapter = MovimientosAdapter(lista)
             }
         }
 
         /**
-         * LÓGICA SEMÁNTICA DE COLOR:
-         * Cambia el color del texto del gasto según el estado del presupuesto.
-         * Rojo (Superado) / Verde (Dentro del límite).
+         * LÓGICA SEMÁNTICA VISUAL:
+         * Altera la coloración de la métrica principal para advertir sobre
+         * el estado del presupuesto frente al gasto acumulado.
          */
         viewModel.islimiteSuperado.observe(viewLifecycleOwner) { superado ->
             tvGasto.setTextColor(if (superado) Color.RED else Color.parseColor("#4CAF50"))
@@ -102,12 +97,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     /**
-     * Configuración de interacciones del usuario.
+     * Configuración del enrutamiento de eventos generados por el usuario.
      */
     private fun setupListeners(tvEstablecerLimite: TextView) {
+
         /**
-         * Establecer Límite: muestra un diálogo de entrada de datos para actualizar el presupuesto mensual.
-         * Utiliza un AlertDialog con un componente EditText configurado para valores numéricos.
+         * Despliega un cuadro de diálogo nativo que permite al usuario
+         * redefinir su umbral financiero máximo mensual.
          */
         tvEstablecerLimite.setOnClickListener {
             val input = EditText(requireContext())
@@ -121,19 +117,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 .setPositiveButton("Guardar") { _, _ ->
                     val nuevoLimite = input.text.toString()
                     if (nuevoLimite.isNotEmpty()) {
-                        // Notifica al ViewModel el cambio para su persistencia en el servidor PHP
-                        viewModel.actualizarLimiteMensual(nuevoLimite.toDouble())
+                        // Conversión segura para evitar fallos por formato incorrecto
+                        nuevoLimite.toDoubleOrNull()?.let { valorNumerico ->
+                            viewModel.actualizarLimiteMensual(valorNumerico)
+                        }
                     }
                 }
                 .setNegativeButton("Cancelar", null)
                 .show()
         }
-
     }
 
     /**
-     * Lógica de representación visual del gráfico de tarta.
-     * Transforma la lista de gastos por categoría en entradas para la librería MPAndroidChart.
+     * Prepara e inicializa el motor de renderizado de la gráfica circular.
      */
     private fun actualizarGrafico(lista: List<GastoPorCategoria>) {
         val graficoCircular = view?.findViewById<PieChart>(R.id.graficoCircular) ?: return
@@ -141,30 +137,26 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val entradas = mutableListOf<PieEntry>()
         val colores = mutableListOf<Int>()
 
-        // Color dinámico del texto según el tema actual
+        // Consulta del color de texto adecuado según la tematización activa (Claro/Oscuro)
         val colorTexto = ContextCompat.getColor(requireContext(), R.color.texto_negro)
 
         lista.forEach { item ->
-            // Creamos la porción
             entradas.add(PieEntry(item.totalGasto.toFloat(), item.nombreCategoria))
-
             try {
                 colores.add(Color.parseColor(item.color))
             } catch (e: Exception) {
-                colores.add(Color.LTGRAY) // Color por defecto si el hex falla
+                colores.add(Color.LTGRAY)
             }
         }
 
-        // Configuración del set de datos
         val dataSet = PieDataSet(entradas, "")
         dataSet.colors = colores
         dataSet.valueTextSize = 13f
         dataSet.valueTextColor = Color.WHITE
-        dataSet.sliceSpace = 2f // Espacio entre porciones
+        dataSet.sliceSpace = 2f
 
         val data = PieData(dataSet)
 
-        // Configuración estética del componente PieChart
         graficoCircular.apply {
             this.data = data
             description.isEnabled = false
@@ -172,28 +164,29 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             setDrawEntryLabels(false)
             data.setDrawValues(false)
 
-            // Configuración de la Leyenda
+            // Configuración de la Leyenda descriptiva
             legend.isEnabled = true
             legend.verticalAlignment = Legend.LegendVerticalAlignment.BOTTOM
             legend.horizontalAlignment = Legend.LegendHorizontalAlignment.CENTER
             legend.orientation = Legend.LegendOrientation.HORIZONTAL
             legend.isWordWrapEnabled = true
             legend.form = Legend.LegendForm.CIRCLE
-            legend.textColor = colorTexto // Texto de la leyenda dinámico
+            legend.textColor = colorTexto
 
-            // Configuración del Centro Dinámico
+            // Configuración del núcleo central
             isDrawHoleEnabled = true
             setHoleColor(Color.TRANSPARENT)
             centerText = "Gastos"
             setCenterTextSize(16f)
-            setCenterTextColor(colorTexto) // Texto central dinámico
+            setCenterTextColor(colorTexto)
 
-            // Interacción: Mostrar info al tocar
+            // Interacción: Formateo de métricas al seleccionar un segmento
             setTouchEnabled(true)
             setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
                     val pieEntry = e as PieEntry
-                    centerText = "${pieEntry.label}\n${pieEntry.value} €"
+                    // Aplicación estricta de formato a dos decimales
+                    centerText = "${pieEntry.label}\n${String.format("%.2f", pieEntry.value)} €"
                     setCenterTextColor(colorTexto)
                 }
 
@@ -203,19 +196,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
             })
 
-            // Animación de entrada cada vez que se cargan datos
             animateY(1200, Easing.EaseInOutQuad)
             invalidate()
         }
     }
 
     /**
-     * Ciclo de vida: Carga o refresca los datos cada vez que el fragmento vuelve a ser visible.
-     * Esto asegura que si se añadió un gasto en otro fragmento, el Dashboard esté actualizado.
+     * Sincroniza el estado de la vista con el servidor y reactiva elementos
+     * de la interfaz superior cada vez que el fragmento recupera el foco.
      */
     override fun onResume() {
         super.onResume()
         viewModel.cargarDatosDeUsuario()
+
+        // Habilita la cabecera principal de navegación
         (activity as? com.example.micerdito.ui.home.HomeActivity)?.mostrarHeader(true)
     }
 }

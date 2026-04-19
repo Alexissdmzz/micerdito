@@ -9,11 +9,10 @@ import com.example.micerdito.R
 
 /**
  * ACTIVITY - LogoActivity
- * Esta clase gestiona la pantalla de presentación de la aplicación. Su objetivo es
- * reforzar la identidad visual de "Mi Cerdito" y servir como punto de entrada
- * antes de redirigir al flujo de bienvenida o autenticación.
+ * Pantalla de presentación inicial.
+ * Su objetivo es mostrar la identidad visual de la aplicación mientras
+ * el sistema prepara la memoria, antes de navegar al flujo de bienvenida.
  */
-
 class LogoActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -21,20 +20,17 @@ class LogoActivity : AppCompatActivity() {
         setContentView(R.layout.activity_logo)
 
         /**
-         * GESTIÓN DEL TIEMPO DE ESPERA (Delay):
-         * Se utiliza un Handler vinculado al Looper principal (MainLooper) para programar
-         * una acción tras un retardo de 3000 milisegundos (3 segundos).
+         * TEMPORIZADOR DE TRANSICIÓN:
+         * Se utiliza un manejador vinculado al hilo principal de la interfaz para programar
+         * el cambio de pantalla tras 3 segundos de espera.
          */
         Handler(Looper.getMainLooper()).postDelayed({
-            // Definición del salto hacia la pantalla de bienvenida
+            // Transición hacia la pantalla de bienvenida
             startActivity(Intent(this, WelcomeActivity::class.java))
-            /**
-             * Finalizamos esta actividad para que no quede en el stack de navegación.
-             * Esto evita que el usuario regrese al Splash pulsando el botón "Atrás".
-             */
+
+            // Cierra esta pantalla para que el usuario no pueda volver a ver el logo
+            // al pulsar el botón de ir atrás en su dispositivo.
             finish()
-        }, 3000) // 3 segundos de exposición del logo
-
+        }, 3000)
     }
-
 }

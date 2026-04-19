@@ -8,25 +8,26 @@ import com.example.micerdito.data.model.home.MovimientosResponse
 import com.example.micerdito.utils.ConexionUtils
 
 /**
- * REPOSITORIO - HomeRepository
- * Este repositorio centraliza la lógica de obtención de datos para la pantalla principal.
- * Gestiona la sincronización entre el estado financiero del usuario (gastos totales vs. límite)
- * y el listado de actividad reciente.
+ * PATRÓN REPOSITORIO - HomeRepository
+ * Repositorio central (Facade) que orquesta la obtención de datos agregados para el Dashboard.
+ * Gestiona la sincronización entre el estado financiero global, la visualización gráfica
+ * y el histórico reciente de transacciones.
+ * * Nota de concurrencia: Todas las operaciones de esta clase utilizan el modificador 'suspend'
+ * para delegar su ejecución a las corrutinas de Kotlin, garantizando que el hilo principal
+ * (UI Thread) permanezca fluido y reactivo durante las peticiones asíncronas.
  */
 class HomeRepository {
 
-    private val apiService =
-        RetrofitClient.apiService // Herramienta que nos permite conectar con el servidor
+    // Inyección de la dependencia de red (Remote Data Source)
+    private val apiService = RetrofitClient.apiService
 
     /**
-     * Recupera los datos estadísticos generales del usuario para el mes actual.
+     * Recupera el payload agregado (Aggregated Payload) con las métricas financieras principales.
      * @param idUsuario UUID del usuario autenticado.
-     * @return Result<HomeResponse>: Contiene el nombre del usuario, total gastado,
-     * límite configurado y el nombre del mes actual.
+     * @return Result<HomeResponse> Envoltorio con el total gastado, límite y metadatos del mes.
      */
     suspend fun obtenerDatosHome(idUsuario: String): Result<HomeResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.homeUser(idUsuario)
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
@@ -35,24 +36,24 @@ class HomeRepository {
     }
 
     /**
-     * Recupera el desglose de gastos por categoría del mes actual para representar en el gráfico.
-     * @param idUsuario ID del usuario autenticado.
-     * @return Result<List<GastoPorCategoria>>: Una lista de objetos que contienen el nombre de
-     * la categoría, el sumatorio de sus gastos y su color representativo.
+     * Consulta y desempaqueta la estructura de datos necesaria para renderizar el gráfico circular.
+     * @param idUsuario UUID del usuario autenticado.
+     * @return Result<List<GastoPorCategoria>> Colección de métricas agrupadas, lista para la UI.
      */
     suspend fun obtenerGastosPorCategoria(idUsuario: String): Result<List<GastoPorCategoria>> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.obtenerGastosGrafico(idUsuario)
-
             val resultado = ConexionUtils.procesarRespuesta(response)
 
+            // Desempaquetado funcional (Unwrapping) para aislar la capa de presentación
+            // del envoltorio de red (GraficoResponse).
             resultado.fold(
                 onSuccess = { graficoResponse ->
+                    // Failsafe defensivo: Validamos la bandera booleana del servidor antes de inyectar datos
                     if (graficoResponse.success) {
                         Result.success(graficoResponse.listaGrafico)
                     } else {
-                        Result.failure(Exception("No se pudieron obtener los datos del gráfico"))
+                        Result.failure(Exception("El servidor denegó la extracción de métricas del gráfico."))
                     }
                 },
                 onFailure = {
@@ -65,14 +66,12 @@ class HomeRepository {
     }
 
     /**
-     * Obtiene la lista de los últimos movimientos (gastos) registrados por el usuario.
+     * Obtiene una sub-colección paginada o limitada del histórico de transacciones recientes.
      * @param idUsuario UUID del usuario.
-     * @return Result<MovimientosResponse>: Incluye una lista de gastos con sus
-     * respectivas categorías, iconos y colores asociados.
+     * @return Result<MovimientosResponse> Envoltorio con la lista de entidades Gasto.
      */
     suspend fun obtenerMovimientosRecientes(idUsuario: String): Result<MovimientosResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.homeMoves(idUsuario)
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
@@ -81,14 +80,13 @@ class HomeRepository {
     }
 
     /**
-     * Registra o actualiza el límite de gasto mensual del usuario.
+     * Ejecuta una mutación parcial (Update) sobre el perfil financiero del usuario.
      * @param idUsuario UUID del usuario.
-     * @param limite Valor numérico (Double) que representa el nuevo tope de gasto.
-     * @return Result<LimiteResponse>: Confirmación de la actualización en la base de datos.
+     * @param limite Nuevo umbral presupuestario establecido por el usuario.
+     * @return Result<LimiteResponse> Confirmación de la mutación persistida en servidor.
      */
     suspend fun guardarLimite(idUsuario: String, limite: Double): Result<LimiteResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.homeLimit(idUsuario, limite)
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {

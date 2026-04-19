@@ -8,24 +8,25 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 
 /**
- * REPOSITORIO - CalendarioRepository:
- * Esta clase implementa el patrón de diseño Repository, actuando como una capa de abstracción
- * entre el ViewModel y el servicio de API (Retrofit). Su responsabilidad es gestionar las
- * peticiones de red relacionadas con la configuración del perfil del usuario.
+ * PATRÓN REPOSITORIO - CalendarioRepository
+ * Capa de abstracción encargada de orquestar las operaciones de red vinculadas
+ * al historial temporal del usuario (Calendario) y la gestión individual de transacciones.
+ * * * Nota de concurrencia: Todas las operaciones de esta clase utilizan el modificador 'suspend'
+ * para delegar su ejecución a las corrutinas de Kotlin, garantizando que el hilo principal
+ * de la interfaz gráfica nunca se bloquee durante las transacciones HTTP o subidas de archivos.
  */
 class CalendarioRepository {
 
-    private val apiService =
-        RetrofitClient.apiService // Herramienta que nos permite conectar con el servidor
+    // Inyección de la dependencia de red
+    private val apiService = RetrofitClient.apiService
 
     /**
-     * Obtiene los datos de actividad, fecha de registro y resumen para el gráfico mensual.
+     * Obtiene la carga inicial de datos agregados (Multi-Result Set) para renderizar
+     * el calendario interactivo y sus gráficas asociadas.
      * @param idUsuario Identificador único (UUID) del usuario.
      * @param mes Número del mes a consultar (1-12).
      * @param anio Año a consultar (Ejemplo: 2026).
-     * @return Result con CalendarioResponse en caso de éxito o Exception en caso de fallo.
-     * Implementa 'suspend' para ejecutarse dentro de una corrutina, asegurando que
-     * la petición de red no bloquee el hilo principal.
+     * @return Result con la información agregada o excepción capturada.
      */
     suspend fun obtenerDatosCalendario(
         idUsuario: String,
@@ -33,9 +34,7 @@ class CalendarioRepository {
         anio: Int
     ): Result<CalendarioResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.getDataCalendario(idUsuario, mes, anio)
-
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
             ConexionUtils.manejarExcepcion(e)
@@ -43,14 +42,12 @@ class CalendarioRepository {
     }
 
     /**
-     * Obtiene la lista detallada de gastos realizados en un día específico.
+     * Consulta el desglose granular de transacciones asociadas a una fecha específica.
      * @param idUsuario Identificador único (UUID) del usuario.
-     * @param anio Año a consultar (Ejemplo: 2026).
-     * @param mes Número del mes a consultar (1-12).
-     * @param dia Número del día a consultar (1-31).
-     * @return Result con CalendarioResponse en caso de éxito o Exception en caso de fallo.
-     * Implementa 'suspend' para asegurar que la consulta de los detalles del día
-     * se realice de forma asíncrona sin afectar la fluidez de la interfaz.
+     * @param anio Año a consultar.
+     * @param mes Número del mes a consultar.
+     * @param dia Día exacto del mes (1-31).
+     * @return Result con la colección de gastos de la jornada.
      */
     suspend fun obtenerGastosPorDia(
         idUsuario: String,
@@ -59,9 +56,7 @@ class CalendarioRepository {
         dia: Int
     ): Result<GastoResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.getGastosDia(idUsuario, anio, mes, dia)
-
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
             ConexionUtils.manejarExcepcion(e)
@@ -69,14 +64,15 @@ class CalendarioRepository {
     }
 
     /**
-     * Modifica los datos de un gasto existente, incluyendo la posibilidad de actualizar el ticket.
-     * @param idGasto Identificador único (UUID) del gasto a editar.
-     * @param titulo Nuevo concepto del gasto.
-     * @param importe Valor numérico actualizado.
-     * @param descripcion Nota aclaratoria del movimiento.
-     * @param fotoActual Referencia al nombre del archivo de imagen actual para evitar su borrado en BBDD.
-     * @param fotoTicket Archivo físico de la imagen preparado para subida multipart (opcional).
-     * @return Result con GastoResponse confirmando el resultado de la operación.
+     * Mutación compleja (Multipart) para actualizar los metadatos y/o el comprobante multimedia de un gasto.
+     * @param idUsuario Identificador único del propietario (RequestBody).
+     * @param idGasto Identificador único (UUID) del registro a modificar.
+     * @param titulo Concepto de la transacción.
+     * @param importe Magnitud financiera actualizada.
+     * @param descripcion Notas adicionales adjuntas al movimiento.
+     * @param fotoActual Referencia en texto de la imagen preexistente para evitar orfandad en el servidor.
+     * @param fotoTicket Carga útil binaria (Archivo de imagen) para sobreescritura (Nullable).
+     * @return Result confirmando el estado de la actualización en el servidor.
      */
     suspend fun editarGastos(
         idUsuario: RequestBody,
@@ -88,10 +84,9 @@ class CalendarioRepository {
         fotoTicket: MultipartBody.Part?
     ): Result<GastoResponse> {
         return try {
-            // Se incluye el parámetro fotoActual en la llamada a Retrofit
-            val response =
-                apiService.editGasto(idUsuario, idGasto, titulo, importe, descripcion, fotoActual, fotoTicket)
-
+            val response = apiService.editGasto(
+                idUsuario, idGasto, titulo, importe, descripcion, fotoActual, fotoTicket
+            )
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
             ConexionUtils.manejarExcepcion(e)
@@ -99,17 +94,14 @@ class CalendarioRepository {
     }
 
     /**
-     * Solicita al servidor la eliminación permanente de un registro de gasto.
-     * @param idGasto Identificador único (UUID) del gasto que se desea borrar.
-     * @return Result con GastoResponse que contiene el mensaje de confirmación del borrado.
-     * La función es 'suspend' para garantizar que la operación de eliminación no
-     * interfiera con el rendimiento de la interfaz de usuario.
+     * Ejecuta una operación destructiva (Soft/Hard Delete) sobre un registro financiero.
+     * @param idUsuario Identificador del propietario para validación de seguridad.
+     * @param idGasto Identificador único (UUID) del movimiento a purgar.
+     * @return Result con el feedback del servidor sobre la eliminación.
      */
     suspend fun deleteGastos(idUsuario: String, idGasto: String): Result<GastoResponse> {
         return try {
-            // Ejecución de la llamada síncrona dentro del contexto de la corrutina
             val response = apiService.deleteGasto(idUsuario, idGasto)
-
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {
             ConexionUtils.manejarExcepcion(e)

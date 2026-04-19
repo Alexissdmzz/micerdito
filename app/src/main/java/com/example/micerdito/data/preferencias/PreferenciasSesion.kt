@@ -3,55 +3,71 @@ package com.example.micerdito.data.preferencias
 import android.content.Context
 
 /**
- * PREFERENCIAS - PreferenciasSesion:
- * Es una clase que almacena los datos del usuario antes de cerrar la app,
- * asi permitiendo que no tenga que repetir todo el proceso siempre.
+ * LOCAL DATA SOURCE - PreferenciasSesion
+ * Clase encargada de gestionar la persistencia de datos ligeros (clave-valor)
+ * en el almacenamiento interno y cifrado del dispositivo.
+ * Actúa como la "Fuente de la Verdad Local" para el estado de la sesión y los ajustes de UI.
  */
-
 class PreferenciasSesion(context: Context) {
 
-    private val sharedPref = context.getSharedPreferences(
-        "MiCerditoPrefs",
-        Context.MODE_PRIVATE
-    ) // Declaramos la variable
+    // Bloque estático de constantes. Centraliza las claves de acceso para evitar
+    // errores tipográficos y facilitar la mantenibilidad del código.
+    companion object {
+        private const val PREFS_NAME = "MiCerditoPrefs"
+        private const val KEY_USER_ID = "userId"
+        private const val KEY_USER_NAME = "nombre_usuario"
+        private const val KEY_IS_LOGGED = "isLogged"
+        private const val KEY_DARK_MODE = "modo_oscuro"
+    }
 
-    // Guardamos los datos de sesión del usuario ya logueado
+    // Instancia privada de SharedPreferences en modo privado (aislado de otras apps)
+    private val sharedPref = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    // ==========================================
+    // GESTIÓN DE ESTADO DE SESIÓN
+    // ==========================================
+
+    /**
+     * Persiste el token/ID y los metadatos del usuario tras una autenticación exitosa.
+     * Utiliza apply() para una escritura asíncrona que no bloquea el Main Thread.
+     */
     fun guardarSesion(id: String, nombre: String) {
         sharedPref.edit().apply {
-            putString("userId", id)
-            putString("nombre_usuario", nombre)
-            putBoolean("isLogged", true)
+            putString(KEY_USER_ID, id)
+            putString(KEY_USER_NAME, nombre)
+            putBoolean(KEY_IS_LOGGED, true)
             apply()
         }
     }
 
-    // Booleano para verificar si el usuario esta logueado
-    fun estaLogueado(): Boolean = sharedPref.getBoolean("isLogged", false)
+    // Verifica la persistencia de la sesión para evitar el flujo de login (Auto-Login)
+    fun estaLogueado(): Boolean = sharedPref.getBoolean(KEY_IS_LOGGED, false)
 
-    // Devuelve el id del usuario previamente almacenado
-    fun getIdUsuario(): String = sharedPref.getString("userId", "") ?: ""
+    // Recupera el UUID del usuario. Devuelve un string vacío como medida de seguridad
+    fun getIdUsuario(): String = sharedPref.getString(KEY_USER_ID, "") ?: ""
 
-    // Delvuelve el nombre del usuario previamente almacenado
-    fun getNombreUsuario(): String = sharedPref.getString("nombre_usuario", "Usuario") ?: "Usuario"
+    // Recupera el nombre de visualización
+    fun getNombreUsuario(): String = sharedPref.getString(KEY_USER_NAME, "Usuario") ?: "Usuario"
 
-    // Inserta un nuevo nombre de usuario
+    // Mutador granular para actualizar el nombre local si se edita el perfil en el servidor
     fun setNombreUsuario(nombre: String) {
-        sharedPref.edit().putString("nombre_usuario", nombre).apply()
+        sharedPref.edit().putString(KEY_USER_NAME, nombre).apply()
     }
 
-    // Limpieza de las preferencias en caso de cerrar sesión
+    // Purga completa del almacenamiento local
     fun limpiarSesion() {
         sharedPref.edit().clear().apply()
     }
 
-    // --- AJUSTES VISUALES ---
+    // ==========================================
+    // AJUSTES DE INTERFAZ (UI/UX)
+    // ==========================================
 
-    // Modo oscuro
+    // Persiste la preferencia de tematización del usuario
     fun setModoOscuro(activado: Boolean) {
-        sharedPref.edit().putBoolean("modo_oscuro", activado).apply()
+        sharedPref.edit().putBoolean(KEY_DARK_MODE, activado).apply()
     }
 
-    // Booleano para verificar si el usuario puso el Modo Oscuro
-    fun esModoOscuro(): Boolean = sharedPref.getBoolean("modo_oscuro", false)
-
+    // Consulta el estado del tema para inyectarlo en la inicialización de la app
+    fun esModoOscuro(): Boolean = sharedPref.getBoolean(KEY_DARK_MODE, false)
 }

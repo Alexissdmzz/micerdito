@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Esto permite poder realizar operaciones con la cámara del móvil -->
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
 
     <uses-permission android:name="android.permission.CAMERA" />
+
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28" />
-    <!-- Esto permite poder operar con la API permitiendo subir y enviar datos -->
+
     <uses-permission android:name="android.permission.INTERNET" />
 
 
@@ -24,6 +24,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MiCerdito"
         android:usesCleartextTraffic="true">
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -33,8 +34,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-        <!-- LOGO -->
 
         <activity
             android:name=".ui.autenticacion.LogoActivity"
@@ -47,33 +46,29 @@
             </intent-filter>
         </activity>
 
-        <!-- WELCOME -->
         <activity
             android:name=".ui.autenticacion.WelcomeActivity"
             android:exported="false" />
 
-        <!-- LOGIN -->
         <activity
             android:name=".ui.autenticacion.LoginActivity"
             android:exported="false"
             android:hardwareAccelerated="true"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden" />
 
-        <!-- REGISTER -->
         <activity
             android:name=".ui.autenticacion.RegisterActivity"
             android:exported="false" />
 
-        <!-- FORGOT PASSWORD -->
         <activity
             android:name=".ui.autenticacion.ForgotPasswordActivity"
             android:exported="false" />
 
-        <!-- HOME -->
         <activity
             android:name=".ui.home.HomeActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustPan" />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />

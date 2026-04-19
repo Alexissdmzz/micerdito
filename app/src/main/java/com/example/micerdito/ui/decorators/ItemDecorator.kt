@@ -5,15 +5,16 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 
 /**
- * DECORADOR - ItemDecorator:
- * Añade espacio entre los elementos de un RecyclerView con GridLayout.
+ * DECORADOR - ItemDecorator
+ * Componente visual encargado de inyectar márgenes y separaciones uniformes
+ * entre los elementos de una lista estructurada en formato de cuadrícula.
  *
- * Se usa principalmente para separar visualmente tarjetas (como categorías)
- * y evitar que queden pegadas entre sí.
+ * Actúa sobre el proceso de dibujado del RecyclerView para garantizar que las tarjetas
+ * mantengan una distancia consistente, mejorando la legibilidad de la interfaz.
  *
- * @param spanCount Número de columnas del grid (Ej: 5 categorías por fila).
- * @param spacing Espacio entre elementos en píxeles (usar dimens.xml).
- * @param includeEdge Indica si también se aplica espacio en los bordes exteriores.
+ * @param spanCount Número de columnas que componen la cuadrícula.
+ * @param spacing Dimensión de la separación entre elementos expresada en píxeles.
+ * @param includeEdge Determina si los márgenes también se aplican a los límites exteriores de la lista.
  */
 class ItemDecorator(
     private val spanCount: Int,
@@ -22,42 +23,36 @@ class ItemDecorator(
 ) : RecyclerView.ItemDecoration() {
 
     /**
-     * Este método se ejecuta para cada item del RecyclerView.
-     * Aquí definimos los márgenes (offsets) alrededor de cada elemento.
+     * Intercepta el cálculo de las dimensiones de cada elemento antes de ser renderizado.
+     * Aplica la distribución matemática para asegurar que todos los elementos y columnas
+     * tengan exactamente el mismo ancho y separación.
      */
     override fun getItemOffsets(
-        outRect: Rect,      // Rectángulo donde se aplican los márgenes del item
-        view: View,         // Vista del item actual
+        outRect: Rect,
+        view: View,
         parent: RecyclerView,
         state: RecyclerView.State
     ) {
-        val position = parent.getChildAdapterPosition(view) // posición del item
-        val column = position % spanCount // columna actual dentro del grid
+        val position = parent.getChildAdapterPosition(view) // Posición del elemento
+        val column = position % spanCount // Columna actual dentro de la cuadrícula
 
         if (includeEdge) {
-            // 👉 Incluye espacio en los bordes exteriores del RecyclerView
-
-            // Margen izquierdo del item
+            // Configuración con márgenes en los límites exteriores de la cuadrícula
             outRect.left = spacing - column * spacing / spanCount
-
-            // Margen derecho del item
             outRect.right = (column + 1) * spacing / spanCount
 
-            // Solo la primera fila tiene margen superior
+            // Aplica margen superior únicamente a los elementos de la primera fila
             if (position < spanCount) {
                 outRect.top = spacing
             }
-
-            // Todos los items tienen margen inferior
             outRect.bottom = spacing
 
         } else {
-            // No incluye espacio en los bordes exteriores
-
+            // Configuración restringida exclusivamente al espacio interno entre elementos
             outRect.left = column * spacing / spanCount
             outRect.right = spacing - (column + 1) * spacing / spanCount
 
-            // Solo las filas que no son la primera tienen margen superior
+            // Aplica margen superior a todas las filas exceptuando la primera
             if (position >= spanCount) {
                 outRect.top = spacing
             }

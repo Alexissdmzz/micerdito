@@ -3,32 +3,43 @@ package com.example.micerdito.data.model.home
 import com.google.gson.annotations.SerializedName
 
 /**
- * MODELO DE DATOS - Gasto:
- * Representa la entidad detallada de un gasto. Esta clase se utiliza para mapear la
- * respuesta JSON del servidor y facilitar la gestión de datos en el Calendario y Home.
+ * DTO (Data Transfer Object) - Entidad Gasto
+ * Modelo de dominio principal que representa una transacción financiera individual.
+ * Se utiliza para mapear la respuesta JSON del servidor y renderizar las listas
+ * (RecyclerViews) en el Dashboard y el Calendario.
  */
 data class Gasto(
+    // Identificador único (UUID) del registro. Se aplica camelCase en Kotlin
+    // mapeándolo contra el snake_case del backend.
     @SerializedName("id_gasto")
-    val id_gasto: String, // Identificador único (UUID) del registro en la base de datos
+    val idGasto: String,
 
+    // Concepto descriptivo o título asignado al movimiento
     @SerializedName("titulo")
-    val titulo: String, // Concepto o nombre breve asignado al gasto
+    val titulo: String,
 
+    // Magnitud financiera de la transacción
     @SerializedName("importe")
-    val importe: Double, // Valor numérico del gasto realizado
+    val importe: Double,
 
+    // Marca temporal (Timestamp) del registro (Formato ISO / YYYY-MM-DD)
     @SerializedName("fecha_gasto")
-    val fecha: String, // Fecha y hora del registro (Formato: YYYY-MM-DD HH:MM:SS)
+    val fecha: String,
 
+    // Notas adicionales. Declarado como Nullable (?) para prevenir NullPointerExceptions
+    // en gastos sin información extendida.
     @SerializedName("descripcion")
-    val descripcion: String?, // Nota adicional o detalle opcional del movimiento
+    val descripcion: String?,
 
+    // Metadato visual para la UI inyectado desde la relación con la tabla Categorías
     @SerializedName("icono_categoria")
-    val icono: String, // Representación visual (Emoji o ID) de la categoría
+    val icono: String,
 
+    // Código hexadecimal de color para la tematización del ítem en la lista
     @SerializedName("color_categoria")
-    val color: String, // Código hexadecimal del color asociado a la categoría
+    val color: String,
 
+    // Referencia física o URL del comprobante multimedia. Nullable (?) si no hay adjunto.
     @SerializedName("foto_ticket")
-    val foto_ticket: String? // Nombre del archivo o ruta de la imagen del comprobante
+    val fotoTicket: String?
 )

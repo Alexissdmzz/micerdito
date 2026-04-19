@@ -4,8 +4,19 @@ import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 
+/**
+ * UTILIDAD - ConexionUtils
+ * Componente transversal de apoyo.
+ * Centraliza la lógica de evaluación de respuestas HTTP y la gestión de excepciones de red,
+ * estandarizando la salida de datos mediante el encapsulamiento en objetos Result.
+ */
 object ConexionUtils {
 
+    /**
+     * Evalúa el código de estado de una transacción HTTP y desempaqueta el contenido.
+     * * @param response Objeto contenedor de la respuesta de la capa de red.
+     * @return Result con el tipo de dato genérico o una excepción con un mensaje descriptivo.
+     */
     fun <T> procesarRespuesta(response: Response<T>): Result<T> {
         return try {
             if (response.isSuccessful) {
@@ -32,6 +43,12 @@ object ConexionUtils {
         }
     }
 
+    /**
+     * Intercepta errores a nivel de conectividad o hardware y los traduce
+     * a mensajes comprensibles para el usuario final.
+     * * @param e Excepción capturada durante la petición de red.
+     * @return Result tipado como fallo.
+     */
     fun manejarExcepcion(e: Exception): Result<Nothing> {
         return when (e) {
             is SocketTimeoutException ->

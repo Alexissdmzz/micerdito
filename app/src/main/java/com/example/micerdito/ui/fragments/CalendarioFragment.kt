@@ -26,6 +26,7 @@ import com.example.micerdito.data.model.home.ResumenCategoria
 import com.example.micerdito.ui.adapters.GastoAdapter
 import com.example.micerdito.ui.decorators.EventDecorator
 import com.example.micerdito.ui.handlers.CameraHandler
+import com.example.micerdito.utils.ValidationUtils
 import com.example.micerdito.viewmodel.home.CalendarioViewModel
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.PieChart
@@ -47,12 +48,12 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 import java.io.FileOutputStream
-import com.example.micerdito.utils.parsePositiveAmount
 
 /**
- * FRAGMENTO - CalendarioFragment:
- * Gestiona la visualización de actividad financiera mensual y diaria.
- * Permite la consulta, edición y eliminación de registros de gastos y sus comprobantes.
+ * FRAGMENTO - CalendarioFragment
+ * Controlador encargado de la representación temporal de la actividad financiera.
+ * Gestiona el calendario interactivo, la gráfica de desglose mensual y el panel
+ * de edición detallada de transacciones, incluyendo captura multimedia.
  */
 class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
@@ -71,7 +72,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
     private var borrarFotoPendiente = false
 
     /**
-     * Gestiona la captura de fotografía mediante la cámara y actualiza la vista previa.
+     * Componente nativo para gestionar la respuesta de la aplicación de cámara.
      */
     private val cameraLauncher =
         registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
@@ -84,7 +85,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         }
 
     /**
-     * Gestiona la selección de imagen en galería y actualiza la vista previa en el diálogo.
+     * Componente nativo para gestionar la selección de archivos desde el almacenamiento local.
      */
     private val pickImageLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -92,7 +93,8 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         }
 
     /**
-     * Actualiza el ImageView del diálogo y configura el clic para ver la imagen a pantalla completa.
+     * Actualiza la vista previa del comprobante en el panel de edición
+     * y habilita la visualización a pantalla completa.
      */
     private fun actualizarImagenEnDialogo(uri: Uri) {
         uriImagenSeleccionada = uri
@@ -133,8 +135,8 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
     }
 
     /**
-     * CONFIGURACIÓN DE OBSERVADORES:
-     * Reacciona a los resultados de las peticiones de red del calendario y gastos.
+     * Implementa el patrón Observer para mantener sincronizada la UI con
+     * el estado de la base de datos (eventos, listados y gráficas).
      */
     private fun setupObservers(
         cv: MaterialCalendarView,
@@ -151,9 +153,9 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                 val colorAzul = ContextCompat.getColor(requireContext(), R.color.accent_blue)
                 val colorRojo = ContextCompat.getColor(requireContext(), R.color.error_red)
 
-                if (!data.fecha_registro.isNullOrEmpty()) {
+                if (!data.fechaRegistro.isNullOrEmpty()) {
                     try {
-                        val partes = data.fecha_registro.split(" ")[0].split("-")
+                        val partes = data.fechaRegistro.split(" ")[0].split("-")
                         val diaReg = CalendarDay.from(
                             partes[0].toInt(),
                             partes[1].toInt(),
@@ -170,17 +172,17 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                     }
                 }
 
-                if (data.dias_con_gastos.isNotEmpty()) {
-                    val diasConGastos = data.dias_con_gastos.map {
+                if (data.diasConGastos.isNotEmpty()) {
+                    val diasConGastos = data.diasConGastos.map {
                         CalendarDay.from(cv.currentDate.year, cv.currentDate.month, it)
                     }.filter { it != diaRegLocal }
                     decoradores.add(EventDecorator(colorRojo, diasConGastos))
                 }
                 cv.addDecorators(decoradores)
 
-                if (data.resumen_grafico.isNotEmpty()) {
+                if (data.resumenGrafico.isNotEmpty()) {
                     pc.visibility = View.VISIBLE
-                    actualizarGrafico(pc, data.resumen_grafico)
+                    actualizarGrafico(pc, data.resumenGrafico)
                 } else pc.visibility = View.GONE
             }
         }
@@ -220,10 +222,6 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         }
     }
 
-    /**
-     * CONFIGURACIÓN DE INTERACCIONES:
-     * Eventos de cambio de mes, selección de fecha y clics en elementos de la lista.
-     */
     private fun setupListeners(cv: MaterialCalendarView, pc: PieChart) {
         cv.setOnMonthChangedListener { _, date ->
             if (date.month == ultimoMesPedido && date.year == ultimoAnioPedido) return@setOnMonthChangedListener
@@ -239,8 +237,8 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
     }
 
     /**
-     * DIÁLOGOS Y GESTIÓN DE GASTOS:
-     * Muestra el detalle del gasto en un BottomSheet y gestiona la edición/borrado.
+     * Despliega un panel inferior interactivo que permite visualizar y alterar
+     * los detalles de un movimiento financiero preexistente.
      */
     private fun mostrarBottomSheetDetalle(gasto: Gasto) {
         uriImagenSeleccionada = null
@@ -259,25 +257,25 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
         ivTicketEdicion = ivTicket
         etTitulo.setText(gasto.titulo)
-        etImporte.setText(gasto.importe.toString())
+        etImporte.setText(String.format(java.util.Locale.US, "%.2f", gasto.importe))
         etDescripcion.setText(gasto.descripcion ?: "")
 
-        if (!gasto.foto_ticket.isNullOrEmpty()) {
-            // //CAMBIO RECOMENDADO: Detectamos si ya es una URL completa
-            val urlFinal = if (gasto.foto_ticket.startsWith("http")) {
-                gasto.foto_ticket // Usamos la que viene del PHP tal cual
+        if (!gasto.fotoTicket.isNullOrEmpty()) {
+            // Verificación del formato de la URL (Absoluta vs Relativa)
+            val urlFinal = if (gasto.fotoTicket.startsWith("http")) {
+                gasto.fotoTicket
             } else {
-                URL_BASE_IMAGENES + gasto.foto_ticket // Por si acaso quedara algún registro viejo
+                URL_BASE_IMAGENES + gasto.fotoTicket
             }
 
             Glide.with(requireContext())
-                .load(urlFinal) // <--- Usamos urlFinal
+                .load(urlFinal)
                 .signature(ObjectKey(System.currentTimeMillis()))
                 .error(R.drawable.ic_sin_foto)
                 .into(ivTicket)
 
             btnEliminarFoto.visibility = View.VISIBLE
-            ivTicket.setOnClickListener { mostrarFotoGrande(urlFinal) } // <--- Aquí también
+            ivTicket.setOnClickListener { mostrarFotoGrande(urlFinal) }
         } else {
             ivTicket.setImageResource(R.drawable.ic_sin_foto)
             btnEliminarFoto.visibility = View.GONE
@@ -308,7 +306,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                 .setTitle("¿Eliminar gasto?")
                 .setMessage("Esta acción no se puede deshacer.")
                 .setPositiveButton("Eliminar") { _, _ ->
-                    viewModel.eliminarGasto(gasto.id_gasto)
+                    viewModel.eliminarGasto(gasto.idGasto)
                     dialog.dismiss()
                 }
                 .setNegativeButton("Cancelar", null).show()
@@ -331,13 +329,12 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                 return@setOnClickListener
             }
 
-            val nImporte = parsePositiveAmount(nImporteTexto)
+            val nImporte = ValidationUtils.parsePositiveAmount(nImporteTexto)
             if (nImporte == null) {
                 etImporte.error = "Introduce un importe válido mayor que 0"
                 etImporte.requestFocus()
                 return@setOnClickListener
             }
-
 
             var fotoPart: MultipartBody.Part? = null
             uriImagenSeleccionada?.let { uri ->
@@ -350,16 +347,11 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             val fotoActualParam = when {
                 uriImagenSeleccionada != null -> ""
                 borrarFotoPendiente -> ""
-                else -> gasto.foto_ticket ?: ""
+                else -> gasto.fotoTicket ?: ""
             }
 
             viewModel.editarGasto(
-                gasto.id_gasto,
-                nTitulo,
-                nImporte,
-                nDesc,
-                fotoActualParam,
-                fotoPart
+                gasto.idGasto, nTitulo, nImporte, nDesc, fotoActualParam, fotoPart
             )
             dialog.dismiss()
         }
@@ -369,8 +361,8 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
     }
 
     /**
-     * VISUALIZACIÓN MULTIMEDIA:
-     * Genera un diálogo a pantalla completa para visualizar el ticket ampliado.
+     * Genera una superposición de pantalla completa para visualizar
+     * el comprobante multimedia sin restricciones de tamaño.
      */
     private fun mostrarFotoGrande(origen: Any) {
         val dialog =
@@ -410,10 +402,6 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         dialog.show()
     }
 
-    /**
-     * UTILIDADES:
-     * Procesamiento de URIs y generación del gráfico circular.
-     */
     private fun obtenerFileDesdeUri(context: Context, uri: Uri): File? {
         return try {
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
@@ -428,6 +416,10 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         }
     }
 
+    /**
+     * Configura el motor de renderizado de la gráfica de tipo pastel.
+     * Incorpora formato de precisión de dos decimales para los importes.
+     */
     private fun actualizarGrafico(pc: PieChart, lista: List<ResumenCategoria>) {
         val entradas = lista.map { PieEntry(it.total.toFloat(), it.nombre) }
         val colores = lista.map {
@@ -469,7 +461,8 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
             setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
                 override fun onValueSelected(e: Entry?, h: Highlight?) {
-                    centerText = "${(e as PieEntry).label}\n${e.value} €"
+                    // Formateo estricto a dos decimales para la visualización central de la gráfica
+                    centerText = "${(e as PieEntry).label}\n${String.format("%.2f", e.value)} €"
                     setCenterTextColor(colorTexto)
                 }
 

@@ -10,18 +10,17 @@ import com.example.micerdito.R
 import com.example.micerdito.data.model.home.Gasto
 
 /**
- * ADAPTADOR - MovimientosAdapter:
- * Gestiona la representación de la lista de gastos recientes en el Dashboard principal.
- * Se encarga de transformar los objetos [Gasto] en componentes visuales dinámicos,
- * aplicando reglas de estilo y formato monetario.
+ * ADAPTADOR - MovimientosAdapter
+ * Gestiona la representación visual del historial de transacciones recientes.
+ * Actúa como enlace entre la colección de datos financieros y el componente de vista.
  */
 class MovimientosAdapter(private val lista: List<Gasto>) :
     RecyclerView.Adapter<MovimientosAdapter.ViewHolder>() {
 
     /**
-     * VIEW HOLDER:
-     * Almacena las referencias a los elementos del layout 'item_gastos' para optimizar
-     * el rendimiento del scroll mediante la reutilización de memoria.
+     * PATRÓN VIEW HOLDER
+     * Almacena las referencias de los elementos visuales en memoria para optimizar
+     * el costo computacional durante el desplazamiento de la interfaz.
      */
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvIcono: TextView = view.findViewById(R.id.tvIconoCategoria)
@@ -30,6 +29,9 @@ class MovimientosAdapter(private val lista: List<Gasto>) :
         val tvMonto: TextView = view.findViewById(R.id.tvMontoGasto)
     }
 
+    /**
+     * Genera la estructura visual base a partir del diseño XML correspondiente.
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_gastos, parent, false)
@@ -37,27 +39,22 @@ class MovimientosAdapter(private val lista: List<Gasto>) :
     }
 
     /**
-     * LÓGICA DE REPRESENTACIÓN:
-     * Inyecta los datos del modelo en la UI y aplica reglas de negocio visuales,
-     * como el formateo de decimales y la asignación de colores por tipo de movimiento.
+     * Vincula la entidad de dominio con los componentes de la interfaz.
+     * Aplica reglas de formato tipográfico y estilos semánticos.
      */
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val gasto = lista[position]
 
-        // Enlace de datos descriptivos
+        // Asignación de atributos base al contenedor visual
         holder.tvIcono.text = gasto.icono
         holder.tvDescripcion.text = gasto.titulo
         holder.tvFecha.text = gasto.fecha
 
-        // Formateo de precisión monetaria a dos decimales y adición de símbolo local
-        val montoTexto = "-${String.format("%.2f", gasto.importe)}€"
+        // Aplicación de máscara de formato monetario
+        val montoTexto = "-${String.format("%.2f", gasto.importe)} €"
         holder.tvMonto.text = montoTexto
 
-        /**
-         * FEEDBACK VISUAL SEMÁNTICO:
-         * Aplicación de un color identificativo para enfatizar que el registro
-         * corresponde a una salida de capital (Gasto).
-         */
+        // Inyección de color semántico para enfatizar la salida de capital
         holder.tvMonto.setTextColor(
             ContextCompat.getColor(
                 holder.itemView.context,
@@ -67,8 +64,7 @@ class MovimientosAdapter(private val lista: List<Gasto>) :
     }
 
     /**
-     * CARDINALIDAD:
-     * Define el volumen de registros a renderizar en el flujo del Dashboard.
+     * Calcula la cardinalidad de la colección de datos actual.
      */
     override fun getItemCount(): Int = lista.size
 }

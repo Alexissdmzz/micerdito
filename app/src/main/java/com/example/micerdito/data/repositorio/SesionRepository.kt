@@ -4,63 +4,71 @@ import android.content.Context
 import com.example.micerdito.data.preferencias.PreferenciasSesion
 
 /**
- * REPOSITORIO - SesionRepository
- * Este repositorio gestiona el estado local de la aplicación. Actúa como un envoltorio (wrapper)
- * sobre SharedPreferences, permitiendo que el resto de la app acceda a datos de sesión
- * y configuración sin conocer los detalles de implementación del almacenamiento de Android.
+ * PATRÓN REPOSITORIO - SesionRepository
+ * Actúa como una Fachada (Facade Pattern) sobre la fuente de datos local (Local Data Source).
+ * Aísla a la capa de presentación (ViewModels) de las dependencias nativas del framework
+ * de Android (Context, SharedPreferences), garantizando que la lógica de negocio permanezca pura.
  */
-
 class SesionRepository(context: Context) {
 
-    // Instancia de la clase auxiliar que maneja el archivo físico de SharedPreferences
+    // Instancia de la fuente de la verdad local
     private val preferenciasSesion = PreferenciasSesion(context)
 
+    // ==========================================
+    // ESTADO DE IDENTIDAD Y ACCESO
+    // ==========================================
+
     /**
-     * Verifica si existe una sesión activa en el dispositivo.
+     * Consulta síncrona del estado de autenticación para resolución de enrutamiento (ej. Splash -> Home/Login).
      */
     fun estaLogueado(): Boolean = preferenciasSesion.estaLogueado()
 
     /**
-     * Recupera el UUID del usuario almacenado localmente.
+     * Recupera el identificador único (UUID) en memoria caché para la firma de peticiones de red.
      */
     fun getIdUsuario(): String = preferenciasSesion.getIdUsuario()
 
     /**
-     * Obtiene el nombre del usuario para mostrarlo en la UI (Home/Ajustes).
+     * Extrae el nombre de visualización (Display Name) cacheado para renderizado inmediato en UI.
      */
     fun getNombreUsuario(): String = preferenciasSesion.getNombreUsuario()
 
     /**
-     * Persiste los datos básicos tras un login o registro exitoso.
-     * @param idUsuario UUID proveniente del servidor.
-     * @param nombreUsuario Nombre del perfil.
+     * Persiste el token de sesión y metadatos tras una validación exitosa contra el servidor.
+     * @param idUsuario UUID inmutable.
+     * @param nombreUsuario Nombre de perfil.
      */
     fun guardarSesion(idUsuario: String, nombreUsuario: String) {
         preferenciasSesion.guardarSesion(idUsuario, nombreUsuario)
     }
 
     /**
-     * Sincroniza el nombre de usuario local tras una edición de perfil exitosa en el servidor.
+     * Sincroniza la caché local tras una mutación de perfil exitosa en la base de datos remota.
      */
     fun actualizarNombre(nuevoNombreUsuario: String) {
         preferenciasSesion.setNombreUsuario(nuevoNombreUsuario)
     }
 
     /**
-     * Elimina todos los datos de sesión (Logout), forzando el retorno a la pantalla de Login.
+     * Invalida el estado de autenticación (Logout) y purga los datos locales por motivos de seguridad.
      */
     fun cerrarSesion() {
         preferenciasSesion.limpiarSesion()
     }
 
+    // ==========================================
+    // PREFERENCIAS DE ENTORNO
+    // ==========================================
+
     /**
-     * GESTIÓN DE CONFIGURACIÓN Y ACCESIBILIDAD:
-     * Métodos para leer y escribir el estado del modo oscuro.
+     * Consulta la tematización (Theme) preferida por el usuario.
      */
     fun esModoOscuro(): Boolean = preferenciasSesion.esModoOscuro()
 
+    /**
+     * Persiste un cambio de tematización para aplicarlo globalmente en la aplicación.
+     */
     fun setModoOscuro(valor: Boolean) {
         preferenciasSesion.setModoOscuro(valor)
     }
-
 }

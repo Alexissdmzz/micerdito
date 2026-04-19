@@ -15,45 +15,46 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
- * VIEWMODEL - CalendarioViewModel:
- * Gestiona la lógica de la pantalla de Calendario. Obtiene y enseña todos
- * los movimientos realizados por el usuario filtrandolo por meses.
+ * VIEWMODEL - CalendarioViewModel
+ * Gestiona la lógica de negocio de la pantalla de Calendario. Coordina la obtención de
+ * la actividad financiera agrupada por meses y el desglose diario de transacciones,
+ * además de orquestar las operaciones de edición y borrado de registros.
  */
 class CalendarioViewModel(application: Application) : AndroidViewModel(application) {
 
-    // Repositorios para separar la persistencia remota de la local
+    // Instancias de los orígenes de datos: remoto y local
     private val repository = CalendarioRepository()
     private val sesionRepository = SesionRepository(application)
 
-    // Datos del calendario (Puntos, fecha registro y gráfico)
+    // Datos agregados del calendario (marcadores visuales, fecha de registro y gráfica)
     private val _calendarioData = MutableLiveData<CalendarioResponse?>()
     val calendarioData: LiveData<CalendarioResponse?> get() = _calendarioData
 
-    // Datos para la lista de gastos diarios (RecyclerView)
-    // Usamos GastoResponse porque es lo que devuelve obtenerGastosPorDia
+    // Colección de transacciones para un día específico
     private val _gastosDelDia = MutableLiveData<GastoResponse?>()
     val gastosDelDia: LiveData<GastoResponse?> get() = _gastosDelDia
 
-    // Resultado de operaciones de escritura (Editar/Borrar un gasto)
+    // Confirmación de estado tras operaciones de mutación (Edición/Borrado)
     private val _accionGastoResult = MutableLiveData<GastoResponse?>()
     val accionGastoResult: LiveData<GastoResponse?> get() = _accionGastoResult
 
-    // Estado de error para mostrar Toasts o mensajes en la UI
+    // Canal de propagación de errores hacia la capa de presentación
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> get() = _error
 
-    // Estado de carga (Loading)
+    // Indicador de estado de carga asíncrona
     private val _cargando = MutableLiveData<Boolean>()
     val cargando: LiveData<Boolean> get() = _cargando
 
     /**
-     * Solicita al repositorio los datos necesarios para pintar el calendario y el gráfico.
+     * OPERACIÓN: Consulta mensual.
+     * Solicita al repositorio el agregado de datos necesarios para pintar el calendario
+     * interactivo y el gráfico circular de un mes específico.
      * @param mes Número del mes a consultar.
      * @param anio Año a consultar.
-     * Utiliza el ID del usuario almacenado en la sesión local de forma automática.
      */
     fun obtenerDataCalendario(mes: Int, anio: Int) {
-        val idUsuario = sesionRepository.getIdUsuario() ?: ""
+        val idUsuario = sesionRepository.getIdUsuario()
 
         if (idUsuario.isEmpty()) {
             _error.value = "Sesión no válida"
@@ -63,15 +64,12 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         _cargando.value = true
 
         viewModelScope.launch {
-            // Ejecución de la llamada al repositorio dentro de la corrutina
             val result = repository.obtenerDatosCalendario(idUsuario, mes, anio)
 
             result.onSuccess { data ->
-                // Encapsulamos la respuesta completa
                 _calendarioData.value = data
                 _cargando.value = false
             }.onFailure { e ->
-                // Manejo de errores de red o servidor
                 _error.value = "Error al cargar el calendario: ${e.message}"
                 _cargando.value = false
             }
@@ -79,15 +77,15 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     /**
-     * Gestiona la petición de gastos detallados para un día específico seleccionado en el calendario.
-     * Recupera el ID del usuario de la sesión activa y actualiza los estados de carga,
-     * error y datos para que la interfaz reaccione en consecuencia.
-     * @param anio Año del día seleccionado.
-     * @param mes Mes del día seleccionado (1-12).
-     * @param dia Día específico del mes.
+     * OPERACIÓN: Consulta diaria.
+     * Gestiona la extracción del desglose de transacciones para un día concreto
+     * seleccionado en la interfaz del calendario.
+     * @param anio Año de la fecha seleccionada.
+     * @param mes Mes de la fecha seleccionada.
+     * @param dia Día exacto a consultar.
      */
     fun obtenerGastosDia(anio: Int, mes: Int, dia: Int) {
-        val idUsuario = sesionRepository.getIdUsuario() ?: ""
+        val idUsuario = sesionRepository.getIdUsuario()
 
         if (idUsuario.isEmpty()) {
             _error.value = "Sesión no válida"
@@ -97,15 +95,12 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         _cargando.value = true
 
         viewModelScope.launch {
-            // Ejecución de la llamada al repositorio dentro de la corrutina
             val result = repository.obtenerGastosPorDia(idUsuario, anio, mes, dia)
 
             result.onSuccess { data ->
-                // Encapsulamos la respuesta completa
                 _gastosDelDia.value = data
                 _cargando.value = false
             }.onFailure { e ->
-                // Manejo de errores de red o servidor
                 _error.value = "Error al cargar los gastos del día: ${e.message}"
                 _cargando.value = false
             }
@@ -113,14 +108,9 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     /**
-     * Envía la solicitud al repositorio para actualizar los detalles de un gasto existente.
-     * Realiza la conversión de datos a formato Multipart para permitir el envío de archivos.
-     * @param idGasto Identificador único (UUID) del gasto a editar.
-     * @param titulo Nuevo nombre o concepto del gasto.
-     * @param importe Valor numérico actualizado del gasto.
-     * @param descripcion Nota detallada o aclaración adicional.
-     * @param fotoActual Nombre del archivo de imagen que ya existe en la BBDD (respaldo).
-     * @param fotoPart Parte del formulario que contiene el archivo físico de la imagen (opcional).
+     * OPERACIÓN: Edición de transacción.
+     * Orquesta la transformación de los datos primitivos a empaquetados MIME (Multipart)
+     * para posibilitar la subida conjunta de texto y binarios multimedia hacia el servidor.
      */
     fun editarGasto(
         idGasto: String,
@@ -132,25 +122,24 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     ) {
         _cargando.value = true
 
-        val idUsuario = sesionRepository.getIdUsuario() ?: ""
+        val idUsuario = sesionRepository.getIdUsuario()
 
         if (idUsuario.isEmpty()) {
             _error.value = "Sesión no válida"
             return
         }
 
-        // Conversión de tipos primitivos a RequestBody para el envío Multipart
+        // Conversión de tipos de dominio a RequestBody estandarizado para red
         val idUsuarioBody = idUsuario.toRequestBody("text/plain".toMediaTypeOrNull())
         val idBody = idGasto.toRequestBody("text/plain".toMediaTypeOrNull())
         val tituloBody = titulo.toRequestBody("text/plain".toMediaTypeOrNull())
         val importeBody = importe.toString().toRequestBody("text/plain".toMediaTypeOrNull())
         val descBody = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
 
-        // Conversión del respaldo de la foto actual para evitar que se borre si no se sube una nueva
+        // Respaldo de la ruta preexistente para evitar orfandad de imágenes en servidor
         val fotoActualBody = fotoActual.toRequestBody("text/plain".toMediaTypeOrNull())
 
         viewModelScope.launch {
-            // Ejecución de la llamada al repositorio con los datos convertidos, incluyendo la foto actual
             val result = repository.editarGastos(
                 idUsuarioBody,
                 idBody,
@@ -172,14 +161,13 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     /**
-     * Solicita al repositorio la eliminación permanente de un gasto mediante su identificador.
-     * Emite el resultado en accionGastoResult para que la vista pueda confirmar el borrado.
-     * @param idGasto Identificador único (UUID) del gasto a borrar.
+     * OPERACIÓN: Borrado de transacción.
+     * Solicita la eliminación permanente del registro financiero en la base de datos remota.
      */
     fun eliminarGasto(idGasto: String) {
         _cargando.value = true
 
-        val idUsuario = sesionRepository.getIdUsuario() ?: ""
+        val idUsuario = sesionRepository.getIdUsuario()
 
         if (idUsuario.isEmpty()) {
             _error.value = "Sesión no válida"
@@ -187,15 +175,12 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         }
 
         viewModelScope.launch {
-            // Ejecución de la llamada al repositorio dentro de la corrutina
             val result = repository.deleteGastos(idUsuario, idGasto)
 
             result.onSuccess { data ->
-                // Encapsulamos la respuesta exitosa del servidor
                 _accionGastoResult.value = data
                 _cargando.value = false
             }.onFailure { e ->
-                // Manejo de errores de red o servidor
                 _error.value = "Error al eliminar el gasto: ${e.message}"
                 _cargando.value = false
             }
@@ -203,15 +188,15 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     /**
-     * Limpia el estado de error después de ser mostrado en la vista.
+     * Mantenimiento de estado: Purga los mensajes de error tras ser consumidos por la vista.
      */
     fun resetError() {
         _error.value = ""
     }
 
     /**
-     * Limpia el resultado de la última acción (editar/borrar) para evitar
-     * que los observadores se disparen repetidamente (ej. al rotar la pantalla).
+     * Mantenimiento de estado: Limpia el resultado de la última acción (editar/borrar) para evitar
+     * que la interfaz procese el evento de éxito múltiples veces (ej. al rotar la pantalla).
      */
     fun resetAccionGastoResult() {
         _accionGastoResult.value = null

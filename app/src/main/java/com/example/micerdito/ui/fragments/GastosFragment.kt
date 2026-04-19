@@ -18,7 +18,7 @@ import com.example.micerdito.R
 import com.example.micerdito.ui.adapters.CategoriaAdapter
 import com.example.micerdito.ui.decorators.ItemDecorator
 import com.example.micerdito.ui.handlers.CameraHandler
-import com.example.micerdito.utils.parsePositiveAmount
+import com.example.micerdito.utils.ValidationUtils
 import com.example.micerdito.viewmodel.home.GastosViewModel
 import com.google.android.material.card.MaterialCardView
 import java.io.File
@@ -29,33 +29,33 @@ import java.util.Calendar
 import java.util.Locale
 
 /**
- * FRAGMENTO - GastosFragment:
- * Gestiona la interfaz para la creación de nuevos registros de gastos.
- * Utiliza un diseño de cuadrícula para la selección de categorías y un formulario
- * emergente para la introducción de datos monetarios.
+ * FRAGMENTO - GastosFragment
+ * Interfaz dedicada al registro de nuevas transacciones.
+ * Integra un sistema de selección visual mediante cuadrícula, captura multimedia
+ * para comprobantes y validación estricta de datos financieros.
  */
 class GastosFragment : Fragment(R.layout.fragment_gastos) {
 
-    // Inicialización del ViewModel
+    // Conexión con el ViewModel para gestionar la lógica de negocio
     private val viewModel: GastosViewModel by viewModels()
 
-    // Módulo de cámara
+    // Gestor de hardware para la captura de imágenes
     private lateinit var cameraHandler: CameraHandler
     private var fotoUri: Uri? = null
 
-    // Ruta final de la imagen seleccionada o capturada
+    // Referencia absoluta de la imagen seleccionada en el almacenamiento local
     private var fotoRuta: String? = null
 
-    // Fecha seleccionada por el usuario para registrar el gasto
+    // Estado temporal de la fecha seleccionada para la transacción
     private val calendarioSeleccionado: Calendar = Calendar.getInstance()
 
     /**
-     * Launcher para la captura de imagen con cámara.
-     * Si la operación es exitosa, se guarda la ruta y se muestra la previsualización.
+     * Componente nativo para gestionar la captura de fotografías.
+     * Vincula el resultado de la cámara con la vista previa de la interfaz.
      */
     private val camaraLauncher =
-        registerForActivityResult(ActivityResultContracts.TakePicture()) { exito ->
-            if (exito) {
+        registerForActivityResult(ActivityResultContracts.TakePicture()) { isSuccess ->
+            if (isSuccess) {
                 fotoRuta = cameraHandler.rutaFotoActual
                 val ivFoto = view?.findViewById<ImageView>(R.id.ivFotoTicket)
                 ivFoto?.setImageURI(fotoUri)
@@ -64,8 +64,8 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         }
 
     /**
-     * Launcher para seleccionar una imagen desde galería.
-     * La imagen se copia a almacenamiento interno para poder trabajar con una ruta local.
+     * Componente nativo para la selección de archivos del sistema.
+     * Garantiza el acceso seguro copiando el archivo al espacio privado de la aplicación.
      */
     private val galeriaLauncher =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uriSeleccionada ->
@@ -80,7 +80,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
                 } else {
                     Toast.makeText(
                         requireContext(),
-                        "No se pudo cargar la imagen",
+                        "Error al procesar la imagen",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -88,7 +88,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         }
 
     /**
-     * Launcher para solicitar el permiso de cámara dinámicamente.
+     * Componente nativo para solicitar permisos de hardware en tiempo de ejecución.
      */
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -96,7 +96,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         if (isGranted) {
             abrirCamaraConSeguridad()
         } else {
-            Toast.makeText(requireContext(), "Permiso de cámara denegado", Toast.LENGTH_SHORT)
+            Toast.makeText(requireContext(), "Se requiere acceso a la cámara", Toast.LENGTH_SHORT)
                 .show()
         }
     }
@@ -104,10 +104,9 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Inicializamos el gestor de cámara
         cameraHandler = CameraHandler(requireContext())
 
-        // Inicialización de componentes de la vista
+        // Vinculación de los componentes de la vista
         val rvCategorias = view.findViewById<RecyclerView>(R.id.rvCategorias)
         val cardDetalles = view.findViewById<MaterialCardView>(R.id.cardDetallesGasto)
         val btnCerrar = view.findViewById<ImageButton>(R.id.btnCerrarFormulario)
@@ -119,21 +118,15 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         val btnCamara = view.findViewById<Button>(R.id.btnSubirFactura)
         val ivFoto = view.findViewById<ImageView>(R.id.ivFotoTicket)
 
-        // Configuración básica del RecyclerView
+        // Configuración de la cuadrícula de categorías
         rvCategorias.layoutManager = GridLayoutManager(requireContext(), 4)
-
         if (rvCategorias.itemDecorationCount == 0) {
             val spacing = resources.getDimensionPixelSize(R.dimen.categoria_spacing)
             rvCategorias.addItemDecoration(ItemDecorator(4, spacing, true))
         }
 
-        // Configuración de observadores para reaccionar a cambios en el ViewModel
         setupObservers(rvCategorias, cardDetalles, etImporte, etDescripcion, ivFoto)
-
-        // Inicializa el selector visual con la fecha actual
         actualizarTextoFecha(btnFechaGasto)
-
-        // Configuración de interacciones
         setupListeners(
             btnCerrar,
             btnCamara,
@@ -146,7 +139,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
     }
 
     /**
-     * Observadores de estado: Reaccionan a los cambios en el flujo de datos.
+     * Implementa el patrón Observer para reaccionar a la lógica de selección y guardado.
      */
     private fun setupObservers(
         rvCategorias: RecyclerView,
@@ -155,19 +148,15 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         etDescripcion: EditText,
         ivFoto: ImageView
     ) {
-        // Carga la lista de categorías obtenidas desde la base de datos MySQL
+
+        // Pinta el catálogo de categorías disponibles
         viewModel.categorias.observe(viewLifecycleOwner) { lista ->
             rvCategorias.adapter = CategoriaAdapter(lista) { cat ->
-                // Acción al pulsar una categoría: se marca como seleccionada en el ViewModel
                 viewModel.seleccionarCategoria(cat)
             }
         }
 
-        /**
-         * LÓGICA DE VISIBILIDAD DINÁMICA:
-         * Si hay una categoría seleccionada, se muestra el formulario de importe.
-         * Si es nula, se oculta el formulario y se limpian los campos (Reset).
-         */
+        // Control dinámico de la visibilidad del formulario secundario
         viewModel.categoriaSeleccionada.observe(viewLifecycleOwner) { cat ->
             if (cat != null) {
                 cardDetalles.visibility = View.VISIBLE
@@ -179,19 +168,20 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
             }
         }
 
-        // Reacción al éxito de la inserción en el servidor PHP
+        // Gestión de la respuesta del servidor tras enviar la transacción
         viewModel.registroExitoso.observe(viewLifecycleOwner) { exito ->
             if (exito) {
-                Toast.makeText(requireContext(), "¡Gasto guardado! 🐷", Toast.LENGTH_SHORT).show()
-                viewModel.seleccionarCategoria(null) // Cerramos el formulario
-                viewModel.resetRegistroEstado() // Limpiamos el estado en el ViewModel para evitar duplicados
-
-                // IMPORTANTE: Aquí podrías añadir una navegación al Home
-                // o dejar que el usuario siga metiendo gastos.
+                Toast.makeText(
+                    requireContext(),
+                    "Gasto registrado correctamente",
+                    Toast.LENGTH_SHORT
+                ).show()
+                viewModel.seleccionarCategoria(null)
+                viewModel.resetRegistroEstado()
             }
         }
 
-        // Gestión de mensajes de error de red o validación del servidor
+        // Captura y exposición de errores de red o validación
         viewModel.error.observe(viewLifecycleOwner) { mensaje ->
             if (!mensaje.isNullOrEmpty()) {
                 Toast.makeText(requireContext(), mensaje, Toast.LENGTH_LONG).show()
@@ -200,7 +190,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
     }
 
     /**
-     * Configuración de interacciones del usuario.
+     * Configuración del enrutamiento de eventos generados por el usuario.
      */
     private fun setupListeners(
         btnCerrar: ImageButton,
@@ -211,32 +201,27 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         etDescripcion: EditText,
         btnFechaGasto: Button
     ) {
-        // Botón para cancelar la operación y ocultar el formulario
+
         btnCerrar.setOnClickListener {
             viewModel.seleccionarCategoria(null)
         }
 
-        // ACCIÓN: Mostrar selector con cámara o galería
         btnCamara.setOnClickListener {
             mostrarOpcionesImagen()
         }
 
-        // ACCIÓN: Abrir selector de fecha para el gasto
         btnFechaGasto.setOnClickListener {
             mostrarDatePicker(btnFechaGasto)
         }
 
-        /**
-         * Envío del gasto:
-         * Valida el importe y formatea la fecha seleccionada antes de llamar al ViewModel.
-         */
+        // Proceso de validación local y envío de la carga útil al servidor
         btnGuardarGasto.setOnClickListener {
             val importeStr = etImporte.text.toString().trim()
             val tituloGasto = etTitulo.text.toString().trim()
             val descripcion = etDescripcion.text.toString().trim()
 
             if (tituloGasto.isEmpty()) {
-                etTitulo.error = "Introduce un título"
+                etTitulo.error = "Introduce un concepto"
                 etTitulo.requestFocus()
                 return@setOnClickListener
             }
@@ -247,14 +232,14 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
                 return@setOnClickListener
             }
 
-            val importe = parsePositiveAmount(importeStr)
+            val importe = ValidationUtils.parsePositiveAmount(importeStr)
             if (importe == null) {
                 etImporte.error = "Introduce un importe válido mayor que 0"
                 etImporte.requestFocus()
                 return@setOnClickListener
             }
 
-            // Formateo de fecha estándar ISO para compatibilidad con MySQL (DATETIME)
+            // Adaptación de la fecha al formato estándar ISO requerido por la base de datos
             val fechaSeleccionada = SimpleDateFormat(
                 "yyyy-MM-dd HH:mm:ss",
                 Locale.getDefault()
@@ -267,16 +252,14 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
                 descripcion = if (descripcion.isEmpty()) null else descripcion,
                 fotoRuta = fotoRuta
             )
-
         }
     }
 
     /**
-     * Gestión de permisos de cámara para evitar SecurityException.
+     * Evalúa el estado de los permisos de hardware antes de inicializar la cámara.
      */
     private fun verificarPermisosYAbriCamara() {
-        if (
-            ContextCompat.checkSelfPermission(
+        if (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.CAMERA
             ) == PackageManager.PERMISSION_GRANTED
@@ -288,7 +271,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
     }
 
     /**
-     * Abre la cámara de forma segura creando previamente la URI de destino.
+     * Prepara el puntero de almacenamiento seguro y lanza el intent de captura.
      */
     private fun abrirCamaraConSeguridad() {
         fotoUri = cameraHandler.generarUriParaCamara()
@@ -298,7 +281,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
     }
 
     /**
-     * Muestra el calendario para que el usuario seleccione la fecha del gasto.
+     * Despliega el componente nativo de selección temporal.
      */
     private fun mostrarDatePicker(btnFechaGasto: Button) {
         val year = calendarioSeleccionado.get(Calendar.YEAR)
@@ -319,24 +302,18 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         ).show()
     }
 
-    /**
-     * Actualiza el texto visible con la fecha seleccionada.
-     */
     private fun actualizarTextoFecha(btnFechaGasto: Button) {
         val formatoVisual = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        val fecha = formatoVisual.format(calendarioSeleccionado.time)
-        btnFechaGasto.text = "📅 $fecha"
+        btnFechaGasto.text = formatoVisual.format(calendarioSeleccionado.time)
     }
 
     /**
-     * Copia una imagen seleccionada desde galería al almacenamiento de la app.
-     * Devuelve la ruta absoluta del archivo generado o null si falla.
+     * Transfiere el binario de la imagen desde un origen externo al espacio privado de la aplicación.
      */
     private fun copiarImagenAGuardadoInterno(uri: Uri): String? {
         return try {
             val inputStream: InputStream =
                 requireContext().contentResolver.openInputStream(uri) ?: return null
-
             val archivoDestino = File(
                 requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES),
                 "TICKET_GALERIA_${System.currentTimeMillis()}.jpg"
@@ -354,14 +331,11 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         }
     }
 
-    /**
-     * Muestra un diálogo para elegir si la imagen se obtiene desde cámara o galería.
-     */
     private fun mostrarOpcionesImagen() {
         val opciones = arrayOf("Cámara", "Galería")
 
         android.app.AlertDialog.Builder(requireContext())
-            .setTitle("Selecciona una opción")
+            .setTitle("Seleccionar origen")
             .setItems(opciones) { _, which ->
                 when (which) {
                     0 -> verificarPermisosYAbriCamara()
@@ -373,6 +347,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
 
     override fun onResume() {
         super.onResume()
+        // Oculta la cabecera principal al entrar en la sección de inserción
         (activity as? com.example.micerdito.ui.home.HomeActivity)?.mostrarHeader(false)
     }
 }
