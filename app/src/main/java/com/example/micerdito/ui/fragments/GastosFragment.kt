@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.util.Log
 import android.view.View
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -35,6 +36,8 @@ import java.util.Locale
  * para comprobantes y validación estricta de datos financieros.
  */
 class GastosFragment : Fragment(R.layout.fragment_gastos) {
+
+    private val TAG = "GastosFragment"
 
     // Conexión con el ViewModel para gestionar la lógica de negocio
     private val viewModel: GastosViewModel by viewModels()
@@ -326,7 +329,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
 
             archivoDestino.absolutePath
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "Error al copiar imagen a almacenamiento interno", e)
             null
         }
     }

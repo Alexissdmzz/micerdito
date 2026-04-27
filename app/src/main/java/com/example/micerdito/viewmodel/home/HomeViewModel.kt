@@ -38,7 +38,6 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     val movimientosResult: LiveData<List<Gasto>> get() = _movimientosResult
 
     private val _errorMsg = MutableLiveData<String>()
-    val errorMsg: LiveData<String> get() = _errorMsg
 
     /**
      * Lógica de Negocio: Determina si el usuario ha excedido su presupuesto mensual,
@@ -118,9 +117,5 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 _errorMsg.value = "No se pudo actualizar el límite establecido"
             }
         }
-    }
-
-    fun cerrarSesion() {
-        sesionRepository.cerrarSesion()
     }
 }

@@ -60,7 +60,7 @@ class ForgotPasswordActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(
                     this,
-                    res?.message ?: "Error al verificar correo",
+                    "No se ha podido verificar el correo. Inténtalo de nuevo",
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -72,14 +72,18 @@ class ForgotPasswordActivity : AppCompatActivity() {
                 Toast.makeText(this, "¡Contraseña actualizada con éxito!", Toast.LENGTH_LONG).show()
                 finish() // Cerramos esta pantalla para volver al Login
             } else {
-                Toast.makeText(this, res?.message ?: "Error al actualizar", Toast.LENGTH_SHORT)
+                Toast.makeText(
+                    this,
+                    "No se ha podido actualizar la contraseña. Inténtalo de nuevo",
+                    Toast.LENGTH_SHORT
+                )
                     .show()
             }
         }
 
         // Por si falla internet o el servidor se cae
         viewModel.errorMsg.observe(this) { msg ->
-            Toast.makeText(this, "Error de red: $msg", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, msg ?: "Error de conexión", Toast.LENGTH_SHORT).show()
         }
     }
 

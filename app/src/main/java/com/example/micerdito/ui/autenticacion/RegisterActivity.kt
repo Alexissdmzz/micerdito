@@ -69,10 +69,18 @@ class RegisterActivity : AppCompatActivity() {
         viewModel.registerResult.observe(this) { response ->
             if (response != null) {
                 if (response.success) {
-                    Toast.makeText(this, response.message, Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        "¡Cuenta creada con éxito! Ya puedes iniciar sesión",
+                        Toast.LENGTH_LONG
+                    ).show()
                     finish() // Cierra el registro y vuelve a la pantalla anterior si hay éxito
                 } else {
-                    Toast.makeText(this, response.message, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        this,
+                        "No se ha podido completar el registro. Inténtalo de nuevo",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -56,6 +57,9 @@ import java.io.FileOutputStream
  * de edición detallada de transacciones, incluyendo captura multimedia.
  */
 class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
+
+    // TAG de clase: identifica la fuente del log sin revelar lógica interna
+    private val TAG = "CalendarioFragment"
 
     private val viewModel: CalendarioViewModel by viewModels()
     private lateinit var gastoAdapter: GastoAdapter
@@ -121,8 +125,6 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             adapter = gastoAdapter
         }
 
-        val colorTexto = ContextCompat.getColor(requireContext(), R.color.texto_negro)
-
         calendarView.selectedDate = CalendarDay.today()
         calendarView.setTitleFormatter(MonthArrayTitleFormatter(resources.getTextArray(R.array.meses_espanyol)))
         calendarView.setWeekDayFormatter(ArrayWeekDayFormatter(resources.getTextArray(R.array.dias_semana_espanyol)))
@@ -168,7 +170,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                         }
                         decoradores.add(EventDecorator(colorAzul, listOf(diaReg)))
                     } catch (e: Exception) {
-                        e.printStackTrace()
+                        Log.w(TAG, "Error al parsear fecha de registro del calendario", e)
                     }
                 }
 
@@ -201,7 +203,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
         viewModel.accionGastoResult.observe(viewLifecycleOwner) { response ->
             if (response != null && response.success) {
-                Toast.makeText(requireContext(), response.message, Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Operación realizada correctamente", Toast.LENGTH_SHORT).show()
 
                 val diaRefresco = calendarView.selectedDate ?: CalendarDay.today()
                 viewModel.obtenerGastosDia(diaRefresco.year, diaRefresco.month, diaRefresco.day)
@@ -412,6 +414,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
             outputStream.close()
             tempFile
         } catch (e: Exception) {
+            Log.e(TAG, "Error al copiar archivo desde URI", e)
             null
         }
     }

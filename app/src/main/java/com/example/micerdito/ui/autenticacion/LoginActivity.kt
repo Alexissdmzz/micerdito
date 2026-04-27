@@ -63,7 +63,7 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(
                     this,
-                    response?.message ?: "Error al iniciar sesión",
+                    "No se ha podido iniciar sesión. Inténtalo de nuevo",
                     Toast.LENGTH_SHORT
                 ).show()
             }

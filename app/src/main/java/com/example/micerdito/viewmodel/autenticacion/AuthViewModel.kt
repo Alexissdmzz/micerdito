@@ -81,7 +81,7 @@ class AuthViewModel(application: Application) : AndroidViewModel(application) {
             result.onSuccess { response ->
                 if (response.success && response.user != null) {
                     sesionRepository.guardarSesion(
-                        response.user.id.toString(),
+                        response.user.id,
                         response.user.username
                     )
                 }

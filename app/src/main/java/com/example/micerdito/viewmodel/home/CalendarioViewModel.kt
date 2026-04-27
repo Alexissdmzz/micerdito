@@ -44,7 +44,6 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
 
     // Indicador de estado de carga asíncrona
     private val _cargando = MutableLiveData<Boolean>()
-    val cargando: LiveData<Boolean> get() = _cargando
 
     /**
      * OPERACIÓN: Consulta mensual.
