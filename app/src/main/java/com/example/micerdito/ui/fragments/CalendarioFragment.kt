@@ -133,7 +133,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         calendarView.setDateTextAppearance(R.style.CalendarDayText)
 
         setupObservers(calendarView, pieChartMensual, rvGastosDia, tvSinDatos)
-        setupListeners(calendarView, pieChartMensual)
+        setupListeners(calendarView)
     }
 
     /**
@@ -203,7 +203,11 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
 
         viewModel.accionGastoResult.observe(viewLifecycleOwner) { response ->
             if (response != null && response.success) {
-                Toast.makeText(requireContext(), "Operación realizada correctamente", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Operación realizada correctamente",
+                    Toast.LENGTH_SHORT
+                ).show()
 
                 val diaRefresco = calendarView.selectedDate ?: CalendarDay.today()
                 viewModel.obtenerGastosDia(diaRefresco.year, diaRefresco.month, diaRefresco.day)
@@ -224,7 +228,7 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         }
     }
 
-    private fun setupListeners(cv: MaterialCalendarView, pc: PieChart) {
+    private fun setupListeners(cv: MaterialCalendarView) {
         cv.setOnMonthChangedListener { _, date ->
             if (date.month == ultimoMesPedido && date.year == ultimoAnioPedido) return@setOnMonthChangedListener
             ultimoMesPedido = date.month

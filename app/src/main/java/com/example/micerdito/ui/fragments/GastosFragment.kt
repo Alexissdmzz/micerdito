@@ -252,7 +252,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
                 titulo = tituloGasto,
                 importe = importe,
                 fecha = fechaSeleccionada,
-                descripcion = if (descripcion.isEmpty()) null else descripcion,
+                descripcion = descripcion.ifEmpty { null },
                 fotoRuta = fotoRuta
             )
         }

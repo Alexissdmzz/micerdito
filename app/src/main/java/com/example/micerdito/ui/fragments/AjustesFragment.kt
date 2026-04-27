@@ -70,7 +70,11 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
                     }
                 }
             } else {
-                Toast.makeText(requireContext(), "No se ha podido completar la operación", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "No se ha podido completar la operación",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
 
             // Limpieza de seguridad en caso de error
