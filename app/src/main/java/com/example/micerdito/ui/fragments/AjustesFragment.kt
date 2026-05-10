@@ -76,19 +76,15 @@ class AjustesFragment : Fragment(R.layout.fragment_ajustes) {
                     Toast.LENGTH_SHORT
                 ).show()
             }
-
-            viewModel.errorMsg.observe(viewLifecycleOwner) { mensaje ->
-                if (!mensaje.isNullOrEmpty()) {
-                    Toast.makeText(
-                        requireContext(),
-                        "No se ha podido completar la operación",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-            }
-
             // Limpieza de seguridad en caso de error
             viewModel.limpiarResultado()
+        }
+
+        viewModel.errorMsg.observe(viewLifecycleOwner) { mensaje ->
+            if (!mensaje.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show()
+                viewModel.limpiarError()
+            }
         }
     }
 

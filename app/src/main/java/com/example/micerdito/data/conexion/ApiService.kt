@@ -122,6 +122,7 @@ interface ApiService {
         @Part("importe") importe: RequestBody,
         @Part("descripcion") descripcion: RequestBody,
         @Part("foto_ticket") fotoActual: RequestBody,
+        @Part("fecha_gasto") fecha: RequestBody,
         @Part foto: MultipartBody.Part?
     ): Response<GastoResponse>
 

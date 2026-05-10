@@ -81,11 +81,12 @@ class CalendarioRepository {
         importe: RequestBody,
         descripcion: RequestBody,
         fotoActual: RequestBody,
+        fechaGasto: RequestBody,
         fotoTicket: MultipartBody.Part?
     ): Result<GastoResponse> {
         return try {
             val response = apiService.editGasto(
-                idUsuario, idGasto, titulo, importe, descripcion, fotoActual, fotoTicket
+                idUsuario, idGasto, titulo, importe, descripcion, fotoActual, fechaGasto, fotoTicket
             )
             ConexionUtils.procesarRespuesta(response)
         } catch (e: Exception) {

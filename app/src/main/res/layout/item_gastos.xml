@@ -12,7 +12,9 @@
     android:focusable="true"
     android:importantForAccessibility="yes"
     app:cardCornerRadius="12dp"
-    app:cardElevation="2dp">
+    app:cardElevation="0dp"
+    app:strokeColor="@color/card_border"
+    app:strokeWidth="0dp">
 
     <!-- CONTENEDOR INTERNO -->
     <!-- Organiza horizontalmente icono, información y monto del gasto -->

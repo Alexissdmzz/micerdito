@@ -174,9 +174,31 @@
             android:importantForAccessibility="yes"
             android:inputType="textMultiLine"
             android:padding="8dp"
+            android:textAlignment="center"
             android:textColor="@color/texto_negro"
             android:textColorHint="@color/texto_negro"
             android:textSize="16sp" />
+
+        <!-- BOTÓN EDITAR FECHA DEL GASTO -->
+        <!-- Permite modificar la fecha asociada al gasto desde el panel de edición -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="4dp"
+            android:fontFamily="@font/amiko_semibold"
+            android:text="¿Editar la fecha del gasto?"
+            android:textColor="@color/texto_negro"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/btnFechaDetalle"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:fontFamily="@font/amiko_semibold"
+            android:text="📅 Seleccionar fecha" />
 
         <!-- CONTENEDOR DE BOTONES DE ACCIÓN -->
         <!-- Agrupa las acciones principales para eliminar el gasto o guardar cambios -->

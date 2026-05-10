@@ -63,8 +63,8 @@ class AjustesViewModel(application: Application) : AndroidViewModel(application)
 
             result.onSuccess {
                 ajustesResult.value = it
-            }.onFailure {
-                errorMsg.value = it.message
+            }.onFailure { e ->
+                errorMsg.value = "Error al eliminar cuenta: ${e.message}"
             }
         }
     }
@@ -85,8 +85,8 @@ class AjustesViewModel(application: Application) : AndroidViewModel(application)
             result.onSuccess {
                 ajustesResult.value = it
                 sesionRepository.actualizarNombre(nuevoNombre)
-            }.onFailure {
-                errorMsg.value = it.message
+            }.onFailure { e ->
+                errorMsg.value = "Error al editar nombre: ${e.message}"
             }
         }
     }
@@ -99,5 +99,9 @@ class AjustesViewModel(application: Application) : AndroidViewModel(application)
     fun limpiarResultado() {
         ajustesResult.value = null
         ultimaAccion = ""
+    }
+
+    fun limpiarError() {
+        errorMsg.value = ""
     }
 }

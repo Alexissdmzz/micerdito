@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -44,6 +45,14 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         val tvEstablecerLimite = view.findViewById<TextView>(R.id.tvEstablecerLimite)
         val graficoCircular = view.findViewById<PieChart>(R.id.graficoCircular)
         val rvGastos = view.findViewById<RecyclerView>(R.id.rvGastos)
+
+        // Mensaje informativo en caso de no haber datos disponibles para el gráfico
+        val colorTexto = ContextCompat.getColor(requireContext(), R.color.texto_negro)
+        graficoCircular.setNoDataText("")
+        graficoCircular.setNoDataText("Sin gastos este mes")
+        graficoCircular.setNoDataTextColor(colorTexto)
+
+        // Configuración de los observadores
 
         setupObservers(tvGasto, tvLimite, tvMes, rvGastos, graficoCircular)
         setupListeners(tvEstablecerLimite)
@@ -93,6 +102,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
          */
         viewModel.islimiteSuperado.observe(viewLifecycleOwner) { superado ->
             tvGasto.setTextColor(if (superado) Color.RED else Color.parseColor("#4CAF50"))
+        }
+
+        viewModel.errorMsg.observe(viewLifecycleOwner) { mensaje ->
+            if (!mensaje.isNullOrEmpty()) {
+                Toast.makeText(requireContext(), mensaje, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 

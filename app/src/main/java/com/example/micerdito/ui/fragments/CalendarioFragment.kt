@@ -249,6 +249,16 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
     private fun mostrarBottomSheetDetalle(gasto: Gasto) {
         uriImagenSeleccionada = null
         borrarFotoPendiente = false
+
+        val calendarioEdicion = java.util.Calendar.getInstance()
+        try {
+            val sdf =
+                java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.getDefault())
+            gasto.fecha?.let { sdf.parse(it)?.let { date -> calendarioEdicion.time = date } }
+        } catch (e: Exception) {
+            Log.w(TAG, "No se pudo parsear la fecha del gasto, usando fecha actual", e)
+        }
+
         val dialog = BottomSheetDialog(requireContext())
         val view = layoutInflater.inflate(R.layout.item_gasto_detallado_calendario, null)
 
@@ -260,6 +270,28 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
         val etDescripcion = view.findViewById<EditText>(R.id.etDescripcionDetalle)
         val btnEliminar = view.findViewById<Button>(R.id.btnEliminarGasto)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardarCambios)
+        val btnFechaDetalle = view.findViewById<Button>(R.id.btnFechaDetalle)
+
+        fun actualizarTextoBtnFecha() {
+            val formato = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+            btnFechaDetalle.text = "📅 ${formato.format(calendarioEdicion.time)}"
+        }
+        actualizarTextoBtnFecha()
+
+        btnFechaDetalle.setOnClickListener {
+            android.app.DatePickerDialog(
+                requireContext(),
+                { _, year, month, day ->
+                    calendarioEdicion.set(java.util.Calendar.YEAR, year)
+                    calendarioEdicion.set(java.util.Calendar.MONTH, month)
+                    calendarioEdicion.set(java.util.Calendar.DAY_OF_MONTH, day)
+                    actualizarTextoBtnFecha()
+                },
+                calendarioEdicion.get(java.util.Calendar.YEAR),
+                calendarioEdicion.get(java.util.Calendar.MONTH),
+                calendarioEdicion.get(java.util.Calendar.DAY_OF_MONTH)
+            ).show()
+        }
 
         ivTicketEdicion = ivTicket
         etTitulo.setText(gasto.titulo)
@@ -356,8 +388,13 @@ class CalendarioFragment : Fragment(R.layout.fragment_calendario) {
                 else -> gasto.fotoTicket ?: ""
             }
 
+            val fechaEditada = java.text.SimpleDateFormat(
+                "yyyy-MM-dd HH:mm:ss",
+                java.util.Locale.getDefault()
+            ).format(calendarioEdicion.time)
+
             viewModel.editarGasto(
-                gasto.idGasto, nTitulo, nImporte, nDesc, fotoActualParam, fotoPart
+                gasto.idGasto, nTitulo, nImporte, nDesc, fotoActualParam, fotoPart, fechaEditada
             )
             dialog.dismiss()
         }

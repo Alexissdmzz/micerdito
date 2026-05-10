@@ -3,6 +3,7 @@
 <!-- CONTENEDOR PRINCIPAL DE AJUSTES -->
 <!-- Permite el desplazamiento vertical de toda la pantalla y mejora la navegación accesible -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_beige"
@@ -55,7 +56,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="28dp"
-            android:importantForAccessibility="yes">
+            android:importantForAccessibility="yes"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/card_border"
+            app:strokeWidth="0dp">
 
             <!-- CONTENEDOR INTERNO DE CUENTA -->
             <!-- Distribuye verticalmente las acciones disponibles -->
@@ -133,7 +137,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="28dp"
-            android:importantForAccessibility="yes">
+            android:importantForAccessibility="yes"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/card_border"
+            app:strokeWidth="0dp">
 
             <!-- CONTENEDOR INTERNO DE APARIENCIA -->
             <LinearLayout
@@ -184,7 +191,10 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:importantForAccessibility="yes">
+            android:importantForAccessibility="yes"
+            app:cardElevation="0dp"
+            app:strokeColor="@color/card_border"
+            app:strokeWidth="0dp">
 
             <!-- BOTÓN LOGOUT -->
             <!-- Permite cerrar la sesión actual del usuario -->

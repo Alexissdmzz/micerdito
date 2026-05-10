@@ -38,6 +38,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
     val movimientosResult: LiveData<List<Gasto>> get() = _movimientosResult
 
     private val _errorMsg = MutableLiveData<String>()
+    val errorMsg: LiveData<String> get() = _errorMsg
+
 
     /**
      * Lógica de Negocio: Determina si el usuario ha excedido su presupuesto mensual,
@@ -77,24 +79,24 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
                 _homeResult.value = data
                 // Evaluación de reglas de negocio: Gasto real frente a presupuesto establecido
                 _islimiteSuperado.value = data.totalDineroGastado > data.limiteMes
-            }.onFailure {
-                _errorMsg.value = "Error en totales: ${it.message}"
+            }.onFailure { e ->
+                _errorMsg.value = "Error al obtener datos: ${e.message}"
             }
 
             // PETICIÓN 2: Desglose analítico para la gráfica circular
             val resultGrafico = repository.obtenerGastosPorCategoria(idUsuario)
             resultGrafico.onSuccess { lista ->
                 _graficoResult.value = lista
-            }.onFailure {
-                _errorMsg.value = "Error en gráfica: ${it.message}"
+            }.onFailure { e ->
+                _errorMsg.value = "Error al obtener gráfico mensual: ${e.message}"
             }
 
             // PETICIÓN 3: Historial reciente de transacciones
             val resultMovs = repository.obtenerMovimientosRecientes(idUsuario)
             resultMovs.onSuccess { response ->
                 _movimientosResult.value = response.gastosRecientes
-            }.onFailure {
-                _errorMsg.value = "Error en movimientos: ${it.message}"
+            }.onFailure { e ->
+                _errorMsg.value = "Error al obtener movimientos: ${e.message}"
             }
         }
     }
@@ -113,8 +115,8 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             result.onSuccess {
                 // Sincronización: Refrescamos la UI tras confirmar el guardado en el servidor
                 cargarDatosDeUsuario()
-            }.onFailure {
-                _errorMsg.value = "No se pudo actualizar el límite establecido"
+            }.onFailure { e ->
+                _errorMsg.value = "Error al guardar límite: ${e.message}"
             }
         }
     }

@@ -9,6 +9,7 @@ import androidx.activity.OnBackPressedCallback
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -52,6 +53,10 @@ class HomeActivity : AppCompatActivity() {
         val fragmentContainer = findViewById<View>(R.id.fragment_container)
         val bottomNav = findViewById<BottomNavigationView>(R.id.bottomNavigation)
         val tvWelcome = findViewById<TextView>(R.id.tvWelcome)
+
+        val colorIconos = ContextCompat.getColorStateList(this, R.color.nav_icon_color)
+        bottomNav.itemIconTintList = colorIconos
+        bottomNav.itemTextColor = colorIconos
 
         configurarInsets(root, headerContainer, fragmentContainer, bottomNav)
         configurarBotonSalir()

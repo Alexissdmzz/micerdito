@@ -117,7 +117,8 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         importe: Double,
         descripcion: String,
         fotoActual: String,
-        fotoPart: MultipartBody.Part?
+        fotoPart: MultipartBody.Part?,
+        fechaGasto: String
     ) {
         _cargando.value = true
 
@@ -134,6 +135,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
         val tituloBody = titulo.toRequestBody("text/plain".toMediaTypeOrNull())
         val importeBody = importe.toString().toRequestBody("text/plain".toMediaTypeOrNull())
         val descBody = descripcion.toRequestBody("text/plain".toMediaTypeOrNull())
+        val fechaBody = fechaGasto.toRequestBody("text/plain".toMediaTypeOrNull())
 
         // Respaldo de la ruta preexistente para evitar orfandad de imágenes en servidor
         val fotoActualBody = fotoActual.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -146,6 +148,7 @@ class CalendarioViewModel(application: Application) : AndroidViewModel(applicati
                 importeBody,
                 descBody,
                 fotoActualBody,
+                fechaBody,
                 fotoPart
             )
 

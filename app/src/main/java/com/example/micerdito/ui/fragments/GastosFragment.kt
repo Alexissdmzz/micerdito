@@ -120,6 +120,8 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         val btnGuardarGasto = view.findViewById<Button>(R.id.btnGuardarGasto)
         val btnCamara = view.findViewById<Button>(R.id.btnSubirFactura)
         val ivFoto = view.findViewById<ImageView>(R.id.ivFotoTicket)
+        val tvHintCategoria = view.findViewById<TextView>(R.id.tvHintCategoria)
+        val tvCategoriaSeleccionada = view.findViewById<TextView>(R.id.tvCategoriaSeleccionada)
 
         // Configuración de la cuadrícula de categorías
         rvCategorias.layoutManager = GridLayoutManager(requireContext(), 4)
@@ -128,7 +130,7 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
             rvCategorias.addItemDecoration(ItemDecorator(4, spacing, true))
         }
 
-        setupObservers(rvCategorias, cardDetalles, etImporte, etDescripcion, ivFoto)
+        setupObservers(rvCategorias, cardDetalles, etImporte, etDescripcion, ivFoto, tvHintCategoria, tvCategoriaSeleccionada)
         actualizarTextoFecha(btnFechaGasto)
         setupListeners(
             btnCerrar,
@@ -149,7 +151,9 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         cardDetalles: MaterialCardView,
         etImporte: EditText,
         etDescripcion: EditText,
-        ivFoto: ImageView
+        ivFoto: ImageView,
+        tvHintCategoria: TextView,
+        tvCategoriaSeleccionada: TextView
     ) {
 
         // Pinta el catálogo de categorías disponibles
@@ -163,8 +167,11 @@ class GastosFragment : Fragment(R.layout.fragment_gastos) {
         viewModel.categoriaSeleccionada.observe(viewLifecycleOwner) { cat ->
             if (cat != null) {
                 cardDetalles.visibility = View.VISIBLE
+                tvHintCategoria.visibility = View.GONE
+                tvCategoriaSeleccionada.text = "${cat.icono}  ${cat.nombre}"
             } else {
                 cardDetalles.visibility = View.GONE
+                tvHintCategoria.visibility = View.VISIBLE
                 etImporte.text.clear()
                 etDescripcion.text.clear()
                 ivFoto.visibility = View.GONE

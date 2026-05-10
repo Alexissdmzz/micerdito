@@ -51,6 +51,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
+        <!-- TÍTULO DE LA PANTALLA -->
+        <!-- Indica al usuario que debe hacer click en una categoria para insertar un gasto-->
+        <TextView
+            android:id="@+id/tvHintCategoria"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:fontFamily="@font/amiko_semibold"
+            android:text="👆 Toca una categoría para registrar tu gasto"
+            android:textColor="@color/texto_negro"
+            android:textSize="13sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/rvCategorias" />
+
         <!-- TARJETA DE DETALLES DEL GASTO -->
         <!-- Contiene el formulario para introducir la información completa del gasto -->
         <com.google.android.material.card.MaterialCardView
@@ -87,12 +101,29 @@
                     android:src="@android:drawable/ic_menu_close_clear_cancel"
                     app:tint="@color/background_dark" />
 
+                <!-- TÍTULO DE LA PANTALLA -->
+                <!-- Indica al usuario la categoría que ha seleccionado-->
+                <TextView
+                    android:id="@+id/tvCategoriaSeleccionada"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignTop="@id/btnCerrarFormulario"
+                    android:layout_alignBottom="@id/btnCerrarFormulario"
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@id/btnCerrarFormulario"
+                    android:fontFamily="@font/amiko_semibold"
+                    android:gravity="center_vertical"
+                    android:textColor="@color/texto_negro"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
                 <!-- CONTENEDOR DE CAMPOS DEL FORMULARIO -->
                 <!-- Organiza verticalmente los campos de texto, imagen y acciones del gasto -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp"
+                    android:layout_below="@id/btnCerrarFormulario"
+                    android:layout_marginTop="12dp"
                     android:importantForAccessibility="yes"
                     android:orientation="vertical">
 
@@ -149,6 +180,17 @@
                             android:textStyle="bold" />
                     </LinearLayout>
 
+                    <!-- TÍTULO DE LA FECHA DEL GASTO -->
+                    <!-- Indica al usuario que debe seleccionar la fecha del gasto -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="@font/amiko_semibold"
+                        android:text="¿Cuándo fue el gasto?"
+                        android:textColor="@color/texto_negro"
+                        android:textSize="12sp" />
+
                     <!-- BOTÓN FECHA DEL GASTO -->
                     <!-- Permite seleccionar la fecha a la cuál quieres añadir el gasto -->
                     <Button
@@ -167,7 +209,7 @@
                         android:layout_marginBottom="12dp"
                         android:contentDescription="Campo para escribir notas adicionales del gasto"
                         android:fontFamily="@font/amiko_semibold"
-                        android:hint="Notas adicionales (opcional)"
+                        android:hint="Descripción (opcional)"
                         android:importantForAccessibility="yes"
                         android:textColor="@color/texto_negro"
                         android:textColorHint="@color/texto_negro" />
